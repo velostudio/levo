@@ -1,3 +1,5 @@
+![alt Levo](./levo.png)
+
 # LEVO: web as it should be
 
 `wasm` file generated using `levo-wasm-generator`.
@@ -13,6 +15,4 @@ to start demo server.
 To run client:
 
 `cd levo-client`  
-`SSLKEYLOGFILE=<PATH_TO_KEY_LOG_FILE> cargo r --release`
-
-Then ssl key log file can be used with `Wireshark` to inspect HTTP3 packets.
+`cargo r --release`
