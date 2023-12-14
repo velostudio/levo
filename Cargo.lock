@@ -2954,7 +2954,7 @@ dependencies = [
 [[package]]
 name = "wtransport"
 version = "0.1.9"
-source = "git+https://github.com/StaffEngineer/wtransport?rev=174d3d8#174d3d8bc6464ae133ac11810cc1b0eafea431f8"
+source = "git+https://github.com/BiagioFesta/wtransport?rev=e302784#e302784da85858eba5c79f4c3e2129a1428b59aa"
 dependencies = [
  "bytes",
  "quinn",
@@ -2975,7 +2975,7 @@ dependencies = [
 [[package]]
 name = "wtransport-proto"
 version = "0.1.9"
-source = "git+https://github.com/StaffEngineer/wtransport?rev=174d3d8#174d3d8bc6464ae133ac11810cc1b0eafea431f8"
+source = "git+https://github.com/BiagioFesta/wtransport?rev=e302784#e302784da85858eba5c79f4c3e2129a1428b59aa"
 dependencies = [
  "ls-qpack",
  "octets",
