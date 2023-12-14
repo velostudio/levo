@@ -1,4 +1,4 @@
-![alt Levo](./levo.png)
+<img src="https://raw.githubusercontent.com/velostudio/levo/main/levo.png" width="48" />
 
 # LEVO: web as it should be
 
