@@ -1,0 +1,3 @@
+[workspace]
+members = ["levo-server", "levo-client", "levo-wasm-generator"]
+resolver = "2"

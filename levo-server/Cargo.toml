@@ -1,0 +1,16 @@
+[package]
+name = "levo"
+version = "0.1.0"
+edition = "2021"
+
+# See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
+
+[dependencies]
+wtransport = { git="https://github.com/StaffEngineer/wtransport", rev="174d3d8" }
+tracing = "0.1.37"
+anyhow = "1.0.71"
+tracing-subscriber = { version = "0.3.17", features = ["env-filter"] }
+tokio = { version = "1.28.1", default-features = false, features = ["macros", "fs", "rt-multi-thread"] }
+axum = "0.7.1"
+ring = "0.17.7"
+# brotlic = "0.8.1"
