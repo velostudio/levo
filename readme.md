@@ -2,7 +2,7 @@
 
 ## web as it should be
 
-`wasm` file generated using `levo-wasm-generator`.  
+`wasm` file generated using `client-app`.  
 `brotli` file is created from `wasm` file in `levo-server`.  
 
 
@@ -13,5 +13,5 @@ To start demo server:
 
 To run client:
 
-`cd levo-client`  
+`cd levo-portal`  
 `cargo r --release`
