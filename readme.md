@@ -2,7 +2,7 @@
 
 ## web as it should be
 
-To re-generate brotli encoded wasm file in clien-app use `build.sh`.
+To re-generate brotli encoded wasm file run `build.sh`.
 
 To start demo server:
 
