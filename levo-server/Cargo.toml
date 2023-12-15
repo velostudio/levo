@@ -1,5 +1,5 @@
 [package]
-name = "levo"
+name = "levo-server"
 version = "0.1.0"
 edition = "2021"
 
@@ -13,4 +13,3 @@ tracing-subscriber = { version = "0.3.17", features = ["env-filter"] }
 tokio = { version = "1.28.1", default-features = false, features = ["macros", "fs", "rt-multi-thread"] }
 axum = "0.7.1"
 ring = "0.17.7"
-# brotlic = "0.8.1"

@@ -234,6 +234,13 @@ dependencies = [
 ]
 
 [[package]]
+name = "brotli-encoder"
+version = "0.1.0"
+dependencies = [
+ "brotlic",
+]
+
+[[package]]
 name = "brotlic"
 version = "0.8.1"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -303,6 +310,13 @@ dependencies = [
  "glob",
  "libc",
  "libloading",
+]
+
+[[package]]
+name = "client-app"
+version = "0.1.0"
+dependencies = [
+ "wit-bindgen",
 ]
 
 [[package]]
@@ -984,19 +998,6 @@ source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "884e2677b40cc8c339eaefcb701c32ef1fd2493d71118dc0ca4b6a736c93bd67"
 
 [[package]]
-name = "levo"
-version = "0.1.0"
-dependencies = [
- "anyhow",
- "axum",
- "ring 0.17.7",
- "tokio",
- "tracing",
- "tracing-subscriber",
- "wtransport",
-]
-
-[[package]]
 name = "levo-portal"
 version = "0.1.0"
 dependencies = [
@@ -1012,6 +1013,19 @@ dependencies = [
  "tracing",
  "tracing-subscriber",
  "wasmtime",
+ "wtransport",
+]
+
+[[package]]
+name = "levo-server"
+version = "0.1.0"
+dependencies = [
+ "anyhow",
+ "axum",
+ "ring 0.17.7",
+ "tokio",
+ "tracing",
+ "tracing-subscriber",
  "wtransport",
 ]
 
@@ -2942,13 +2956,6 @@ dependencies = [
  "serde_derive",
  "serde_json",
  "unicode-xid",
-]
-
-[[package]]
-name = "wit-play"
-version = "0.1.0"
-dependencies = [
- "wit-bindgen",
 ]
 
 [[package]]

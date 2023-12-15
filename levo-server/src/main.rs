@@ -1,6 +1,4 @@
 use anyhow::Result;
-// use brotlic::CompressorWriter;
-// use std::io::Write;
 use std::time::Duration;
 use tracing::error;
 use tracing::info;
@@ -71,12 +69,8 @@ async fn handle_connection_impl(incoming_session: IncomingSession) -> Result<()>
                  let client_msg = std::str::from_utf8(&buffer[..bytes_read])?;
 
 		 if client_msg == "WASM" {
-		     // let mut compressor = CompressorWriter::new(Vec::new()); // write to memory
                      let data = std::fs::read("./my-component-wasm.br").expect("Failed to read Wasm file");
-		     // let _ = compressor.write_all(wasm_content.as_slice());
-		     // let data = compressor.into_inner().unwrap();
-		     // std::fs::write("./my-component-wasm.br", &data);
-                     stream.0.write_all(data.as_slice()).await?;
+                    stream.0.write_all(data.as_slice()).await?;
 		     info!("WASM sent");
 		 } else {
                      stream.0.write_all(b"UNKNOWN_MSG").await?;

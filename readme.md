@@ -2,9 +2,7 @@
 
 ## web as it should be
 
-`wasm` file generated using `client-app`.  
-`brotli` file is created from `wasm` file in `levo-server`.  
-
+To re-generate brotli encoded wasm file in clien-app use `build.sh`.
 
 To start demo server:
 
