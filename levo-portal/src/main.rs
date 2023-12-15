@@ -6,7 +6,7 @@ use wasmtime::{Config, Engine, Store};
 use wtransport::ClientConfig;
 use wtransport::Endpoint;
 
-bindgen!();
+bindgen!("my-world" in "../spec");
 
 struct MyState;
 

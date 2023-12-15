@@ -3,8 +3,9 @@
 // Use a procedural macro to generate bindings for the world we specified in
 // `host.wit`
 wit_bindgen::generate!({
+    path: "../spec",
     // the name of the world in the `*.wit` input file
-    world: "host",
+    world: "my-world",
 
     // For all exported worlds, interfaces, and resources, this specifies what
     // type they're corresponding to in this module. In this case the `MyHost`
