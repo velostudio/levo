@@ -1,7 +1,7 @@
-use brotlic::CompressorWriter;
 use std::env;
 use std::fs;
 use std::io::Write;
+use brotli::CompressorWriter;
 
 fn main() {
     // Retrieve command line arguments
@@ -27,24 +27,24 @@ fn main() {
     };
 
     // Compress the wasm content and write it to the output br file
-    let mut compressor = CompressorWriter::new(Vec::new());
-    if let Err(err) = compressor.write_all(&wasm_content) {
-        eprintln!("Error compressing wasm content: {}", err);
-        std::process::exit(1);
-    }
+    let mut compressed_data = Vec::new();
+    let params = brotli::enc::BrotliEncoderParams::default();
+    {
+        let mut compressor = CompressorWriter::with_params(&mut compressed_data, 4096, &params);
 
-    let compressed_data = match compressor.into_inner() {
-        Ok(data) => data,
-        Err(err) => {
-            eprintln!("Error getting compressed data: {}", err);
+        if let Err(err) = compressor.write_all(&wasm_content) {
+            eprintln!("Error compressing wasm content: {}", err);
             std::process::exit(1);
         }
-    };
+    } // `compressor` is dropped here, releasing the mutable borrow
 
     if let Err(err) = fs::write(output_br_file, &compressed_data) {
         eprintln!("Error writing to output br file: {}", err);
         std::process::exit(1);
     }
 
-    println!("Compression successful! Output written to {}", output_br_file);
+    println!(
+        "Compression successful! Output written to {}",
+        output_br_file
+    );
 }
