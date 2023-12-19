@@ -22,7 +22,11 @@ wit_bindgen::generate!({
 struct MyHost;
 
 impl Guest for MyHost {
-    fn run() {
-        print("Hello, world!");
+    fn update() {
+        print("Hello, world! from update");
+    }
+
+    fn setup() {
+       print("Hello, world! from setup");
     }
 }
