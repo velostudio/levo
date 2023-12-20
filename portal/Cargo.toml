@@ -1,10 +1,27 @@
 [package]
-name = "levo-portal"
+name = "portal"
 version = "0.1.0"
 edition = "2021"
 
+# See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
+
 [dependencies]
+bevy = { version = "0.12", default-features = false, features = [
+  "bevy_asset",
+  "bevy_core_pipeline",
+  "bevy_render",
+  "bevy_scene",
+  "bevy_sprite",
+  "bevy_text",
+  "bevy_ui",
+  "bevy_winit",
+  "png",
+  "x11",
+] }
+bevy_cosmic_edit = "0.15.2"
+
 wasmtime = { version = "15.0.1", features = ["component-model"] }
+wasmtime-wasi = "15.0.1"
 wtransport = { git="https://github.com/BiagioFesta/wtransport", rev="e302784", default-features = false, features = ["dangerous-configuration", "quinn"] }
 quinn = "0.10.1"
 tracing = "0.1.37"
@@ -16,3 +33,6 @@ rustls = "0.21.1"
 rustls-native-certs = "0.6.2"
 rustls-pemfile = "1.0.2"
 brotli = "3.4.0"
+
+bevy-tokio-tasks = { git = "https://github.com/StaffEngineer/bevy-tokio-tasks", rev =  "ae26781" }
+rand = "0.8.5"

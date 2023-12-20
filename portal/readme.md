@@ -1,4 +1,4 @@
-# levo-portal
+# portal
 
 This is starter for client app. Currently it connects to the server using HTTP3 WebTransport protocol, receives brotli encoded wasm file, decodes it, executes it using `wit` definition in `./wit` folder. It provides host implementation of imported functions for wasm execution.  
 

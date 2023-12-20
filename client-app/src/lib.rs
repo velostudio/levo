@@ -1,3 +1,4 @@
+use levo::portal::my_imports::*;
 // src/lib.rs
 
 // Use a procedural macro to generate bindings for the world we specified in
@@ -12,17 +13,22 @@ wit_bindgen::generate!({
     // struct defined below is going to define the exports of the `world`,
     // namely the `run` function.
     exports: {
-        world: MyHost,
+        world: MyWorld,
     },
 });
 
 // Define a custom type and implement the generated `Guest` trait for it which
 // represents implementing all the necessary exported interfaces for this
 // component.
-struct MyHost;
+struct MyWorld;
 
-impl Guest for MyHost {
-    fn run() {
-        print("Hello, world!");
+impl Guest for MyWorld {
+    fn update() {
+        let random = gen_random_integer();
+        print_u32(random);
+    }
+
+    fn setup() {
+       print_str("Hello, world! from setup");
     }
 }
