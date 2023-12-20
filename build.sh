@@ -1,5 +1,7 @@
 #!/bin/bash
 
+set -e
+
 cd client-app
 
 cargo build --target wasm32-wasi --release

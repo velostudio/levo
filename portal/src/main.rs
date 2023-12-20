@@ -4,11 +4,14 @@ use bevy_cosmic_edit::*;
 
 use bevy_tokio_tasks::TokioTasksRuntime;
 use brotli::Decompressor;
+use rand::RngCore;
 use std::io::Read;
 use wasmtime::component::*;
 use wasmtime::{Config, Engine, Store};
 use wtransport::ClientConfig;
 use wtransport::Endpoint;
+
+use levo::portal::my_imports::Host;
 
 #[path = "ui.rs"]
 mod ui;
@@ -18,8 +21,17 @@ bindgen!("my-world" in "../spec");
 
 struct MyState;
 
-impl MyWorldImports for MyState {
-    fn print(&mut self, from_wasm: String) -> wasmtime::Result<(), wasmtime::Error> {
+impl Host for MyState {
+    fn gen_random_integer(&mut self) -> wasmtime::Result<u32> {
+        Ok(rand::thread_rng().next_u32())
+    }
+
+    fn print_u32(&mut self, from_wasm: u32) -> wasmtime::Result<(), wasmtime::Error> {
+        dbg!(from_wasm.to_string());
+        Ok(())
+    }
+
+    fn print_str(&mut self, from_wasm: String) -> wasmtime::Result<(), wasmtime::Error> {
         dbg!(from_wasm);
         Ok(())
     }
@@ -31,8 +43,7 @@ struct WasmStore {
 }
 
 #[derive(Resource)]
-struct WasmInstanceBindings {
-    instance: Instance,
+struct WasmBindings {
     bindings: MyWorld,
     first_run: bool,
 }
@@ -73,7 +84,7 @@ fn handle_enter(
 }
 
 fn run_wasm_update(
-    wasm_instance: Option<ResMut<WasmInstanceBindings>>,
+    wasm_instance: Option<ResMut<WasmBindings>>,
     wasm_store: Option<ResMut<WasmStore>>,
 ) {
     if let Some(wasm_resource) = wasm_instance {
@@ -83,7 +94,7 @@ fn run_wasm_update(
 }
 
 fn run_wasm_setup(
-    wasm_instance: Option<ResMut<WasmInstanceBindings>>,
+    wasm_instance: Option<ResMut<WasmBindings>>,
     wasm_store: Option<ResMut<WasmStore>>,
 ) {
     if let Some(mut wasm_resource) = wasm_instance {
@@ -143,22 +154,20 @@ async fn get_wasm(
 
     // Set up Wasmtime store
     let mut store = Store::new(&engine, MyState);
-    let (bindings, instance) = MyWorld::instantiate(&mut store, &component, &linker)?;
+    let (bindings, _) = MyWorld::instantiate(&mut store, &component, &linker)?;
 
     ctx.run_on_main_thread(move |ctx| {
-        if let Some(mut wasm_resourece) = ctx.world.get_resource_mut::<WasmInstanceBindings>() {
-            wasm_resourece.instance = instance;
-            wasm_resourece.bindings = bindings;
-            wasm_resourece.first_run = true;
+        if let Some(mut wasm_resource) = ctx.world.get_resource_mut::<WasmBindings>() {
+            wasm_resource.bindings = bindings;
+            wasm_resource.first_run = true;
         } else {
-            ctx.world.insert_resource(WasmInstanceBindings {
-                instance,
+            ctx.world.insert_resource(WasmBindings {
                 bindings,
                 first_run: true,
             })
         }
-        if let Some(mut wasm_resourece) = ctx.world.get_resource_mut::<WasmStore>() {
-            wasm_resourece.store = store;
+        if let Some(mut wasm_resource) = ctx.world.get_resource_mut::<WasmStore>() {
+            wasm_resource.store = store;
         } else {
             ctx.world.insert_resource(WasmStore { store })
         }

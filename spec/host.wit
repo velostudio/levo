@@ -1,8 +1,13 @@
-// wit/host.wit
-package example:host;
+package levo:portal;
+
+interface my-imports {
+    gen-random-integer: func() -> u32;
+    print-str: func(msg: string);
+    print-u32: func(msg: u32);
+}
 
 world my-world {
-  import print: func(msg: string);
+  import my-imports;
 
   export update: func();
 
