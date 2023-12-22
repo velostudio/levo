@@ -5,11 +5,11 @@ use bevy_cosmic_edit::*;
 use bevy_tokio_tasks::TokioTasksRuntime;
 use brotli::Decompressor;
 use rand::RngCore;
-use wasmtime_wasi::preview2::{Table, WasiCtxBuilder, WasiCtx, WasiView};
-use wasmtime_wasi::preview2::command::add_to_linker;
 use std::io::Read;
 use wasmtime::component::*;
 use wasmtime::{Config, Engine, Store};
+use wasmtime_wasi::preview2::command::sync;
+use wasmtime_wasi::preview2::{Table, WasiCtx, WasiCtxBuilder, WasiView};
 use wtransport::ClientConfig;
 use wtransport::Endpoint;
 
@@ -22,9 +22,7 @@ pub use ui::*;
 bindgen!({
     world: "my-world",
     path: "../spec",
-    async: {
-        except_imports: ["gen-random-integer", "print"],
-    },
+    async: false,
 });
 
 struct CommandCtx {
@@ -166,22 +164,19 @@ async fn get_wasm(
 
     // Set up Wasmtime components
     let mut config = Config::new();
-    config.wasm_component_model(true).async_support(true);
+    config.wasm_component_model(true).async_support(false);
     let engine = Engine::new(&config)?;
     let component = Component::new(&engine, decoded_input)?;
 
     // Set up Wasmtime linker
     let mut linker = Linker::new(&engine);
-    add_to_linker(&mut linker)?;
+    sync::add_to_linker(&mut linker)?;
     let table = Table::new();
-    let wasi = WasiCtxBuilder::new()
-        .build();
-
+    let wasi = WasiCtxBuilder::new().build();
+    MyWorld::add_to_linker(&mut linker, |state: &mut CommandCtx| state)?;
     // Set up Wasmtime store
     let mut store = Store::new(&engine, CommandCtx { table, wasi });
-    dbg!("here 1");
-    let (bindings, _) = MyWorld::instantiate_async(&mut store, &component, &linker).await?;
-    dbg!("here 2");
+    let (bindings, _) = MyWorld::instantiate(&mut store, &component, &linker)?;
 
     ctx.run_on_main_thread(move |ctx| {
         if let Some(mut wasm_resource) = ctx.world.get_resource_mut::<WasmBindings>() {
