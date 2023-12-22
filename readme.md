@@ -1,4 +1,4 @@
-_WIP: this project is currently paused until wasi plays nicely with component model_
+_WIP_
 
 <img src="https://raw.githubusercontent.com/velostudio/levo/main/levo.png" width="128" />
 
