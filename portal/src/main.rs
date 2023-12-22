@@ -5,6 +5,8 @@ use bevy_cosmic_edit::*;
 use bevy_tokio_tasks::TokioTasksRuntime;
 use brotli::Decompressor;
 use rand::RngCore;
+use wasmtime_wasi::preview2::{Table, WasiCtxBuilder, WasiCtx, WasiView};
+use wasmtime_wasi::preview2::command::add_to_linker;
 use std::io::Read;
 use wasmtime::component::*;
 use wasmtime::{Config, Engine, Store};
@@ -17,21 +19,41 @@ use levo::portal::my_imports::Host;
 mod ui;
 pub use ui::*;
 
-bindgen!("my-world" in "../spec");
+bindgen!({
+    world: "my-world",
+    path: "../spec",
+    async: {
+        except_imports: ["gen-random-integer", "print"],
+    },
+});
 
-struct MyState;
+struct CommandCtx {
+    table: Table,
+    wasi: WasiCtx,
+}
 
-impl Host for MyState {
+impl WasiView for CommandCtx {
+    fn table(&self) -> &Table {
+        &self.table
+    }
+    fn table_mut(&mut self) -> &mut Table {
+        &mut self.table
+    }
+    fn ctx(&self) -> &WasiCtx {
+        &self.wasi
+    }
+    fn ctx_mut(&mut self) -> &mut WasiCtx {
+        &mut self.wasi
+    }
+}
+
+// #[async_trait::async_trait]
+impl Host for CommandCtx {
     fn gen_random_integer(&mut self) -> wasmtime::Result<u32> {
         Ok(rand::thread_rng().next_u32())
     }
 
-    fn print_u32(&mut self, from_wasm: u32) -> wasmtime::Result<(), wasmtime::Error> {
-        dbg!(from_wasm.to_string());
-        Ok(())
-    }
-
-    fn print_str(&mut self, from_wasm: String) -> wasmtime::Result<(), wasmtime::Error> {
+    fn print(&mut self, from_wasm: String) -> wasmtime::Result<(), wasmtime::Error> {
         dbg!(from_wasm);
         Ok(())
     }
@@ -39,7 +61,7 @@ impl Host for MyState {
 
 #[derive(Resource)]
 struct WasmStore {
-    store: Store<MyState>,
+    store: Store<CommandCtx>,
 }
 
 #[derive(Resource)]
@@ -144,17 +166,22 @@ async fn get_wasm(
 
     // Set up Wasmtime components
     let mut config = Config::new();
-    config.wasm_component_model(true);
+    config.wasm_component_model(true).async_support(true);
     let engine = Engine::new(&config)?;
     let component = Component::new(&engine, decoded_input)?;
 
     // Set up Wasmtime linker
     let mut linker = Linker::new(&engine);
-    MyWorld::add_to_linker(&mut linker, |state: &mut MyState| state)?;
+    add_to_linker(&mut linker)?;
+    let table = Table::new();
+    let wasi = WasiCtxBuilder::new()
+        .build();
 
     // Set up Wasmtime store
-    let mut store = Store::new(&engine, MyState);
-    let (bindings, _) = MyWorld::instantiate(&mut store, &component, &linker)?;
+    let mut store = Store::new(&engine, CommandCtx { table, wasi });
+    dbg!("here 1");
+    let (bindings, _) = MyWorld::instantiate_async(&mut store, &component, &linker).await?;
+    dbg!("here 2");
 
     ctx.run_on_main_thread(move |ctx| {
         if let Some(mut wasm_resource) = ctx.world.get_resource_mut::<WasmBindings>() {

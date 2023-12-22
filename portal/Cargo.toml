@@ -36,3 +36,4 @@ brotli = "3.4.0"
 
 bevy-tokio-tasks = { git = "https://github.com/StaffEngineer/bevy-tokio-tasks", rev =  "ae26781" }
 rand = "0.8.5"
+async-trait = "0.1.75"

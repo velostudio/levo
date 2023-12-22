@@ -24,11 +24,11 @@ struct MyWorld;
 
 impl Guest for MyWorld {
     fn update() {
-        let random = gen_random_integer();
-        print_u32(random);
+        // let random = gen_random_integer();
+        // print(random.to_string().as_str());
     }
 
     fn setup() {
-       print_str("Hello, world! from setup");
+       print("Hello, world! from setup");
     }
 }

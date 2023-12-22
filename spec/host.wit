@@ -2,8 +2,7 @@ package levo:portal;
 
 interface my-imports {
     gen-random-integer: func() -> u32;
-    print-str: func(msg: string);
-    print-u32: func(msg: u32);
+    print: func(msg: string);
 }
 
 world my-world {
