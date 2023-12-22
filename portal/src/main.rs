@@ -25,12 +25,12 @@ bindgen!({
     async: false,
 });
 
-struct CommandCtx {
+struct MyCtx {
     table: Table,
     wasi: WasiCtx,
 }
 
-impl WasiView for CommandCtx {
+impl WasiView for MyCtx {
     fn table(&self) -> &Table {
         &self.table
     }
@@ -46,7 +46,7 @@ impl WasiView for CommandCtx {
 }
 
 // #[async_trait::async_trait]
-impl Host for CommandCtx {
+impl Host for MyCtx {
     fn gen_random_integer(&mut self) -> wasmtime::Result<u32> {
         Ok(rand::thread_rng().next_u32())
     }
@@ -59,7 +59,7 @@ impl Host for CommandCtx {
 
 #[derive(Resource)]
 struct WasmStore {
-    store: Store<CommandCtx>,
+    store: Store<MyCtx>,
 }
 
 #[derive(Resource)]
@@ -173,9 +173,9 @@ async fn get_wasm(
     sync::add_to_linker(&mut linker)?;
     let table = Table::new();
     let wasi = WasiCtxBuilder::new().build();
-    MyWorld::add_to_linker(&mut linker, |state: &mut CommandCtx| state)?;
+    MyWorld::add_to_linker(&mut linker, |state: &mut MyCtx| state)?;
     // Set up Wasmtime store
-    let mut store = Store::new(&engine, CommandCtx { table, wasi });
+    let mut store = Store::new(&engine, MyCtx { table, wasi });
     let (bindings, _) = MyWorld::instantiate(&mut store, &component, &linker)?;
 
     ctx.run_on_main_thread(move |ctx| {
