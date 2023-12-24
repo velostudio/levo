@@ -1,8 +1,13 @@
 package levo:portal;
 
 interface my-imports {
-    gen-random-integer: func() -> u32;
     print: func(msg: string);
+    fill-style: func(color: string);
+    fill-rect: func(x: float32, y: float32, width: float32, height: float32);
+    begin-path: func();
+    arc: func(x: float32, y: float32, radius: float32, start-angle: float32, end-angle: float32);
+    close-path: func();
+    fill: func();
 }
 
 world my-world {

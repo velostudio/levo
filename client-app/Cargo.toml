@@ -10,4 +10,4 @@ crate-type = ["cdylib"]
 
 [dependencies]
 wit-bindgen = { git = "https://github.com/bytecodealliance/wit-bindgen", version = "0.16.0" }
-
+rand = "0.8.5"

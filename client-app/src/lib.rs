@@ -1,4 +1,6 @@
 use levo::portal::my_imports::*;
+use rand::Rng;
+use std::sync::{Mutex, OnceLock};
 // src/lib.rs
 
 // Use a procedural macro to generate bindings for the world we specified in
@@ -22,13 +24,94 @@ wit_bindgen::generate!({
 // component.
 struct MyWorld;
 
+struct Particle {
+    x: f32,
+    y: f32,
+    speed: f32,
+    radius: f32,
+    color: String,
+}
+
+fn particles() -> &'static Mutex<Vec<Particle>> {
+    static ARRAY: OnceLock<Mutex<Vec<Particle>>> = OnceLock::new();
+    ARRAY.get_or_init(|| Mutex::new(vec![]))
+}
+
+fn tick() -> &'static Mutex<u32> {
+    static TICK: OnceLock<Mutex<u32>> = OnceLock::new();
+    TICK.get_or_init(|| Mutex::new(0))
+}
+
+fn create_particles() {
+    let canvas_width = 1200.; // TODO: pass from host
+    let mut tick = tick().lock().unwrap();
+    let mut particles = particles().lock().unwrap();
+    *tick += 1;
+    if *tick % 10 == 0 {
+        if particles.len() < 100 {
+            particles.push(Particle {
+                x: rand::thread_rng().gen_range(0.0..1.0) * canvas_width,
+                y: 0.,
+                speed: 2. + rand::thread_rng().gen_range(0.0..1.0) * 3.,
+                radius: 5. + rand::thread_rng().gen_range(0.0..1.0) * 5.,
+                color: "white".to_string(),
+            })
+        }
+    }
+}
+
+fn update_particles() {
+    let mut particles = particles().lock().unwrap();
+    for particle in particles.iter_mut() {
+        particle.y += particle.speed;
+    }
+}
+
+fn kill_particles() {
+    let canvas_height = 800.; // TODO: pass from host
+    let mut particles = particles().lock().unwrap();
+    for particle in particles.iter_mut() {
+        if particle.y > canvas_height {
+            particle.y = 0.;
+        }
+    }
+}
+
+fn draw_particles() {
+    // TODO: provide canvas interface on wit level, something like
+    //   interface canvas {
+    //     type canvas-id = u64;
+    //     record point {
+    //         x: u32,
+    //         y: u32,
+    //     }
+    //     draw-line: func(canvas: canvas-id, from: point, to: point);
+    // }
+    fill_style("black");
+    fill_rect(0., 0., 1200., 800.);
+    let mut particles = particles().lock().unwrap();
+    for particle in particles.iter_mut() {
+        begin_path();
+        arc(particle.x, particle.y, particle.radius, 0., 3.141592653589793 * 2.);
+        close_path();
+        fill_style(&particle.color);
+        fill();
+    }
+}
+
 impl Guest for MyWorld {
     fn update() {
-        let random = gen_random_integer();
-        print(random.to_string().as_str());
+        create_particles();
+        update_particles();
+        kill_particles();
+        draw_particles();
     }
 
     fn setup() {
-       print("Hello, world! from setup");
+        print("setup from guest has been called");
+        // let arr = array().lock().unwrap();
+        // for el in arr.iter() {
+        //     print(el.to_string().as_str());
+        // }
     }
 }

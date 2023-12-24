@@ -1,10 +1,10 @@
+use bevy::diagnostic::{FrameTimeDiagnosticsPlugin, LogDiagnosticsPlugin};
 use bevy::prelude::{App, Input, KeyCode, Query, Res, ResMut, Resource, Startup, Update};
 use bevy::DefaultPlugins;
 use bevy_cosmic_edit::*;
 
 use bevy_tokio_tasks::TokioTasksRuntime;
 use brotli::Decompressor;
-use rand::RngCore;
 use std::io::Read;
 use wasmtime::component::*;
 use wasmtime::{Config, Engine, Store};
@@ -47,12 +47,27 @@ impl WasiView for MyCtx {
 
 // #[async_trait::async_trait]
 impl Host for MyCtx {
-    fn gen_random_integer(&mut self) -> wasmtime::Result<u32> {
-        Ok(rand::thread_rng().next_u32())
-    }
-
     fn print(&mut self, from_wasm: String) -> wasmtime::Result<(), wasmtime::Error> {
         dbg!(from_wasm);
+        Ok(())
+    }
+    fn fill_style(&mut self, color: String) -> wasmtime::Result<(), wasmtime::Error> {
+        // TODO: figure out how to get self.world or self.commands
+        Ok(())
+    }
+    fn fill_rect(&mut self, x: f32, y: f32, width: f32, height: f32) -> wasmtime::Result<(), wasmtime::Error> {
+        Ok(())
+    }
+    fn begin_path(&mut self) -> wasmtime::Result<(), wasmtime::Error> {
+        Ok(())
+    }
+    fn arc(&mut self, x: f32, y: f32, radius: f32, start_angle: f32, end_angle: f32) -> wasmtime::Result<(), wasmtime::Error> {
+        Ok(())
+    }
+    fn close_path(&mut self) -> wasmtime::Result<(), wasmtime::Error> {
+        Ok(())
+    }
+    fn fill(&mut self) -> wasmtime::Result<(), wasmtime::Error> {
         Ok(())
     }
 }
@@ -70,6 +85,8 @@ struct WasmBindings {
 
 fn main() {
     App::new()
+        .add_plugins(FrameTimeDiagnosticsPlugin::default())
+        .add_plugins(LogDiagnosticsPlugin::default())
         .add_plugins(DefaultPlugins)
         .add_plugins(CosmicEditPlugin::default())
         .add_systems(Update, handle_enter)
