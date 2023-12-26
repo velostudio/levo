@@ -87,7 +87,7 @@ fn draw_particles() {
     //     }
     //     draw-line: func(canvas: canvas-id, from: point, to: point);
     // }
-    fill_style("black");
+    fill_style("royal_purple");
     fill_rect(0., 0., 1200., 800.);
     let mut particles = particles().lock().unwrap();
     for particle in particles.iter_mut() {

@@ -24,6 +24,7 @@ pub fn string_to_bevy_color(str: String) -> bevy::prelude::Color {
         "black" => Color::BLACK,
         "red" => Color::RED,
         "blue" => Color::BLUE,
+        "royal_purple" => Color::hex("#8C49A3").unwrap(),
         _ => Color::BLACK,
     }
 }
