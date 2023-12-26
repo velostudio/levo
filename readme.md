@@ -2,6 +2,8 @@ _WIP_
 
 <img src="https://raw.githubusercontent.com/velostudio/levo/main/levo.png" width="128" />
 
+https://staffengineer.github.io/blog/levo.html
+
 ## web as it should be
 
 To re-generate brotli encoded wasm file run `build.sh`.
