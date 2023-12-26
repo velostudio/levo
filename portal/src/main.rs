@@ -1,9 +1,10 @@
 use async_channel::{Receiver, Sender};
 // use bevy::diagnostic::{FrameTimeDiagnosticsPlugin, LogDiagnosticsPlugin};
 use bevy::prelude::{
-    default, App, Color, Commands, Input, KeyCode, Query, Res, ResMut, Resource,
-    SpatialBundle, Startup, Transform, Update, Vec2, Entity, With, DespawnRecursiveExt, PreUpdate,
+    default, App, Color, Commands, DespawnRecursiveExt, Entity, Input, KeyCode, PreUpdate, Query,
+    Res, ResMut, Resource, SpatialBundle, Startup, Transform, Update, Vec2, With,
 };
+use bevy::text::{Text, Text2dBundle, TextSection, TextStyle};
 use bevy::DefaultPlugins;
 use bevy_cosmic_edit::*;
 
@@ -49,10 +50,32 @@ struct Arc {
     x_rotation: f32,
 }
 
+#[derive(PartialEq, Debug)]
+struct CubicBezierTo {
+    x1: f32,
+    y1: f32,
+    x2: f32,
+    y2: f32,
+    x3: f32,
+    y3: f32,
+}
+
+#[derive(PartialEq, Debug)]
+struct Label {
+    text: String,
+    x: f32,
+    y: f32,
+    size: f32,
+    color: String,
+}
+
 #[derive(Debug)]
 enum HostEvent {
+    Label(Label),
     FillStyle(String),
     FillRect(FillRect),
+    MoveTo((f32, f32)),
+    CubicBezierTo(CubicBezierTo),
     BeginPath,
     Arc(Arc),
     ClosePath,
@@ -144,6 +167,50 @@ impl Host for MyCtx {
         self.channel.try_send(HostEvent::Fill).unwrap();
         Ok(())
     }
+    fn move_to(&mut self, x: f32, y: f32) -> wasmtime::Result<(), wasmtime::Error> {
+        self.channel.try_send(HostEvent::MoveTo((x, y))).unwrap();
+        Ok(())
+    }
+    fn cubic_bezier_to(
+        &mut self,
+        x1: f32,
+        y1: f32,
+        x2: f32,
+        y2: f32,
+        x3: f32,
+        y3: f32,
+    ) -> wasmtime::Result<(), wasmtime::Error> {
+        self.channel
+            .try_send(HostEvent::CubicBezierTo(CubicBezierTo {
+                x1,
+                y1,
+                x2,
+                y2,
+                x3,
+                y3,
+            }))
+            .unwrap();
+        Ok(())
+    }
+    fn label(
+        &mut self,
+        text: String,
+        x: f32,
+        y: f32,
+        size: f32,
+        color: String,
+    ) -> wasmtime::Result<(), wasmtime::Error> {
+        self.channel
+            .try_send(HostEvent::Label(Label {
+                text,
+                x,
+                y,
+                size,
+                color,
+            }))
+            .unwrap();
+        Ok(())
+    }
 }
 
 #[derive(Resource)]
@@ -183,6 +250,8 @@ fn main() {
 
 #[derive(PartialEq)]
 enum PathCommand {
+    MoveTo((f32, f32)),
+    CubicBezierTo(CubicBezierTo),
     Arc(Arc),
     Begin,
     Close,
@@ -212,14 +281,7 @@ fn handle_guest_event(mut commands: Commands, comm_channels: Res<CommChannels>) 
             .expect("Failed to receive host event");
         match r {
             HostEvent::FillStyle(c_str) => {
-                // TODO: refactor to support most common colors, move to utils
-                let c_val = match c_str.as_str() {
-                    "white" => Color::WHITE,
-                    "black" => Color::BLACK,
-                    "red" => Color::RED,
-                    "blue" => Color::BLUE,
-                    _ => Color::BLACK,
-                };
+                let c_val = string_to_bevy_color(c_str);
                 current_fill = Some(Fill::color(c_val))
             }
             HostEvent::FillRect(FillRect {
@@ -240,7 +302,7 @@ fn handle_guest_event(mut commands: Commands, comm_channels: Res<CommChannels>) 
                         ..default()
                     },
                     current_fill.unwrap_or(Fill::color(Color::RED)),
-                    GuestEntity
+                    GuestEntity,
                 ));
                 current_fill = None;
             }
@@ -282,6 +344,23 @@ fn handle_guest_event(mut commands: Commands, comm_channels: Res<CommChannels>) 
                                     PathCommand::Close => {
                                         path_builder.close();
                                     }
+                                    PathCommand::MoveTo((x, y)) => {
+                                        path_builder.move_to(Vec2::new(x, y));
+                                    }
+                                    PathCommand::CubicBezierTo(CubicBezierTo {
+                                        x1,
+                                        y1,
+                                        x2,
+                                        y2,
+                                        x3,
+                                        y3,
+                                    }) => {
+                                        path_builder.cubic_bezier_to(
+                                            Vec2::new(x1, y1),
+                                            Vec2::new(x2, y2),
+                                            Vec2::new(x3, y3),
+                                        );
+                                    }
                                 }
                             }
                         }
@@ -296,7 +375,7 @@ fn handle_guest_event(mut commands: Commands, comm_channels: Res<CommChannels>) 
                                 ..default()
                             },
                             current_fill.unwrap_or(Fill::color(Color::RED)),
-                            GuestEntity
+                            GuestEntity,
                         ));
                         current_fill = None;
                     }
@@ -304,6 +383,38 @@ fn handle_guest_event(mut commands: Commands, comm_channels: Res<CommChannels>) 
                         dbg!("path should start from begin");
                     }
                 }
+            }
+            HostEvent::MoveTo((x, y)) => {
+                current_path.push_back(PathCommand::MoveTo((x, y)));
+            }
+            HostEvent::CubicBezierTo(cbt) => {
+                current_path.push_back(PathCommand::CubicBezierTo(cbt));
+            }
+            HostEvent::Label(Label {
+                text,
+                x,
+                y,
+                size,
+                color,
+            }) => {
+                commands.spawn((
+                    Text2dBundle {
+                        text: Text {
+                            sections: vec![TextSection::new(
+                                text,
+                                TextStyle {
+                                    font_size: size,
+                                    color: string_to_bevy_color(color),
+                                    ..default()
+                                },
+                            )],
+                            ..default()
+                        },
+                        transform: Transform::from_xyz(x, y, 0.01),
+                        ..default()
+                    },
+                    GuestEntity,
+                ));
             }
         }
     }

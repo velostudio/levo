@@ -99,12 +99,29 @@ fn draw_particles() {
     }
 }
 
+fn draw_heart() {
+    begin_path();
+    move_to(0., 0.);
+    cubic_bezier_to(70., 70., 175., -35., 0., -140.);
+    cubic_bezier_to(-175., -35., -70., 70., 0., 0.);
+    close_path();
+    fill_style("red");
+    fill();
+}
+
 impl Guest for MyWorld {
     fn update() {
         create_particles();
         update_particles();
         kill_particles();
         draw_particles();
+        let tick = tick().lock().unwrap();
+        if *tick > 100 {
+            draw_heart();
+        } 
+        if *tick > 200 {
+            label("Happy New Year!", 0., -200., 64., "white")
+        }
     }
 
     fn setup() {

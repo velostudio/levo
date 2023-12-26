@@ -15,6 +15,7 @@ bevy = { version = "0.12", default-features = false, features = [
   "bevy_text",
   "bevy_ui",
   "bevy_winit",
+  "default_font",
   "png",
   "x11",
 ] }

@@ -9,13 +9,23 @@ use crate::CommChannels;
 #[derive(bevy::prelude::Component)]
 pub struct Portal;
 
-fn bevy_color_to_cosmic(color: bevy::prelude::Color) -> CosmicColor {
+pub fn bevy_color_to_cosmic(color: bevy::prelude::Color) -> CosmicColor {
     CosmicColor::rgba(
         (color.r() * 255.) as u8,
         (color.g() * 255.) as u8,
         (color.b() * 255.) as u8,
         (color.a() * 255.) as u8,
     )
+}
+
+pub fn string_to_bevy_color(str: String) -> bevy::prelude::Color {
+    match str.as_str() {
+        "white" => Color::WHITE,
+        "black" => Color::BLACK,
+        "red" => Color::RED,
+        "blue" => Color::BLUE,
+        _ => Color::BLACK,
+    }
 }
 
 pub fn setup(mut commands: Commands) {
