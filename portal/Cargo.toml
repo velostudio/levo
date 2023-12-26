@@ -35,3 +35,5 @@ rustls-pemfile = "1.0.2"
 brotli = "3.4.0"
 
 bevy-tokio-tasks = { git = "https://github.com/StaffEngineer/bevy-tokio-tasks", rev =  "ae26781" }
+async-channel = "1.8"
+bevy_prototype_lyon = "0.10"

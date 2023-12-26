@@ -52,7 +52,7 @@ fn create_particles() {
             particles.push(Particle {
                 x: rand::thread_rng().gen_range(0.0..1.0) * canvas_width,
                 y: 0.,
-                speed: 2. + rand::thread_rng().gen_range(0.0..1.0) * 3.,
+                speed: 2. + rand::thread_rng().gen_range(0.0..1.0) * 13.,
                 radius: 5. + rand::thread_rng().gen_range(0.0..1.0) * 5.,
                 color: "white".to_string(),
             })
@@ -63,7 +63,7 @@ fn create_particles() {
 fn update_particles() {
     let mut particles = particles().lock().unwrap();
     for particle in particles.iter_mut() {
-        particle.y += particle.speed;
+        particle.y -= particle.speed;
     }
 }
 
@@ -71,7 +71,7 @@ fn kill_particles() {
     let canvas_height = 800.; // TODO: pass from host
     let mut particles = particles().lock().unwrap();
     for particle in particles.iter_mut() {
-        if particle.y > canvas_height {
+        if particle.y < -canvas_height {
             particle.y = 0.;
         }
     }
@@ -92,7 +92,7 @@ fn draw_particles() {
     let mut particles = particles().lock().unwrap();
     for particle in particles.iter_mut() {
         begin_path();
-        arc(particle.x, particle.y, particle.radius, 0., 3.141592653589793 * 2.);
+        arc(particle.x, particle.y, particle.radius, 2. * std::f32::consts::PI, 0.);
         close_path();
         fill_style(&particle.color);
         fill();
