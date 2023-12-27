@@ -11,7 +11,6 @@ use bevy_prototype_lyon::prelude::{Fill, GeometryBuilder, PathBuilder, ShapeBund
 use bevy_prototype_lyon::shapes::{Rectangle, RectangleOrigin};
 use bevy_tokio_tasks::TokioTasksRuntime;
 use brotli::Decompressor;
-use std::collections::VecDeque;
 use std::io::Read;
 use wasmtime::component::*;
 use wasmtime::{Config, Engine, Store};
@@ -120,10 +119,10 @@ impl Host for MyCtx {
         height: f32,
     ) -> wasmtime::Result<(), wasmtime::Error> {
         self.queue.push(HostEvent::FillRect(FillRect {
-                x,
-                y,
-                width,
-                height,
+            x,
+            y,
+            width,
+            height,
         }));
         Ok(())
     }
@@ -140,11 +139,11 @@ impl Host for MyCtx {
         x_rotation: f32,
     ) -> wasmtime::Result<(), wasmtime::Error> {
         self.queue.push(HostEvent::Arc(Arc {
-                x,
-                y,
-                radius,
-                sweep_angle,
-                x_rotation,
+            x,
+            y,
+            radius,
+            sweep_angle,
+            x_rotation,
         }));
         Ok(())
     }
@@ -170,12 +169,12 @@ impl Host for MyCtx {
         y3: f32,
     ) -> wasmtime::Result<(), wasmtime::Error> {
         self.queue.push(HostEvent::CubicBezierTo(CubicBezierTo {
-                x1,
-                y1,
-                x2,
-                y2,
-                x3,
-                y3,
+            x1,
+            y1,
+            x2,
+            y2,
+            x3,
+            y3,
         }));
         Ok(())
     }
@@ -188,11 +187,11 @@ impl Host for MyCtx {
         color: String,
     ) -> wasmtime::Result<(), wasmtime::Error> {
         self.queue.push(HostEvent::Label(Label {
-                text,
-                x,
-                y,
-                size,
-                color,
+            text,
+            x,
+            y,
+            size,
+            color,
         }));
         Ok(())
     }
@@ -257,7 +256,7 @@ fn handle_guest_event(mut commands: Commands, wasm_store: Option<ResMut<WasmStor
     };
     let queue = &mut wasm_store.store.data_mut().queue;
     let mut current_fill = None;
-    let mut current_path = VecDeque::new();
+    let mut current_path = Vec::new();
     let mut w = -1.;
     let mut h = -1.;
     for r in queue.drain(..) {
@@ -289,88 +288,84 @@ fn handle_guest_event(mut commands: Commands, wasm_store: Option<ResMut<WasmStor
                 current_fill = None;
             }
             HostEvent::BeginPath => {
-                current_path.push_back(PathCommand::Begin);
+                current_path.push(PathCommand::Begin);
             }
             HostEvent::Arc(arc) => {
-                current_path.push_back(PathCommand::Arc(arc));
+                current_path.push(PathCommand::Arc(arc));
             }
             HostEvent::ClosePath => {
-                current_path.push_back(PathCommand::Close);
+                current_path.push(PathCommand::Close);
             }
             HostEvent::Fill => {
-                let first = current_path.pop_front();
-                match first {
-                    Some(PathCommand::Begin) => {
-                        let mut path_builder = PathBuilder::new();
-                        while current_path.len() > 0 {
-                            if let Some(command) = current_path.pop_front() {
-                                match command {
-                                    PathCommand::Arc(Arc {
-                                        x,
-                                        y,
-                                        radius,
-                                        sweep_angle,
-                                        x_rotation,
-                                    }) => {
-                                        path_builder.move_to(Vec2::new(x - w / 2., y + h / 2.));
-                                        path_builder.arc(
-                                            Vec2::new(x + radius - w / 2., y + radius + h / 2.),
-                                            Vec2::new(radius, radius),
-                                            sweep_angle,
-                                            x_rotation,
-                                        );
-                                    }
-                                    PathCommand::Begin => {
-                                        dbg!("path already created");
-                                    }
-                                    PathCommand::Close => {
-                                        path_builder.close();
-                                    }
-                                    PathCommand::MoveTo((x, y)) => {
-                                        path_builder.move_to(Vec2::new(x, y));
-                                    }
-                                    PathCommand::CubicBezierTo(CubicBezierTo {
-                                        x1,
-                                        y1,
-                                        x2,
-                                        y2,
-                                        x3,
-                                        y3,
-                                    }) => {
-                                        path_builder.cubic_bezier_to(
-                                            Vec2::new(x1, y1),
-                                            Vec2::new(x2, y2),
-                                            Vec2::new(x3, y3),
-                                        );
-                                    }
-                                }
+                let first = current_path.get(0);
+
+                if let Some(PathCommand::Begin) = first {
+                    let mut path_builder = PathBuilder::new();
+                    for command in current_path.drain(..).skip(1) {
+                        match command {
+                            PathCommand::Arc(Arc {
+                                x,
+                                y,
+                                radius,
+                                sweep_angle,
+                                x_rotation,
+                            }) => {
+                                path_builder.move_to(Vec2::new(x - w / 2., y + h / 2.));
+                                path_builder.arc(
+                                    Vec2::new(x + radius - w / 2., y + radius + h / 2.),
+                                    Vec2::new(radius, radius),
+                                    sweep_angle,
+                                    x_rotation,
+                                );
+                            }
+                            PathCommand::Begin => {
+                                dbg!("path already created");
+                            }
+                            PathCommand::Close => {
+                                path_builder.close();
+                            }
+                            PathCommand::MoveTo((x, y)) => {
+                                path_builder.move_to(Vec2::new(x, y));
+                            }
+                            PathCommand::CubicBezierTo(CubicBezierTo {
+                                x1,
+                                y1,
+                                x2,
+                                y2,
+                                x3,
+                                y3,
+                            }) => {
+                                path_builder.cubic_bezier_to(
+                                    Vec2::new(x1, y1),
+                                    Vec2::new(x2, y2),
+                                    Vec2::new(x3, y3),
+                                );
                             }
                         }
-                        let path = path_builder.build();
-                        commands.spawn((
-                            ShapeBundle {
-                                spatial: SpatialBundle {
-                                    transform: Transform::from_xyz(0., 0., 0.001),
-                                    ..default()
-                                },
-                                path,
+                    }
+                    let path = path_builder.build();
+                    commands.spawn((
+                        ShapeBundle {
+                            spatial: SpatialBundle {
+                                transform: Transform::from_xyz(0., 0., 0.001),
                                 ..default()
                             },
-                            current_fill.unwrap_or(Fill::color(Color::RED)),
-                            GuestEntity,
-                        ));
-                        current_fill = None;
-                    }
-                    _ => {
-                        dbg!("path should start from begin");
-                    }
+                            path,
+                            ..default()
+                        },
+                        current_fill.unwrap_or(Fill::color(Color::RED)),
+                        GuestEntity,
+                    ));
+                    current_fill = None;
+                } else {
+                    eprintln!("path should start from begin");
                 }
             }
             HostEvent::MoveTo((x, y)) => {
-                current_path.push_back(PathCommand::MoveTo((x, y)));
+                current_path.push(PathCommand::MoveTo((x, y)));
             }
             HostEvent::CubicBezierTo(cbt) => {
-                current_path.push_back(PathCommand::CubicBezierTo(cbt));
+                current_path.push(PathCommand::CubicBezierTo(cbt));
             }
             HostEvent::Label(Label {
                 text,
