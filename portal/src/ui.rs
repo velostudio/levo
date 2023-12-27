@@ -4,8 +4,6 @@ use bevy::prelude::{
 use bevy::ui::{AlignItems, Display, FlexDirection, Style, UiRect};
 use bevy_cosmic_edit::*;
 
-use crate::CommChannels;
-
 #[derive(bevy::prelude::Component)]
 pub struct Portal;
 
@@ -100,6 +98,4 @@ pub fn setup(mut commands: Commands) {
         .id();
     commands.entity(root).add_child(edit);
     commands.entity(root).add_child(portal);
-    let (tx, rx) = async_channel::unbounded();
-    commands.insert_resource(CommChannels { tx, rx });
 }

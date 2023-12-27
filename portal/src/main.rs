@@ -1,4 +1,3 @@
-use async_channel::{Receiver, Sender};
 // use bevy::diagnostic::{FrameTimeDiagnosticsPlugin, LogDiagnosticsPlugin};
 use bevy::prelude::{
     default, App, Color, Commands, DespawnRecursiveExt, Entity, Input, KeyCode, PreUpdate, Query,
@@ -82,16 +81,10 @@ enum HostEvent {
     Fill,
 }
 
-#[derive(Resource, Clone)]
-pub struct CommChannels {
-    tx: Sender<HostEvent>,
-    rx: Receiver<HostEvent>,
-}
-
 struct MyCtx {
     table: Table,
     wasi: WasiCtx,
-    channel: Sender<HostEvent>,
+    queue: Vec<HostEvent>,
 }
 
 impl WasiView for MyCtx {
@@ -116,7 +109,7 @@ impl Host for MyCtx {
         Ok(())
     }
     fn fill_style(&mut self, color: String) -> wasmtime::Result<(), wasmtime::Error> {
-        self.channel.try_send(HostEvent::FillStyle(color)).unwrap();
+        self.queue.push(HostEvent::FillStyle(color));
         Ok(())
     }
     fn fill_rect(
@@ -126,18 +119,16 @@ impl Host for MyCtx {
         width: f32,
         height: f32,
     ) -> wasmtime::Result<(), wasmtime::Error> {
-        self.channel
-            .try_send(HostEvent::FillRect(FillRect {
+        self.queue.push(HostEvent::FillRect(FillRect {
                 x,
                 y,
                 width,
                 height,
-            }))
-            .unwrap();
+        }));
         Ok(())
     }
     fn begin_path(&mut self) -> wasmtime::Result<(), wasmtime::Error> {
-        self.channel.try_send(HostEvent::BeginPath).unwrap();
+        self.queue.push(HostEvent::BeginPath);
         Ok(())
     }
     fn arc(
@@ -148,27 +139,25 @@ impl Host for MyCtx {
         sweep_angle: f32,
         x_rotation: f32,
     ) -> wasmtime::Result<(), wasmtime::Error> {
-        self.channel
-            .try_send(HostEvent::Arc(Arc {
+        self.queue.push(HostEvent::Arc(Arc {
                 x,
                 y,
                 radius,
                 sweep_angle,
                 x_rotation,
-            }))
-            .unwrap();
+        }));
         Ok(())
     }
     fn close_path(&mut self) -> wasmtime::Result<(), wasmtime::Error> {
-        self.channel.try_send(HostEvent::ClosePath).unwrap();
+        self.queue.push(HostEvent::ClosePath);
         Ok(())
     }
     fn fill(&mut self) -> wasmtime::Result<(), wasmtime::Error> {
-        self.channel.try_send(HostEvent::Fill).unwrap();
+        self.queue.push(HostEvent::Fill);
         Ok(())
     }
     fn move_to(&mut self, x: f32, y: f32) -> wasmtime::Result<(), wasmtime::Error> {
-        self.channel.try_send(HostEvent::MoveTo((x, y))).unwrap();
+        self.queue.push(HostEvent::MoveTo((x, y)));
         Ok(())
     }
     fn cubic_bezier_to(
@@ -180,16 +169,14 @@ impl Host for MyCtx {
         x3: f32,
         y3: f32,
     ) -> wasmtime::Result<(), wasmtime::Error> {
-        self.channel
-            .try_send(HostEvent::CubicBezierTo(CubicBezierTo {
+        self.queue.push(HostEvent::CubicBezierTo(CubicBezierTo {
                 x1,
                 y1,
                 x2,
                 y2,
                 x3,
                 y3,
-            }))
-            .unwrap();
+        }));
         Ok(())
     }
     fn label(
@@ -200,15 +187,13 @@ impl Host for MyCtx {
         size: f32,
         color: String,
     ) -> wasmtime::Result<(), wasmtime::Error> {
-        self.channel
-            .try_send(HostEvent::Label(Label {
+        self.queue.push(HostEvent::Label(Label {
                 text,
                 x,
                 y,
                 size,
                 color,
-            }))
-            .unwrap();
+        }));
         Ok(())
     }
 }
@@ -266,19 +251,16 @@ fn clear(mut commands: Commands, guest_entites: Query<Entity, With<GuestEntity>>
     }
 }
 
-fn handle_guest_event(mut commands: Commands, comm_channels: Res<CommChannels>) {
-    if comm_channels.rx.is_empty() {
+fn handle_guest_event(mut commands: Commands, wasm_store: Option<ResMut<WasmStore>>) {
+    let Some(mut wasm_store) = wasm_store else {
         return;
-    }
+    };
+    let queue = &mut wasm_store.store.data_mut().queue;
     let mut current_fill = None;
     let mut current_path = VecDeque::new();
     let mut w = -1.;
     let mut h = -1.;
-    while !comm_channels.rx.is_empty() {
-        let r = comm_channels
-            .rx
-            .try_recv()
-            .expect("Failed to receive host event");
+    for r in queue.drain(..) {
         match r {
             HostEvent::FillStyle(c_str) => {
                 let c_val = string_to_bevy_color(c_str);
@@ -424,16 +406,17 @@ fn handle_enter(
     editor_q: Query<&CosmicEditor>,
     keys: Res<Input<KeyCode>>,
     runtime: ResMut<TokioTasksRuntime>,
-    comm_channels: Res<CommChannels>,
 ) {
     if !keys.just_pressed(KeyCode::Return) {
         return;
     }
     for editor in editor_q.iter() {
         let text = editor.get_text();
-        let cc = comm_channels.tx.clone();
         runtime.spawn_background_task(|ctx| async move {
-            let _ = get_wasm(cc, ctx, text.clone()).await;
+            match get_wasm(ctx, text.clone()).await {
+                Ok(_) => {}
+                Err(e) => eprintln!("failed to get wasm for '{text}': {e}"),
+            }
         });
     }
 }
@@ -462,7 +445,6 @@ fn run_wasm_setup(
 }
 
 async fn get_wasm(
-    cc: Sender<HostEvent>,
     mut ctx: bevy_tokio_tasks::TaskContext,
     host: String,
 ) -> Result<(), Box<dyn std::error::Error>> {
@@ -516,7 +498,7 @@ async fn get_wasm(
         MyCtx {
             table,
             wasi,
-            channel: cc,
+            queue: Vec::new(),
         },
     );
     let (bindings, _) = MyWorld::instantiate(&mut store, &component, &linker)?;
