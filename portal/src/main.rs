@@ -103,21 +103,15 @@ impl WasiView for MyCtx {
 
 // #[async_trait::async_trait]
 impl Host for MyCtx {
-    fn print(&mut self, from_wasm: String) -> wasmtime::Result<(), wasmtime::Error> {
+    fn print(&mut self, from_wasm: String) -> wasmtime::Result<()> {
         dbg!(from_wasm);
         Ok(())
     }
-    fn fill_style(&mut self, color: String) -> wasmtime::Result<(), wasmtime::Error> {
+    fn fill_style(&mut self, color: String) -> wasmtime::Result<()> {
         self.queue.push(HostEvent::FillStyle(color));
         Ok(())
     }
-    fn fill_rect(
-        &mut self,
-        x: f32,
-        y: f32,
-        width: f32,
-        height: f32,
-    ) -> wasmtime::Result<(), wasmtime::Error> {
+    fn fill_rect(&mut self, x: f32, y: f32, width: f32, height: f32) -> wasmtime::Result<()> {
         self.queue.push(HostEvent::FillRect(FillRect {
             x,
             y,
@@ -126,7 +120,7 @@ impl Host for MyCtx {
         }));
         Ok(())
     }
-    fn begin_path(&mut self) -> wasmtime::Result<(), wasmtime::Error> {
+    fn begin_path(&mut self) -> wasmtime::Result<()> {
         self.queue.push(HostEvent::BeginPath);
         Ok(())
     }
@@ -137,7 +131,7 @@ impl Host for MyCtx {
         radius: f32,
         sweep_angle: f32,
         x_rotation: f32,
-    ) -> wasmtime::Result<(), wasmtime::Error> {
+    ) -> wasmtime::Result<()> {
         self.queue.push(HostEvent::Arc(Arc {
             x,
             y,
@@ -147,15 +141,15 @@ impl Host for MyCtx {
         }));
         Ok(())
     }
-    fn close_path(&mut self) -> wasmtime::Result<(), wasmtime::Error> {
+    fn close_path(&mut self) -> wasmtime::Result<()> {
         self.queue.push(HostEvent::ClosePath);
         Ok(())
     }
-    fn fill(&mut self) -> wasmtime::Result<(), wasmtime::Error> {
+    fn fill(&mut self) -> wasmtime::Result<()> {
         self.queue.push(HostEvent::Fill);
         Ok(())
     }
-    fn move_to(&mut self, x: f32, y: f32) -> wasmtime::Result<(), wasmtime::Error> {
+    fn move_to(&mut self, x: f32, y: f32) -> wasmtime::Result<()> {
         self.queue.push(HostEvent::MoveTo((x, y)));
         Ok(())
     }
@@ -167,7 +161,7 @@ impl Host for MyCtx {
         y2: f32,
         x3: f32,
         y3: f32,
-    ) -> wasmtime::Result<(), wasmtime::Error> {
+    ) -> wasmtime::Result<()> {
         self.queue.push(HostEvent::CubicBezierTo(CubicBezierTo {
             x1,
             y1,
@@ -185,7 +179,7 @@ impl Host for MyCtx {
         y: f32,
         size: f32,
         color: String,
-    ) -> wasmtime::Result<(), wasmtime::Error> {
+    ) -> wasmtime::Result<()> {
         self.queue.push(HostEvent::Label(Label {
             text,
             x,
