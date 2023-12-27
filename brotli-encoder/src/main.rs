@@ -1,7 +1,7 @@
+use brotli::CompressorWriter;
 use std::env;
 use std::fs;
 use std::io::Write;
-use brotli::CompressorWriter;
 
 fn main() {
     // Retrieve command line arguments
@@ -26,6 +26,9 @@ fn main() {
         }
     };
 
+    println!("Compressing wasm content...");
+    let time = std::time::Instant::now();
+
     // Compress the wasm content and write it to the output br file
     let mut compressed_data = Vec::new();
     let params = brotli::enc::BrotliEncoderParams::default();
@@ -47,4 +50,6 @@ fn main() {
         "Compression successful! Output written to {}",
         output_br_file
     );
+
+    println!("Time elapsed: {:.2?}", time.elapsed());
 }
