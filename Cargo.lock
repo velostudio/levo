@@ -3522,7 +3522,6 @@ name = "portal"
 version = "0.1.0"
 dependencies = [
  "anyhow",
- "async-channel 1.9.0",
  "axum",
  "bevy",
  "bevy-tokio-tasks",
