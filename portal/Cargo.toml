@@ -19,7 +19,7 @@ bevy = { version = "0.12", default-features = false, features = [
   "png",
   "x11",
 ] }
-bevy_cosmic_edit = "0.15.2"
+bevy_cosmic_edit = "0.15.3"
 
 wasmtime = { version = "15.0.1", features = ["component-model"] }
 wasmtime-wasi = "15.0.1"
