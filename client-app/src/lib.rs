@@ -55,7 +55,7 @@ fn create_particles() {
             particles.push(Particle {
                 x: rand::thread_rng().gen_range(0.0..1.0) * canvas_width,
                 y: 0.,
-                speed: 2. + rand::thread_rng().gen_range(0.0..1.0) * 13.,
+                speed: 500. + rand::thread_rng().gen_range(0.0..1.0) * 13.,
                 radius: 5. + rand::thread_rng().gen_range(0.0..1.0) * 5.,
                 color: "white".to_string(),
             })
@@ -66,7 +66,7 @@ fn create_particles() {
 fn update_particles() {
     let mut particles = particles().lock().unwrap();
     for particle in particles.iter_mut() {
-        particle.y -= particle.speed;
+        particle.y -= particle.speed * delta_seconds();
     }
 }
 

@@ -4,6 +4,7 @@ use bevy::prelude::{
     Res, ResMut, Resource, SpatialBundle, Startup, Transform, Update, Vec2, With,
 };
 use bevy::text::{Text, Text2dBundle, TextSection, TextStyle};
+use bevy::time::Time;
 use bevy::DefaultPlugins;
 use bevy_cosmic_edit::*;
 
@@ -84,6 +85,7 @@ struct MyCtx {
     table: Table,
     wasi: WasiCtx,
     queue: Vec<HostEvent>,
+    delta_seconds: f32,
 }
 
 impl WasiView for MyCtx {
@@ -188,6 +190,10 @@ impl Host for MyCtx {
             color,
         }));
         Ok(())
+    }
+
+    fn delta_seconds(&mut self) -> wasmtime::Result<f32> {
+        Ok(self.delta_seconds)
     }
 }
 
@@ -413,9 +419,11 @@ fn handle_enter(
 fn run_wasm_update(
     wasm_instance: Option<ResMut<WasmBindings>>,
     wasm_store: Option<ResMut<WasmStore>>,
+    time: Res<Time>,
 ) {
     if let Some(wasm_resource) = wasm_instance {
         let mut store = wasm_store.unwrap();
+        store.store.data_mut().delta_seconds = time.delta_seconds();
         let _ = wasm_resource.bindings.call_update(&mut store.store);
     }
 }
@@ -488,6 +496,7 @@ async fn get_wasm(
             table,
             wasi,
             queue: Vec::new(),
+            delta_seconds: 0.0,
         },
     );
     let (bindings, _) = MyWorld::instantiate(&mut store, &component, &linker)?;
