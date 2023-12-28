@@ -14,3 +14,5 @@ Install `TinyGo`.
 8. `cd ../brotli-encoder` and `cargo run --package brotli-encoder --release -- ../go-client-app/main.component.wasm ../levo-server/my-component-wasm.br`
 
 Re-start `levo-server`
+
+There is `go.sh` that automates part of this readme.
