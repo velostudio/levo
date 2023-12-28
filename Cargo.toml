@@ -1,3 +1,9 @@
 [workspace]
-members = ["levo-server", "client-app", "brotli-encoder", "portal"]
+members = [
+  "brotli-encoder",
+  "client-app",
+  "go-client-app"
+  "levo-server",
+  "portal",
+]
 resolver = "2"
