@@ -10,4 +10,4 @@ wasm-tools component new main.embed.wasm --adapt ../client-app/wasi_snapshot_pre
 wasm-tools component wit main.component.wasm
 
 cd ../brotli-encoder
-cargo run --release "../go-client-app/main.component.wasm" "../levo-server/my-component-wasm.br"
+cargo run --release "../go-client-app/main.component.wasm" "../levo-server/public/go.wasm"

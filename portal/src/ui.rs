@@ -56,13 +56,13 @@ pub fn setup(mut commands: Commands) {
                     ..default()
                 },
                 max_lines: CosmicMaxLines(1),
-                text_setter: CosmicText::OneStyle("localhost".to_string()),
+                text_setter: CosmicText::OneStyle("localhost/rust.wasm".to_string()),
                 text_position: CosmicTextPosition::Left { padding: 20 },
                 mode: CosmicMode::InfiniteLine,
                 ..default()
             },
             CosmicEditPlaceholderBundle {
-                text_setter: PlaceholderText(CosmicText::OneStyle("Enter host...".into())),
+                text_setter: PlaceholderText(CosmicText::OneStyle("Enter URL...".into())),
                 attrs: PlaceholderAttrs(placeholder_attrs.clone()),
             },
         ))

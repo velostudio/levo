@@ -51,6 +51,7 @@ async fn handle_connection_impl(incoming_session: IncomingSession) -> Result<()>
         session_request.path()
     );
 
+    let path = session_request.path().to_string();
     let connection = session_request.accept().await?;
 
     info!("Waiting for data from client...");
@@ -68,14 +69,15 @@ async fn handle_connection_impl(incoming_session: IncomingSession) -> Result<()>
 
                  let client_msg = std::str::from_utf8(&buffer[..bytes_read])?;
 
-		 if client_msg == "WASM" {
-                     let data = std::fs::read("./my-component-wasm.br").expect("Failed to read Wasm file");
-                    stream.0.write_all(data.as_slice()).await?;
-		     info!("WASM sent");
-		 } else {
+                 if client_msg == "WASM" {
+                     let clean_path = path_clean::clean(path.clone());
+                     let data = std::fs::read(format!("./public{}", clean_path.display())).expect("Failed to read wasm brotli encoded file");
+                     stream.0.write_all(data.as_slice()).await?;
+                     info!("WASM sent");
+                 } else {
                      stream.0.write_all(b"UNKNOWN_MSG").await?;
-		 }
-		 stream.0.finish().await?;
+                 }
+                 stream.0.finish().await?;
              }
              stream = connection.accept_uni() => {
                  let mut stream = stream?;

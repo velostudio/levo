@@ -12,3 +12,4 @@ anyhow = "1.0.71"
 tracing-subscriber = { version = "0.3.17", features = ["env-filter"] }
 tokio = { version = "1.28.1", default-features = false, features = ["macros", "fs", "rt-multi-thread"] }
 axum = "0.7.1"
+path-clean = "1.0.1"

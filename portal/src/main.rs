@@ -12,6 +12,7 @@ use bevy_prototype_lyon::prelude::{Fill, GeometryBuilder, PathBuilder, ShapeBund
 use bevy_prototype_lyon::shapes::{Rectangle, RectangleOrigin};
 use bevy_tokio_tasks::TokioTasksRuntime;
 use brotli::Decompressor;
+use url::Url;
 use std::io::Read;
 use wasmtime::component::*;
 use wasmtime::{Config, Engine, Store};
@@ -443,17 +444,21 @@ fn run_wasm_setup(
 
 async fn get_wasm(
     mut ctx: bevy_tokio_tasks::TaskContext,
-    host: String,
+    url: String,
 ) -> Result<(), Box<dyn std::error::Error>> {
+    let valid_url = if url.contains("http") { url } else { format!("https://{}", url) };
+    let uri = Url::parse(valid_url.as_str()).expect("expected valid URL");
+    let host = uri.host_str().expect("expected valid host");
+    let path = uri.path();
     let config = ClientConfig::builder()
         .with_bind_default()
         .with_no_cert_validation() // FIXME: don't do it on prod!
-        .enable_key_log() // TODO: this is just for debugging
+        .enable_key_log() // TODO: put under feature flag 
         .build();
 
     let connection = Endpoint::client(config)
         .unwrap()
-        .connect(format!("https://{}:4433", host))
+        .connect(format!("https://{}:4433{}", host, path))
         .await
         .unwrap();
 

@@ -11,4 +11,4 @@ wasm-tools component new ../target/wasm32-wasi/release/client_app.wasm \
 wasm-tools component wit my-component.wasm
 
 cd ../brotli-encoder
-cargo run --release "../client-app/my-component.wasm" "../levo-server/my-component-wasm.br"
+cargo run --release "../client-app/my-component.wasm" "../levo-server/public/rust.wasm"

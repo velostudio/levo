@@ -31,6 +31,6 @@ cd portal
 cargo r --release
 ```
 
-Select the server location (default: `localhost`), then press Enter, to load the client (guest) app.
+Select the resource location (default: `localhost/rust.wasm`), then press Enter, to load the client (guest) app.
 
 Note that, without closing the portal, you can recompile the client app, and refresh.
