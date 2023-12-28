@@ -129,15 +129,11 @@ impl Guest for MyWorld {
             draw_heart();
         }
         if *tick > 200 {
-            label("Happy New Year!", 0., -200., 64., "white")
+            label("Happy New Year from Rust!", 0., -200., 64., "white")
         }
     }
 
     fn setup() {
-        print("setup from guest has been called");
-        // let arr = array().lock().unwrap();
-        // for el in arr.iter() {
-        //     print(el.to_string().as_str());
-        // }
+        print("setup from guest (Rust) has been called");
     }
 }
