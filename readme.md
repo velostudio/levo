@@ -4,7 +4,7 @@ _WIP_
 
 https://staffengineer.github.io/blog/levo.html
 
-## web as it should be
+## web: the good parts
 
 To re-generate brotli encoded wasm file, use the following commands, or run `build.sh`.
 
