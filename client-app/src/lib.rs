@@ -124,7 +124,11 @@ impl Guest for MyWorld {
         update_particles();
         kill_particles();
         draw_particles();
+
         let tick = tick().lock().unwrap();
+        if *tick < 200 {
+            link("localhost/go.wasm", "Go to go.wasm", 0., 300., 32.);
+        }
         if *tick > 100 {
             draw_heart();
         }

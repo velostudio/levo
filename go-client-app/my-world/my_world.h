@@ -26,6 +26,7 @@ extern void levo_portal_my_imports_arc(float x, float y, float radius, float swe
 extern void levo_portal_my_imports_close_path(void);
 extern void levo_portal_my_imports_fill(void);
 extern void levo_portal_my_imports_label(my_world_string_t *text, float x, float y, float size, my_world_string_t *color);
+extern void levo_portal_my_imports_link(my_world_string_t *url, my_world_string_t *text, float x, float y, float size);
 extern float levo_portal_my_imports_delta_seconds(void);
 
 // Exported Functions from `my-world`

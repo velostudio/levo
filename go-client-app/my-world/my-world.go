@@ -85,6 +85,23 @@ func LevoPortalMyImportsLabel(text string, x float32, y float32, size float32, c
   C.levo_portal_my_imports_label(&lower_text , lower_x , lower_y , lower_size , &lower_color )
 }
 
+func LevoPortalMyImportsLink(url string, text string, x float32, y float32, size float32) {
+  var lower_url C.my_world_string_t
+  
+  // use unsafe.Pointer to avoid copy
+  lower_url.ptr = (*uint8)(unsafe.Pointer(C.CString(url)))
+  lower_url.len = C.size_t(len(url))
+  var lower_text C.my_world_string_t
+  
+  // use unsafe.Pointer to avoid copy
+  lower_text.ptr = (*uint8)(unsafe.Pointer(C.CString(text)))
+  lower_text.len = C.size_t(len(text))
+  lower_x := C.float(x)
+  lower_y := C.float(y)
+  lower_size := C.float(size)
+  C.levo_portal_my_imports_link(&lower_url , &lower_text , lower_x , lower_y , lower_size )
+}
+
 func LevoPortalMyImportsDeltaSeconds() float32 {
   ret := C.levo_portal_my_imports_delta_seconds()
   var lift_ret float32
