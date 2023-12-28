@@ -37,7 +37,7 @@ func createParticles() {
 
 func updateParticles() {
 	for i := 0; i < len(particles); i++ {
-		particle := particles[i]
+		particle := &particles[i]
 		particle.y -= particle.speed * world.LevoPortalMyImportsDeltaSeconds()
 	}
 }
@@ -45,7 +45,7 @@ func updateParticles() {
 func killParticles() {
 	var canvas_height float32 = 800 // TODO: pass from host
 	for i := 0; i < len(particles); i++ {
-		particle := particles[i]
+		particle := &particles[i]
 		if particle.y < -canvas_height {
 			particle.y = 0
 		}
@@ -65,7 +65,7 @@ func drawParticles() {
 	world.LevoPortalMyImportsFillStyle("royal_purple")
 	world.LevoPortalMyImportsFillRect(0, 0, 1200, 800)
 	for i := 0; i < len(particles); i++ {
-		particle := particles[i]
+		particle := &particles[i]
 		world.LevoPortalMyImportsBeginPath()
 		world.LevoPortalMyImportsArc(
 			particle.x,
