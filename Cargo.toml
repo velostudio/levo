@@ -2,7 +2,6 @@
 members = [
   "brotli-encoder",
   "client-app",
-  "go-client-app"
   "levo-server",
   "portal",
 ]
