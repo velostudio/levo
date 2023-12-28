@@ -2,7 +2,7 @@
 package main
 
 import (
-    gen "my-world"
+    gen "workspace/my-world"
 )
 
 func init() {

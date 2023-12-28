@@ -5,8 +5,8 @@ Install `Go`.
 Install `TinyGo`.  
 
 1. Write guest code in `my-component.go`
-2. Run `wit-bindgen tiny-go ../spec --out-dir=src/my-world` from `go-client-app` folder
-3. `GOPATH=$(pwd) tinygo build -target=wasi -o main.wasm my-component.go` from `go-client-app` folder
+2. Run `wit-bindgen tiny-go ../spec --out-dir=my-world` from `go-client-app` folder
+3. `tinygo build -target=wasi -o main.wasm my-component.go` from `go-client-app` folder
 4. `wasm-tools component embed --world my-world ../spec main.wasm -o main.embed.wasm`
 5. `wasm-tools component new main.embed.wasm --adapt ../client-app/wasi_snapshot_preview1.reactor.wasm -o main.component.wasm`
 6. `wasm-tools validate main.component.wasm --features component-model` (Optional)
