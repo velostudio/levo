@@ -1,7 +1,8 @@
 # Example of Go client
 
-`cargo install --git https://github.com/bytecodealliance/wit-bindgen wit-bindgen-cli` to get `wit-bingen-cli`.
-Install `TinyGo`.
+`cargo install --git https://github.com/bytecodealliance/wit-bindgen wit-bindgen-cli` to get `wit-bingen-cli`.  
+Install `TinyGo`.  
+Install `Go`.  
 
 1. Write guest code in `my-component.go`
 2. Run `wit-bindgen tiny-go ../spec --out-dir=src/my-world` from `go-client-app` folder
