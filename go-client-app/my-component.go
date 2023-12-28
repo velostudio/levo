@@ -2,12 +2,12 @@
 package main
 
 import (
-    gen "host"
+    gen "my-world"
 )
 
 func init() {
     a := HostImpl{}
-    gen.SetHost(a)
+    gen.SetMyWorld(a)
 }
 
 type HostImpl struct {
