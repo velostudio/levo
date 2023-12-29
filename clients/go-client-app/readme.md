@@ -7,5 +7,3 @@ Install `TinyGo`.
 1. Write guest code in `my-component.go`
 2. `export GO111MODULE=on`
 3. `./build.sh`
-
-Re-start `levo-server`
