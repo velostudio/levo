@@ -9,7 +9,7 @@ use std::sync::{Mutex, OnceLock};
 // Use a procedural macro to generate bindings for the world we specified in
 // `host.wit`
 wit_bindgen::generate!({
-    path: "../spec",
+    path: "../../spec",
     // the name of the world in the `*.wit` input file
     world: "my-world",
 

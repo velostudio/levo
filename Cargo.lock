@@ -1391,14 +1391,6 @@ source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "fd16c4719339c4530435d38e511904438d07cce7950afa3718a84ac36c10e89e"
 
 [[package]]
-name = "client-app"
-version = "0.1.0"
-dependencies = [
- "rand",
- "wit-bindgen",
-]
-
-[[package]]
 name = "clipboard-win"
 version = "4.5.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -3910,6 +3902,14 @@ dependencies = [
 ]
 
 [[package]]
+name = "rust-client-app"
+version = "0.1.0"
+dependencies = [
+ "rand",
+ "wit-bindgen",
+]
+
+[[package]]
 name = "rustc-demangle"
 version = "0.1.23"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -5901,7 +5901,7 @@ dependencies = [
 [[package]]
 name = "wit-bindgen"
 version = "0.16.0"
-source = "git+https://github.com/bytecodealliance/wit-bindgen#045259a28a1d7e4404fd39613a3b0b31bd40721c"
+source = "git+https://github.com/bytecodealliance/wit-bindgen#04b715a08aa3859cf8941eb4fd3358db6bf6d9d7"
 dependencies = [
  "bitflags 2.4.1",
  "wit-bindgen-rust-macro",
@@ -5910,7 +5910,7 @@ dependencies = [
 [[package]]
 name = "wit-bindgen-core"
 version = "0.16.0"
-source = "git+https://github.com/bytecodealliance/wit-bindgen#045259a28a1d7e4404fd39613a3b0b31bd40721c"
+source = "git+https://github.com/bytecodealliance/wit-bindgen#04b715a08aa3859cf8941eb4fd3358db6bf6d9d7"
 dependencies = [
  "anyhow",
  "wit-component",
@@ -5920,7 +5920,7 @@ dependencies = [
 [[package]]
 name = "wit-bindgen-rust"
 version = "0.16.0"
-source = "git+https://github.com/bytecodealliance/wit-bindgen#045259a28a1d7e4404fd39613a3b0b31bd40721c"
+source = "git+https://github.com/bytecodealliance/wit-bindgen#04b715a08aa3859cf8941eb4fd3358db6bf6d9d7"
 dependencies = [
  "anyhow",
  "heck",
@@ -5932,7 +5932,7 @@ dependencies = [
 [[package]]
 name = "wit-bindgen-rust-macro"
 version = "0.16.0"
-source = "git+https://github.com/bytecodealliance/wit-bindgen#045259a28a1d7e4404fd39613a3b0b31bd40721c"
+source = "git+https://github.com/bytecodealliance/wit-bindgen#04b715a08aa3859cf8941eb4fd3358db6bf6d9d7"
 dependencies = [
  "anyhow",
  "proc-macro2",
