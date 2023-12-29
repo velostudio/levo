@@ -18,7 +18,7 @@ use bevy_tokio_tasks::TokioTasksRuntime;
 use brotli::Decompressor;
 use std::io::Read;
 use url::Url;
-use wasmtime::component::*;
+use wasmtime::{component::*, StoreLimits, StoreLimitsBuilder};
 use wasmtime::{Config, Engine, Store};
 use wasmtime_wasi::preview2::command::sync;
 use wasmtime_wasi::preview2::{Table, WasiCtx, WasiCtxBuilder, WasiView};
@@ -101,6 +101,7 @@ struct MyCtx {
     wasi: WasiCtx,
     queue: Vec<HostEvent>,
     delta_seconds: f32,
+    limits: StoreLimits,
 }
 
 impl WasiView for MyCtx {
@@ -653,8 +654,12 @@ async fn get_wasm(
             wasi,
             queue: Vec::new(),
             delta_seconds: 0.0,
+            limits: StoreLimitsBuilder::new()
+                .memory_size(50 << 20 /* 50 MB */)
+                .build(),
         },
     );
+    store.limiter(|state| &mut state.limits);
     let (bindings, _) = MyWorld::instantiate(&mut store, &component, &linker)?;
 
     ctx.run_on_main_thread(move |ctx| {
