@@ -7,6 +7,12 @@ use bevy_cosmic_edit::*;
 #[derive(bevy::prelude::Component)]
 pub struct Portal;
 
+#[derive(bevy::prelude::Component)]
+pub struct AddressBar;
+
+#[derive(bevy::prelude::Component)]
+pub struct MainCamera;
+
 pub fn bevy_color_to_cosmic(color: bevy::prelude::Color) -> CosmicColor {
     CosmicColor::rgba(
         (color.r() * 255.) as u8,
@@ -28,7 +34,7 @@ pub fn string_to_bevy_color(str: String) -> bevy::prelude::Color {
 }
 
 pub fn setup(mut commands: Commands) {
-    commands.spawn(Camera2dBundle::default());
+    commands.spawn((Camera2dBundle::default(), MainCamera));
     let root = commands
         .spawn(NodeBundle {
             style: Style {
@@ -65,21 +71,24 @@ pub fn setup(mut commands: Commands) {
                 text_setter: PlaceholderText(CosmicText::OneStyle("Enter URL...".into())),
                 attrs: PlaceholderAttrs(placeholder_attrs.clone()),
             },
+            AddressBar,
         ))
         .id();
     let edit = commands
-        .spawn(ButtonBundle {
-            border_color: Color::hex("#ededed").unwrap().into(),
-            style: Style {
-                border: UiRect::all(bevy::prelude::Val::Px(3.)),
-                width: bevy::prelude::Val::Percent(30.),
-                height: bevy::prelude::Val::Px(40.),
+        .spawn((
+            ButtonBundle {
+                border_color: Color::hex("#ededed").unwrap().into(),
+                style: Style {
+                    border: UiRect::all(bevy::prelude::Val::Px(3.)),
+                    width: bevy::prelude::Val::Percent(30.),
+                    height: bevy::prelude::Val::Px(40.),
+                    ..default()
+                },
+                background_color: Color::WHITE.into(),
                 ..default()
             },
-            background_color: Color::WHITE.into(),
-            ..default()
-        })
-        .insert(CosmicSource(editor))
+            CosmicSource(editor),
+        ))
         .id();
     commands.insert_resource(Focus(Some(editor)));
     let portal = commands

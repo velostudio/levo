@@ -107,14 +107,12 @@ func (e HostImpl) Update() {
         updateParticles()
         killParticles()
         drawParticles()
-        if tick < 200 {
-                world.LevoPortalMyImportsLink("localhost/rust.wasm", "Go to rust.wasm", 0., 300., 32.)
-        }
         if tick > 100 {
                 drawHeart()
         }
         if tick > 200 {
                 world.LevoPortalMyImportsLabel("Happy New Year from Go!", 0., -200., 64., "white")
+                world.LevoPortalMyImportsLink("localhost/rust.wasm", "Go to rust.wasm", -100., -300., 32.)
         }
 }
 

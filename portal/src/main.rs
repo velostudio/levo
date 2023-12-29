@@ -1,8 +1,9 @@
 // use bevy::diagnostic::{FrameTimeDiagnosticsPlugin, LogDiagnosticsPlugin};
 use bevy::prelude::{
-    default, App, BuildChildren, ButtonBundle, Changed, Color, Commands, DespawnRecursiveExt,
-    Entity, Input, KeyCode, PreUpdate, Query, Res, ResMut, Resource, SpatialBundle, Startup,
-    TextBundle, Transform, Update, Vec2, With, PostUpdate,
+    default, App, BuildChildren, ButtonBundle, Camera, Changed, Color, Commands,
+    DespawnRecursiveExt, Entity, First, GlobalTransform, Input, KeyCode, PostUpdate, PreUpdate,
+    Query, Res, ResMut, Resource, SpatialBundle, Startup, TextBundle, Transform, Update, Vec2,
+    Vec3, Visibility, With,
 };
 use bevy::text::{Text, Text2dBundle, TextSection, TextStyle};
 use bevy::time::Time;
@@ -257,7 +258,8 @@ fn main() {
         .add_plugins(CosmicEditPlugin::default())
         .add_plugins(ShapePlugin)
         .add_systems(Startup, setup)
-        .add_systems(PreUpdate, clear)
+        .add_systems(First, clear_second_part)
+        .add_systems(PreUpdate, clear_first_part)
         .add_systems(Update, handle_enter)
         .add_systems(Update, run_wasm_setup)
         .add_systems(Update, run_wasm_update)
@@ -287,18 +289,34 @@ enum PathCommand {
 struct GuestEntity;
 
 #[derive(bevy::prelude::Component)]
+struct DeadEntity;
+
+#[derive(bevy::prelude::Component)]
 struct GuestUrl(String);
 
-fn clear(mut commands: Commands, guest_entites: Query<Entity, With<GuestEntity>>) {
+fn clear_first_part(mut commands: Commands, guest_entites: Query<Entity, With<GuestEntity>>) {
+    for entity in guest_entites.iter() {
+        commands.entity(entity).remove::<Visibility>();
+        commands.entity(entity).remove::<Transform>();
+        commands.entity(entity).insert(DeadEntity);
+    }
+}
+
+fn clear_second_part(mut commands: Commands, guest_entites: Query<Entity, With<DeadEntity>>) {
     for entity in guest_entites.iter() {
         commands.entity(entity).despawn_recursive();
     }
 }
 
-fn handle_guest_event(mut commands: Commands, wasm_store: Option<ResMut<WasmStore>>) {
+fn handle_guest_event(
+    mut commands: Commands,
+    camera_q: Query<(&Camera, &GlobalTransform), With<MainCamera>>,
+    wasm_store: Option<ResMut<WasmStore>>,
+) {
     let Some(mut wasm_store) = wasm_store else {
         return;
     };
+    let (camera, camera_transform) = camera_q.single();
     let queue = &mut wasm_store.store.data_mut().queue;
     let mut current_fill = None;
     let mut current_path = Vec::new();
@@ -445,40 +463,43 @@ fn handle_guest_event(mut commands: Commands, wasm_store: Option<ResMut<WasmStor
                 y,
                 size,
             }) => {
-                let button = commands
-                    .spawn((
-                        ButtonBundle {
-                            focus_policy: bevy::ui::FocusPolicy::Pass,
-                            background_color: Color::NONE.into(),
-                            style: Style {
-                                position_type: bevy::ui::PositionType::Absolute,
-                                right: bevy::prelude::Val::Px((w / 2.) - x),
-                                top: bevy::prelude::Val::Px((h / 2.) - y),
+                if let Some(pos) = camera.world_to_viewport(camera_transform, Vec3::new(x, y, 0.01))
+                {
+                    let button = commands
+                        .spawn((
+                            ButtonBundle {
+                                focus_policy: bevy::ui::FocusPolicy::Pass,
+                                background_color: Color::NONE.into(),
+                                style: Style {
+                                    position_type: bevy::ui::PositionType::Absolute,
+                                    left: bevy::prelude::Val::Px(pos.x),
+                                    top: bevy::prelude::Val::Px(pos.y),
+                                    ..default()
+                                },
+                                ..default()
+                            },
+                            GuestUrl(url),
+                            GuestEntity,
+                        ))
+                        .id();
+                    let text = commands
+                        .spawn((TextBundle {
+                            text: Text {
+                                sections: vec![TextSection::new(
+                                    text,
+                                    TextStyle {
+                                        font_size: size,
+                                        color: Color::BLUE,
+                                        ..default()
+                                    },
+                                )],
                                 ..default()
                             },
                             ..default()
-                        },
-                        GuestUrl(url),
-                        GuestEntity,
-                    ))
-                    .id();
-                let text = commands
-                    .spawn((TextBundle {
-                        text: Text {
-                            sections: vec![TextSection::new(
-                                text,
-                                TextStyle {
-                                    font_size: size,
-                                    color: Color::BLUE,
-                                    ..default()
-                                },
-                            )],
-                            ..default()
-                        },
-                        ..default()
-                    },))
-                    .id();
-                commands.entity(button).add_child(text);
+                        },))
+                        .id();
+                    commands.entity(button).add_child(text);
+                }
             }
         }
     }
@@ -486,15 +507,22 @@ fn handle_guest_event(mut commands: Commands, wasm_store: Option<ResMut<WasmStor
 
 fn handle_link(
     mut windows: Query<&mut Window, With<PrimaryWindow>>,
+    mut text_input_q: Query<&mut CosmicText, With<AddressBar>>,
     links_q: Query<(&Interaction, &GuestUrl), (Changed<Interaction>, With<GuestUrl>)>,
     runtime: ResMut<TokioTasksRuntime>,
 ) {
+    if windows.iter().len() == 0 {
+        return;
+    }
     let mut primary_window = windows.single_mut();
     for (interaction, url) in links_q.iter() {
         match interaction {
             Interaction::Pressed => {
-                primary_window.cursor.icon = CursorIcon::Crosshair;
+                primary_window.cursor.icon = CursorIcon::Hand;
                 let text = url.0.clone();
+                let mut text_input = text_input_q.single_mut();
+                // TODO if link is broken portal stays on the same resource, do we need 404.wasm?
+                *text_input = CosmicText::OneStyle(text.clone());
                 runtime.spawn_background_task(|ctx| async move {
                     match get_wasm(ctx, text.clone()).await {
                         Ok(_) => {}
@@ -503,7 +531,7 @@ fn handle_link(
                 });
             }
             Interaction::Hovered => {
-                primary_window.cursor.icon = CursorIcon::Crosshair;
+                primary_window.cursor.icon = CursorIcon::Hand;
             }
             Interaction::None => {
                 primary_window.cursor.icon = CursorIcon::Default;
