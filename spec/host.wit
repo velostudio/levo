@@ -11,6 +11,7 @@ interface my-imports {
   close-path: func();
   fill: func();
   label: func(text: string, x: float32, y: float32, size: float32, color: string);
+  link: func(url: string, text: string, x: float32, y: float32, size: float32);
   delta-seconds: func() -> float32;
 }
 

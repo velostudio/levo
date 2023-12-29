@@ -1,10 +1,14 @@
 // use bevy::diagnostic::{FrameTimeDiagnosticsPlugin, LogDiagnosticsPlugin};
 use bevy::prelude::{
-    default, App, Color, Commands, DespawnRecursiveExt, Entity, Input, KeyCode, PreUpdate, Query,
-    Res, ResMut, Resource, SpatialBundle, Startup, Transform, Update, Vec2, With,
+    default, App, BuildChildren, ButtonBundle, Camera, Changed, Color, Commands,
+    DespawnRecursiveExt, Entity, First, GlobalTransform, Input, KeyCode, PostUpdate, PreUpdate,
+    Query, Res, ResMut, Resource, SpatialBundle, Startup, TextBundle, Transform, Update, Vec2,
+    Vec3, Visibility, With,
 };
 use bevy::text::{Text, Text2dBundle, TextSection, TextStyle};
 use bevy::time::Time;
+use bevy::ui::{Interaction, Style};
+use bevy::window::{CursorIcon, PrimaryWindow, Window};
 use bevy::DefaultPlugins;
 use bevy_cosmic_edit::*;
 
@@ -12,8 +16,8 @@ use bevy_prototype_lyon::prelude::{Fill, GeometryBuilder, PathBuilder, ShapeBund
 use bevy_prototype_lyon::shapes::{Rectangle, RectangleOrigin};
 use bevy_tokio_tasks::TokioTasksRuntime;
 use brotli::Decompressor;
-use url::Url;
 use std::io::Read;
+use url::Url;
 use wasmtime::component::*;
 use wasmtime::{Config, Engine, Store};
 use wasmtime_wasi::preview2::command::sync;
@@ -61,6 +65,15 @@ struct CubicBezierTo {
 }
 
 #[derive(PartialEq, Debug)]
+struct Link {
+    url: String,
+    text: String,
+    x: f32,
+    y: f32,
+    size: f32,
+}
+
+#[derive(PartialEq, Debug)]
 struct Label {
     text: String,
     x: f32,
@@ -71,15 +84,16 @@ struct Label {
 
 #[derive(Debug)]
 enum HostEvent {
-    Label(Label),
-    FillStyle(String),
-    FillRect(FillRect),
-    MoveTo((f32, f32)),
-    CubicBezierTo(CubicBezierTo),
-    BeginPath,
     Arc(Arc),
+    BeginPath,
     ClosePath,
+    CubicBezierTo(CubicBezierTo),
     Fill,
+    FillRect(FillRect),
+    FillStyle(String),
+    Label(Label),
+    Link(Link),
+    MoveTo((f32, f32)),
 }
 
 struct MyCtx {
@@ -110,10 +124,12 @@ impl Host for MyCtx {
         dbg!(from_wasm);
         Ok(())
     }
+
     fn fill_style(&mut self, color: String) -> wasmtime::Result<()> {
         self.queue.push(HostEvent::FillStyle(color));
         Ok(())
     }
+
     fn fill_rect(&mut self, x: f32, y: f32, width: f32, height: f32) -> wasmtime::Result<()> {
         self.queue.push(HostEvent::FillRect(FillRect {
             x,
@@ -123,10 +139,12 @@ impl Host for MyCtx {
         }));
         Ok(())
     }
+
     fn begin_path(&mut self) -> wasmtime::Result<()> {
         self.queue.push(HostEvent::BeginPath);
         Ok(())
     }
+
     fn arc(
         &mut self,
         x: f32,
@@ -144,18 +162,22 @@ impl Host for MyCtx {
         }));
         Ok(())
     }
+
     fn close_path(&mut self) -> wasmtime::Result<()> {
         self.queue.push(HostEvent::ClosePath);
         Ok(())
     }
+
     fn fill(&mut self) -> wasmtime::Result<()> {
         self.queue.push(HostEvent::Fill);
         Ok(())
     }
+
     fn move_to(&mut self, x: f32, y: f32) -> wasmtime::Result<()> {
         self.queue.push(HostEvent::MoveTo((x, y)));
         Ok(())
     }
+
     fn cubic_bezier_to(
         &mut self,
         x1: f32,
@@ -175,6 +197,25 @@ impl Host for MyCtx {
         }));
         Ok(())
     }
+
+    fn link(
+        &mut self,
+        url: String,
+        text: String,
+        x: f32,
+        y: f32,
+        size: f32,
+    ) -> wasmtime::Result<()> {
+        self.queue.push(HostEvent::Link(Link {
+            url,
+            text,
+            x,
+            y,
+            size,
+        }));
+        Ok(())
+    }
+
     fn label(
         &mut self,
         text: String,
@@ -216,12 +257,14 @@ fn main() {
         .add_plugins(DefaultPlugins)
         .add_plugins(CosmicEditPlugin::default())
         .add_plugins(ShapePlugin)
-        .add_systems(PreUpdate, clear)
+        .add_systems(Startup, setup)
+        .add_systems(First, clear_second_part)
+        .add_systems(PreUpdate, clear_first_part)
         .add_systems(Update, handle_enter)
         .add_systems(Update, run_wasm_setup)
         .add_systems(Update, run_wasm_update)
         .add_systems(Update, handle_guest_event)
-        .add_systems(Startup, setup)
+        .add_systems(PostUpdate, handle_link)
         .add_plugins(bevy_tokio_tasks::TokioTasksPlugin {
             make_runtime: Box::new(|| {
                 let mut runtime = tokio::runtime::Builder::new_multi_thread();
@@ -245,16 +288,35 @@ enum PathCommand {
 #[derive(bevy::prelude::Component)]
 struct GuestEntity;
 
-fn clear(mut commands: Commands, guest_entites: Query<Entity, With<GuestEntity>>) {
+#[derive(bevy::prelude::Component)]
+struct DeadEntity;
+
+#[derive(bevy::prelude::Component)]
+struct GuestUrl(String);
+
+fn clear_first_part(mut commands: Commands, guest_entites: Query<Entity, With<GuestEntity>>) {
+    for entity in guest_entites.iter() {
+        commands.entity(entity).remove::<Visibility>();
+        commands.entity(entity).remove::<Transform>();
+        commands.entity(entity).insert(DeadEntity);
+    }
+}
+
+fn clear_second_part(mut commands: Commands, guest_entites: Query<Entity, With<DeadEntity>>) {
     for entity in guest_entites.iter() {
         commands.entity(entity).despawn_recursive();
     }
 }
 
-fn handle_guest_event(mut commands: Commands, wasm_store: Option<ResMut<WasmStore>>) {
+fn handle_guest_event(
+    mut commands: Commands,
+    camera_q: Query<(&Camera, &GlobalTransform), With<MainCamera>>,
+    wasm_store: Option<ResMut<WasmStore>>,
+) {
     let Some(mut wasm_store) = wasm_store else {
         return;
     };
+    let (camera, camera_transform) = camera_q.single();
     let queue = &mut wasm_store.store.data_mut().queue;
     let mut current_fill = None;
     let mut current_path = Vec::new();
@@ -394,6 +456,86 @@ fn handle_guest_event(mut commands: Commands, wasm_store: Option<ResMut<WasmStor
                     GuestEntity,
                 ));
             }
+            HostEvent::Link(Link {
+                url,
+                text,
+                x,
+                y,
+                size,
+            }) => {
+                if let Some(pos) = camera.world_to_viewport(camera_transform, Vec3::new(x, y, 0.01))
+                {
+                    let button = commands
+                        .spawn((
+                            ButtonBundle {
+                                focus_policy: bevy::ui::FocusPolicy::Pass,
+                                background_color: Color::NONE.into(),
+                                style: Style {
+                                    position_type: bevy::ui::PositionType::Absolute,
+                                    left: bevy::prelude::Val::Px(pos.x),
+                                    top: bevy::prelude::Val::Px(pos.y),
+                                    ..default()
+                                },
+                                ..default()
+                            },
+                            GuestUrl(url),
+                            GuestEntity,
+                        ))
+                        .id();
+                    let text = commands
+                        .spawn((TextBundle {
+                            text: Text {
+                                sections: vec![TextSection::new(
+                                    text,
+                                    TextStyle {
+                                        font_size: size,
+                                        color: Color::BLUE,
+                                        ..default()
+                                    },
+                                )],
+                                ..default()
+                            },
+                            ..default()
+                        },))
+                        .id();
+                    commands.entity(button).add_child(text);
+                }
+            }
+        }
+    }
+}
+
+fn handle_link(
+    mut windows: Query<&mut Window, With<PrimaryWindow>>,
+    mut text_input_q: Query<&mut CosmicText, With<AddressBar>>,
+    links_q: Query<(&Interaction, &GuestUrl), (Changed<Interaction>, With<GuestUrl>)>,
+    runtime: ResMut<TokioTasksRuntime>,
+) {
+    if windows.iter().len() == 0 {
+        return;
+    }
+    let mut primary_window = windows.single_mut();
+    for (interaction, url) in links_q.iter() {
+        match interaction {
+            Interaction::Pressed => {
+                primary_window.cursor.icon = CursorIcon::Hand;
+                let text = url.0.clone();
+                let mut text_input = text_input_q.single_mut();
+                // TODO if link is broken portal stays on the same resource, do we need 404.wasm?
+                *text_input = CosmicText::OneStyle(text.clone());
+                runtime.spawn_background_task(|ctx| async move {
+                    match get_wasm(ctx, text.clone()).await {
+                        Ok(_) => {}
+                        Err(e) => eprintln!("failed to get wasm for '{text}': {e}"),
+                    }
+                });
+            }
+            Interaction::Hovered => {
+                primary_window.cursor.icon = CursorIcon::Hand;
+            }
+            Interaction::None => {
+                primary_window.cursor.icon = CursorIcon::Default;
+            }
         }
     }
 }
@@ -446,14 +588,18 @@ async fn get_wasm(
     mut ctx: bevy_tokio_tasks::TaskContext,
     url: String,
 ) -> Result<(), Box<dyn std::error::Error>> {
-    let valid_url = if url.contains("http") { url } else { format!("https://{}", url) };
+    let valid_url = if url.contains("http") {
+        url
+    } else {
+        format!("https://{}", url)
+    };
     let uri = Url::parse(valid_url.as_str()).expect("expected valid URL");
     let host = uri.host_str().expect("expected valid host");
     let path = uri.path();
     let config = ClientConfig::builder()
         .with_bind_default()
         .with_no_cert_validation() // FIXME: don't do it on prod!
-        .enable_key_log() // TODO: put under feature flag 
+        .enable_key_log() // TODO: put under feature flag
         .build();
 
     let connection = Endpoint::client(config)

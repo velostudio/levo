@@ -32,6 +32,9 @@ extern void __wasm_import_levo_portal_my_imports_fill(void);
 __attribute__((__import_module__("levo:portal/my-imports"), __import_name__("label")))
 extern void __wasm_import_levo_portal_my_imports_label(int32_t, int32_t, float, float, float, int32_t, int32_t);
 
+__attribute__((__import_module__("levo:portal/my-imports"), __import_name__("link")))
+extern void __wasm_import_levo_portal_my_imports_link(int32_t, int32_t, int32_t, int32_t, float, float, float);
+
 __attribute__((__import_module__("levo:portal/my-imports"), __import_name__("delta-seconds")))
 extern float __wasm_import_levo_portal_my_imports_delta_seconds(void);
 
@@ -105,6 +108,10 @@ void levo_portal_my_imports_fill(void) {
 
 void levo_portal_my_imports_label(my_world_string_t *text, float x, float y, float size, my_world_string_t *color) {
   __wasm_import_levo_portal_my_imports_label((int32_t) (*text).ptr, (int32_t) (*text).len, x, y, size, (int32_t) (*color).ptr, (int32_t) (*color).len);
+}
+
+void levo_portal_my_imports_link(my_world_string_t *url, my_world_string_t *text, float x, float y, float size) {
+  __wasm_import_levo_portal_my_imports_link((int32_t) (*url).ptr, (int32_t) (*url).len, (int32_t) (*text).ptr, (int32_t) (*text).len, x, y, size);
 }
 
 float levo_portal_my_imports_delta_seconds(void) {

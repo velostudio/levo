@@ -124,12 +124,14 @@ impl Guest for MyWorld {
         update_particles();
         kill_particles();
         draw_particles();
+
         let tick = tick().lock().unwrap();
         if *tick > 100 {
             draw_heart();
         }
         if *tick > 200 {
-            label("Happy New Year from Rust!", 0., -200., 64., "white")
+            label("Happy New Year from Rust!", 0., -200., 64., "white");
+            link("localhost/go.wasm", "Go to go.wasm", -100., -300., 32.);
         }
     }
 
