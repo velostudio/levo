@@ -1,7 +1,7 @@
 [workspace]
 members = [
   "brotli-encoder",
-  "client-app",
+  "clients/rust-client-app",
   "levo-server",
   "portal",
 ]

@@ -4,17 +4,13 @@ _WIP_
 
 https://staffengineer.github.io/blog/levo.html
 
-## web: the good parts
+## Levo: the good parts
 
-To re-generate brotli encoded wasm file, use the following commands, or run `build.sh`.
+To re-generate brotli encoded wasm file of rust client:
 
 ```bash
-# build the client app with wasm32-wasi target
-cargo build --package client-app --target wasm32-wasi --release
-# patch the client app to support WASI and component model
-wasm-tools component new ./target/wasm32-wasi/release/client_app.wasm -o ./target/my-component.wasm --adapt ./client-app/wasi_snapshot_preview1.reactor.wasm
-# compress the patched wasm file
-cargo run --package brotli-encoder --release -- ./target/my-component.wasm ./levo-server/my-component-wasm.br
+cd clients/rust-client-app
+./build.sh
 ```
 
 To start demo server:

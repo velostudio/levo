@@ -1,5 +1,5 @@
 [package]
-name = "client-app"
+name = "rust-client-app"
 version = "0.1.0"
 edition = "2021"
 
