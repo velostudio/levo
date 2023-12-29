@@ -260,7 +260,7 @@ fn main() {
         .add_systems(Startup, setup)
         .add_systems(First, clear_second_part)
         .add_systems(PreUpdate, clear_first_part)
-        .add_systems(Update, handle_enter)
+        .add_systems(Update, handle_get_wasm)
         .add_systems(Update, run_wasm_setup)
         .add_systems(Update, run_wasm_update)
         .add_systems(Update, handle_guest_event)
@@ -540,12 +540,17 @@ fn handle_link(
     }
 }
 
-fn handle_enter(
+fn handle_get_wasm(
     editor_q: Query<&CosmicEditor>,
     keys: Res<Input<KeyCode>>,
     runtime: ResMut<TokioTasksRuntime>,
 ) {
-    if !keys.just_pressed(KeyCode::Return) {
+    #[cfg(target_os = "macos")]
+    let command = keys.any_pressed([KeyCode::SuperLeft, KeyCode::SuperRight]);
+    #[cfg(not(target_os = "macos"))]
+    let command = keys.any_pressed([KeyCode::ControlLeft, KeyCode::ControlRight]);
+
+    if !keys.just_pressed(KeyCode::Return) && !(command && keys.just_pressed(KeyCode::R)) {
         return;
     }
     for editor in editor_q.iter() {
