@@ -53,7 +53,14 @@ fn create_particles() {
     if *tick % 10 == 0 {
         if particles.len() < 100 {
             particles.push(Particle {
-                x: rand::thread_rng().gen_range(0.0..1.0) * canvas_width,
+                x: if let Some(cursor_position) = mouse_button_pressed(MouseButton::Left)
+                    .then_some(())
+                    .and_then(|_| cursor_position())
+                {
+                    cursor_position.x
+                } else {
+                    rand::thread_rng().gen_range(0.0..canvas_width)
+                },
                 y: 0.,
                 speed: 500. + rand::thread_rng().gen_range(0.0..1.0) * 13.,
                 radius: 5. + rand::thread_rng().gen_range(0.0..1.0) * 5.,
