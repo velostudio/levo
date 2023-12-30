@@ -59,56 +59,56 @@ async fn handle_connection_impl(incoming_session: IncomingSession) -> Result<()>
 
     loop {
         tokio::select! {
-             stream = connection.accept_bi() => {
-                 let mut stream = stream?;
-                 info!("Accepted BI stream");
+            stream = connection.accept_bi() => {
+                let mut stream = stream?;
+                info!("Accepted BI stream");
 
-                 let bytes_read = match stream.1.read(&mut buffer).await? {
-                     Some(bytes_read) => bytes_read,
-                     None => continue,
-                 };
+                let bytes_read = match stream.1.read(&mut buffer).await? {
+                    Some(bytes_read) => bytes_read,
+                    None => continue,
+                };
 
-                 let client_msg = std::str::from_utf8(&buffer[..bytes_read])?;
+                let client_msg = std::str::from_utf8(&buffer[..bytes_read])?;
 
-                 if client_msg == "WASM" {
-                     let clean_path = path_clean::clean(path.clone());
-                     let mut path = format!("./public{}", clean_path.display());
-                     if !Path::new(path.as_str()).exists() {
-                         path = "./public/404.wasm".to_string();
-                     }
-                     let data = std::fs::read(path).expect("Failed to read wasm brotli encoded file");
-                     stream.0.write_all(data.as_slice()).await?;
-                     info!("WASM sent");
-                 } else {
-                     stream.0.write_all(b"UNKNOWN_MSG").await?;
-                 }
-                 stream.0.finish().await?;
-             }
-             stream = connection.accept_uni() => {
-                 let mut stream = stream?;
-                 info!("Accepted UNI stream");
+                if client_msg == "WASM" {
+                    let clean_path = path_clean::clean(path.clone());
+                    let mut path = format!("./public{}", clean_path.display());
+                    if !Path::new(path.as_str()).exists() {
+                        path = "./public/404.wasm".to_string();
+                    }
+                    let data = std::fs::read(path).expect("Failed to read wasm brotli encoded file");
+                    stream.0.write_all(data.as_slice()).await?;
+                    info!("WASM sent");
+                } else {
+                    stream.0.write_all(b"UNKNOWN_MSG").await?;
+                }
+                stream.0.finish().await?;
+            }
+            stream = connection.accept_uni() => {
+                let mut stream = stream?;
+                info!("Accepted UNI stream");
 
-                 let bytes_read = match stream.read(&mut buffer).await? {
-                     Some(bytes_read) => bytes_read,
-                     None => continue,
-                 };
+                let bytes_read = match stream.read(&mut buffer).await? {
+                    Some(bytes_read) => bytes_read,
+                    None => continue,
+                };
 
-                 let str_data = std::str::from_utf8(&buffer[..bytes_read])?;
+                let str_data = std::str::from_utf8(&buffer[..bytes_read])?;
 
-                 info!("Received (uni) '{str_data}' from client");
+                info!("Received (uni) '{str_data}' from client");
 
-                 let mut stream = connection.open_uni().await?.await?;
-                 stream.write_all(b"ACK").await?;
-             }
-             dgram = connection.receive_datagram() => {
-                 let dgram = dgram?;
-                 let str_data = std::str::from_utf8(&dgram)?;
+                let mut stream = connection.open_uni().await?.await?;
+                stream.write_all(b"ACK").await?;
+            }
+            dgram = connection.receive_datagram() => {
+                let dgram = dgram?;
+                let str_data = std::str::from_utf8(&dgram)?;
 
-                 info!("Received (dgram) '{str_data}' from client");
+                info!("Received (dgram) '{str_data}' from client");
 
-                 connection.send_datagram(b"ACK")?;
-             }
-         }
+                connection.send_datagram(b"ACK")?;
+            }
+        }
     }
 }
 
