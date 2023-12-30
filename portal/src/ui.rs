@@ -1,6 +1,8 @@
 use bevy::prelude::{
-    default, BuildChildren, ButtonBundle, Camera2dBundle, Color, Commands, NodeBundle,
+    default, AssetServer, BuildChildren, ButtonBundle, Camera2dBundle, Color, Commands, NodeBundle,
+    Res, TextBundle,
 };
+use bevy::text::{Text, TextStyle};
 use bevy::ui::{AlignItems, Display, FlexDirection, Style, UiRect};
 use bevy_cosmic_edit::*;
 
@@ -9,6 +11,9 @@ pub struct Portal;
 
 #[derive(bevy::prelude::Component)]
 pub struct AddressBar;
+
+#[derive(bevy::prelude::Component)]
+pub struct RefreshButton;
 
 #[derive(bevy::prelude::Component)]
 pub struct MainCamera;
@@ -33,7 +38,8 @@ pub fn string_to_bevy_color(str: String) -> bevy::prelude::Color {
     }
 }
 
-pub fn setup(mut commands: Commands) {
+pub fn setup(mut commands: Commands, asset_server: Res<AssetServer>) {
+    let icon_font = asset_server.load("fonts/MaterialIcons-Regular-subset.ttf");
     commands.spawn((Camera2dBundle::default(), MainCamera));
     let root = commands
         .spawn(NodeBundle {
@@ -80,7 +86,7 @@ pub fn setup(mut commands: Commands) {
                 border_color: Color::hex("#ededed").unwrap().into(),
                 style: Style {
                     border: UiRect::all(bevy::prelude::Val::Px(3.)),
-                    width: bevy::prelude::Val::Percent(30.),
+                    width: bevy::prelude::Val::Percent(100.),
                     height: bevy::prelude::Val::Px(40.),
                     ..default()
                 },
@@ -105,6 +111,40 @@ pub fn setup(mut commands: Commands) {
             Portal,
         ))
         .id();
-    commands.entity(root).add_child(edit);
+    let refresh_button = commands
+        .spawn((
+            ButtonBundle {
+                background_color: Color::NONE.into(),
+                ..default()
+            },
+            RefreshButton,
+        ))
+        .id();
+    let icon = commands
+        .spawn(TextBundle {
+            text: Text::from_section(
+                "\u{E5D5}".to_string(),
+                TextStyle {
+                    font: icon_font.into(),
+                    font_size: 42.0,
+                    color: Color::GRAY.into(),
+                },
+            ),
+            ..default()
+        })
+        .id();
+    commands.entity(refresh_button).add_child(icon);
+    let panel = commands.spawn(NodeBundle {
+        style: Style {
+            width: bevy::ui::Val::Percent(50.),
+            ..default()
+        },
+        ..default()
+    }).id();
+
+    commands.entity(panel).add_child(edit);
+    commands.entity(panel).add_child(refresh_button);
+
+    commands.entity(root).add_child(panel);
     commands.entity(root).add_child(portal);
 }

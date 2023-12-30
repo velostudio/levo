@@ -7,7 +7,7 @@ use bevy::prelude::{
 };
 use bevy::text::{Text, Text2dBundle, TextSection, TextStyle};
 use bevy::time::Time;
-use bevy::ui::{Interaction, Style};
+use bevy::ui::{Interaction, Style, BackgroundColor};
 use bevy::window::{CursorIcon, PrimaryWindow, Window};
 use bevy::DefaultPlugins;
 use bevy_cosmic_edit::*;
@@ -265,6 +265,7 @@ fn main() {
         .add_systems(Update, run_wasm_setup)
         .add_systems(Update, run_wasm_update)
         .add_systems(Update, handle_guest_event)
+        .add_systems(Update, handle_refresh)
         .add_systems(PostUpdate, handle_link)
         .add_plugins(bevy_tokio_tasks::TokioTasksPlugin {
             make_runtime: Box::new(|| {
@@ -506,6 +507,34 @@ fn handle_guest_event(
     }
 }
 
+fn handle_refresh(
+    text_input_q: Query<&CosmicEditor, With<AddressBar>>,
+    mut refresh_q: Query<(&Interaction, &mut BackgroundColor), (Changed<Interaction>, With<RefreshButton>)>,
+    runtime: ResMut<TokioTasksRuntime>,
+) {
+    for (interaction, mut background_color) in refresh_q.iter_mut() {
+        match interaction {
+            Interaction::Pressed => {
+                *background_color = Color::GRAY.with_a(0.3).into();
+                let text = text_input_q.single().get_text();
+                // TODO if link is broken portal stays on the same resource, do we need 404.wasm?
+                runtime.spawn_background_task(|ctx| async move {
+                    match get_wasm(ctx, text.clone()).await {
+                        Ok(_) => {}
+                        Err(e) => eprintln!("failed to get wasm for '{text}': {e}"),
+                    }
+                });
+            }
+            Interaction::Hovered => {
+                *background_color = Color::GRAY.with_a(0.3).into();
+            }
+            Interaction::None => {
+                *background_color = Color::NONE.into()
+            }
+        }
+    }
+}
+
 fn handle_link(
     mut windows: Query<&mut Window, With<PrimaryWindow>>,
     mut text_input_q: Query<&mut CosmicText, With<AddressBar>>,
@@ -542,7 +571,7 @@ fn handle_link(
 }
 
 fn handle_get_wasm(
-    editor_q: Query<&CosmicEditor>,
+    editor_q: Query<&CosmicEditor, With<AddressBar>>,
     keys: Res<Input<KeyCode>>,
     runtime: ResMut<TokioTasksRuntime>,
 ) {
