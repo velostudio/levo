@@ -17,7 +17,9 @@ int particleCount = 0;
 unsigned int tick = 0;
 
 void createParticles() {
-    float canvas_width = 1200.0;  // TODO: pass from host
+    levo_portal_my_imports_size_t canvasSize;
+    levo_portal_my_imports_canvas_size(&canvasSize);
+    float canvas_width = canvasSize.width;
     tick++;
     if (tick % 10 == 0 && particleCount < 100) {
         particles[particleCount].x = ((float)rand() / RAND_MAX) * canvas_width;
@@ -40,7 +42,9 @@ void updateParticles() {
 }
 
 void killParticles() {
-    float canvas_height = 800.0;  // TODO: pass from host
+    levo_portal_my_imports_size_t canvasSize;
+    levo_portal_my_imports_canvas_size(&canvasSize);
+    float canvas_height = canvasSize.height;
     for (int i = 0; i < particleCount; i++) {
         if (particles[i].y < -canvas_height) {
             particles[i].y = 0.0;
@@ -52,7 +56,10 @@ void drawParticles() {
     my_world_string_t fill_style;
     my_world_string_set(&fill_style, "royal_purple");
     levo_portal_my_imports_fill_style(&fill_style);
-    levo_portal_my_imports_fill_rect(0.0, 0.0, 1200.0, 800.0);
+    levo_portal_my_imports_size_t canvasSize;
+    levo_portal_my_imports_canvas_size(&canvasSize);
+    float canvas_height = canvasSize.height;
+    levo_portal_my_imports_fill_rect(0.0, 0.0, canvasSize.width, canvasSize.height);
 
     for (int i = 0; i < particleCount; i++) {
         levo_portal_my_imports_begin_path();

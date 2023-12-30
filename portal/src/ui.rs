@@ -101,8 +101,8 @@ pub fn setup(mut commands: Commands, asset_server: Res<AssetServer>) {
         .spawn((
             NodeBundle {
                 style: Style {
-                    width: bevy::prelude::Val::Percent(90.),
-                    height: bevy::prelude::Val::Percent(90.),
+                    width: bevy::prelude::Val::Percent(100.),
+                    height: bevy::prelude::Val::Percent(100.),
                     ..default()
                 },
                 background_color: Color::NONE.into(),
@@ -134,13 +134,15 @@ pub fn setup(mut commands: Commands, asset_server: Res<AssetServer>) {
         })
         .id();
     commands.entity(refresh_button).add_child(icon);
-    let panel = commands.spawn(NodeBundle {
-        style: Style {
-            width: bevy::ui::Val::Percent(50.),
+    let panel = commands
+        .spawn(NodeBundle {
+            style: Style {
+                width: bevy::ui::Val::Percent(50.),
+                ..default()
+            },
             ..default()
-        },
-        ..default()
-    }).id();
+        })
+        .id();
 
     commands.entity(panel).add_child(edit);
     commands.entity(panel).add_child(refresh_button);

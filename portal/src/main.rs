@@ -108,6 +108,12 @@ struct Inputs {
     cursor_position: Option<Vec2>,
 }
 
+#[derive(Debug)]
+struct Canvas {
+    size: Vec2,
+    position: Vec2,
+}
+
 struct MyCtx {
     table: Table,
     wasi: WasiCtx,
@@ -115,6 +121,7 @@ struct MyCtx {
     delta_seconds: f32,
     limits: StoreLimits,
     inputs: Inputs,
+    canvas: Canvas,
 }
 
 impl WasiView for MyCtx {
@@ -146,8 +153,8 @@ impl Host for MyCtx {
 
     fn fill_rect(&mut self, x: f32, y: f32, width: f32, height: f32) -> wasmtime::Result<()> {
         self.queue.push(HostEvent::FillRect(FillRect {
-            x,
-            y,
+            x: x - self.canvas.position.x,
+            y: y - self.canvas.position.y,
             width,
             height,
         }));
@@ -168,8 +175,8 @@ impl Host for MyCtx {
         x_rotation: f32,
     ) -> wasmtime::Result<()> {
         self.queue.push(HostEvent::Arc(Arc {
-            x,
-            y,
+            x: x - self.canvas.position.x,
+            y: y - self.canvas.position.y,
             radius,
             sweep_angle,
             x_rotation,
@@ -188,7 +195,10 @@ impl Host for MyCtx {
     }
 
     fn move_to(&mut self, x: f32, y: f32) -> wasmtime::Result<()> {
-        self.queue.push(HostEvent::MoveTo((x, y)));
+        self.queue.push(HostEvent::MoveTo((
+            x - self.canvas.position.x,
+            y - self.canvas.position.y,
+        )));
         Ok(())
     }
 
@@ -202,12 +212,12 @@ impl Host for MyCtx {
         y3: f32,
     ) -> wasmtime::Result<()> {
         self.queue.push(HostEvent::CubicBezierTo(CubicBezierTo {
-            x1,
-            y1,
-            x2,
-            y2,
-            x3,
-            y3,
+            x1: x1 - self.canvas.position.x,
+            y1: y1 - self.canvas.position.y,
+            x2: x2 - self.canvas.position.x,
+            y2: y2 - self.canvas.position.y,
+            x3: x3 - self.canvas.position.x,
+            y3: y3 - self.canvas.position.y,
         }));
         Ok(())
     }
@@ -223,8 +233,8 @@ impl Host for MyCtx {
         self.queue.push(HostEvent::Link(Link {
             url,
             text,
-            x,
-            y,
+            x: x - self.canvas.position.x,
+            y: y - self.canvas.position.y,
             size,
         }));
         Ok(())
@@ -240,8 +250,8 @@ impl Host for MyCtx {
     ) -> wasmtime::Result<()> {
         self.queue.push(HostEvent::Label(Label {
             text,
-            x,
-            y,
+            x: x - self.canvas.position.x,
+            y: y - self.canvas.position.y,
             size,
             color,
         }));
@@ -296,6 +306,13 @@ impl Host for MyCtx {
 
     fn cursor_position(&mut self) -> wasmtime::Result<Option<levo::portal::my_imports::Position>> {
         Ok(self.inputs.cursor_position.map(Into::into))
+    }
+
+    fn canvas_size(&mut self) -> wasmtime::Result<levo::portal::my_imports::Size> {
+        Ok(levo::portal::my_imports::Size {
+            width: self.canvas.size.x,
+            height: self.canvas.size.y,
+        })
     }
 }
 
@@ -750,17 +767,17 @@ fn clear_second_part(mut commands: Commands, guest_entites: Query<Entity, With<D
 fn handle_guest_event(
     mut commands: Commands,
     camera_q: Query<(&Camera, &GlobalTransform), With<MainCamera>>,
+    canvas_q: Query<&bevy::ui::Node, With<Portal>>,
     wasm_store: Option<ResMut<WasmStore>>,
 ) {
     let Some(mut wasm_store) = wasm_store else {
         return;
     };
     let (camera, camera_transform) = camera_q.single();
+    let canvas_node = canvas_q.single();
     let queue = &mut wasm_store.store.data_mut().queue;
     let mut current_fill = None;
     let mut current_path = Vec::new();
-    let mut w = -1.;
-    let mut h = -1.;
     for r in queue.drain(..) {
         match r {
             HostEvent::FillStyle(c_str) => {
@@ -773,11 +790,9 @@ fn handle_guest_event(
                 width,
                 height,
             }) => {
-                w = width;
-                h = height;
                 let rect = Rectangle {
-                    extents: Vec2::new(x + width, y + height),
-                    origin: RectangleOrigin::Center,
+                    extents: Vec2::new(width, height),
+                    origin: RectangleOrigin::CustomCenter(Vec2::new(x, y)),
                 };
                 commands.spawn((
                     ShapeBundle {
@@ -812,9 +827,11 @@ fn handle_guest_event(
                                 sweep_angle,
                                 x_rotation,
                             }) => {
-                                path_builder.move_to(Vec2::new(x - w / 2., y + h / 2.));
+                                let width = canvas_node.size().x;
+                                let height = canvas_node.size().y;
+                                path_builder.move_to(Vec2::new(x - width / 2., y + height / 2.));
                                 path_builder.arc(
-                                    Vec2::new(x + radius - w / 2., y + radius + h / 2.),
+                                    Vec2::new(x + radius - width / 2., y + radius + height / 2.),
                                     Vec2::new(radius, radius),
                                     sweep_angle,
                                     x_rotation,
@@ -951,15 +968,36 @@ fn handle_refresh(
         (Changed<Interaction>, With<RefreshButton>),
     >,
     runtime: ResMut<TokioTasksRuntime>,
+    canvas_q: Query<(&GlobalTransform, &bevy::ui::Node), With<Portal>>,
+    camera_q: Query<(&Camera, &GlobalTransform), With<MainCamera>>,
+    windows: Query<&Window, With<PrimaryWindow>>,
 ) {
+    if windows.iter().len() == 0 {
+        return;
+    }
+    let primary_window = windows.single();
     for (interaction, mut background_color) in refresh_q.iter_mut() {
         match interaction {
             Interaction::Pressed => {
                 *background_color = Color::GRAY.with_a(0.3).into();
                 let text = text_input_q.single().get_text();
-                // TODO if link is broken portal stays on the same resource, do we need 404.wasm?
-                runtime.spawn_background_task(|ctx| async move {
-                    match get_wasm(ctx, text.clone()).await {
+                let (canvas_global_transform, canvas_node) = canvas_q.single();
+                let (camera, camera_transform) = camera_q.single();
+                let canvas_position = get_position(
+                    canvas_global_transform,
+                    &primary_window,
+                    camera,
+                    camera_transform,
+                );
+                if canvas_position.is_none() {
+                    return;
+                }
+                let canvas = Canvas {
+                    size: canvas_node.size(),
+                    position: canvas_position.unwrap(),
+                };
+                runtime.spawn_background_task(move |ctx| async move {
+                    match get_wasm(ctx, text.clone(), canvas).await {
                         Ok(_) => {}
                         Err(e) => eprintln!("failed to get wasm for '{text}': {e}"),
                     }
@@ -974,10 +1012,12 @@ fn handle_refresh(
 }
 
 fn handle_link(
-    mut windows: Query<&mut Window, With<PrimaryWindow>>,
     mut text_input_q: Query<&mut CosmicText, With<AddressBar>>,
     links_q: Query<(&Interaction, &GuestUrl), (Changed<Interaction>, With<GuestUrl>)>,
     runtime: ResMut<TokioTasksRuntime>,
+    canvas_q: Query<(&GlobalTransform, &bevy::ui::Node), With<Portal>>,
+    camera_q: Query<(&Camera, &GlobalTransform), With<MainCamera>>,
+    mut windows: Query<&mut Window, With<PrimaryWindow>>,
 ) {
     if windows.iter().len() == 0 {
         return;
@@ -989,10 +1029,24 @@ fn handle_link(
                 primary_window.cursor.icon = CursorIcon::Hand;
                 let text = url.0.clone();
                 let mut text_input = text_input_q.single_mut();
-                // TODO if link is broken portal stays on the same resource, do we need 404.wasm?
                 *text_input = CosmicText::OneStyle(text.clone());
-                runtime.spawn_background_task(|ctx| async move {
-                    match get_wasm(ctx, text.clone()).await {
+                let (canvas_global_transform, canvas_node) = canvas_q.single();
+                let (camera, camera_transform) = camera_q.single();
+                let canvas_position = get_position(
+                    canvas_global_transform,
+                    &primary_window,
+                    camera,
+                    camera_transform,
+                );
+                if canvas_position.is_none() {
+                    return;
+                }
+                let canvas = Canvas {
+                    size: canvas_node.size(),
+                    position: canvas_position.unwrap(),
+                };
+                runtime.spawn_background_task(move |ctx| async move {
+                    match get_wasm(ctx, text.clone(), canvas).await {
                         Ok(_) => {}
                         Err(e) => eprintln!("failed to get wasm for '{text}': {e}"),
                     }
@@ -1012,7 +1066,14 @@ fn handle_get_wasm(
     editor_q: Query<&CosmicEditor, With<AddressBar>>,
     keys: Res<Input<KeyCode>>,
     runtime: ResMut<TokioTasksRuntime>,
+    canvas_q: Query<(&GlobalTransform, &bevy::ui::Node), With<Portal>>,
+    camera_q: Query<(&Camera, &GlobalTransform), With<MainCamera>>,
+    windows: Query<&Window, With<PrimaryWindow>>,
 ) {
+    if windows.iter().len() == 0 {
+        return;
+    }
+    let primary_window = windows.single();
     #[cfg(target_os = "macos")]
     let command = keys.any_pressed([KeyCode::SuperLeft, KeyCode::SuperRight]);
     #[cfg(not(target_os = "macos"))]
@@ -1023,13 +1084,39 @@ fn handle_get_wasm(
     }
     for editor in editor_q.iter() {
         let text = editor.get_text();
-        runtime.spawn_background_task(|ctx| async move {
-            match get_wasm(ctx, text.clone()).await {
+        let (canvas_global_transform, canvas_node) = canvas_q.single();
+        let (camera, camera_transform) = camera_q.single();
+        let canvas_position = get_position(
+            canvas_global_transform,
+            &primary_window,
+            camera,
+            camera_transform,
+        );
+        if canvas_position.is_none() {
+            return;
+        }
+        let canvas = Canvas {
+            size: canvas_node.size(),
+            position: canvas_position.unwrap(),
+        };
+        runtime.spawn_background_task(move |ctx| async move {
+            match get_wasm(ctx, text.clone(), canvas).await {
                 Ok(_) => {}
                 Err(e) => eprintln!("failed to get wasm for '{text}': {e}"),
             }
         });
     }
+}
+
+fn get_position(
+    global_transform: &GlobalTransform,
+    primary_window: &Window,
+    camera: &Camera,
+    camera_transform: &GlobalTransform,
+) -> Option<Vec2> {
+    let world_position = global_transform.affine().translation;
+    let point = Vec2::new(world_position.x, primary_window.height() - world_position.y);
+    camera.viewport_to_world_2d(camera_transform, point)
 }
 
 fn run_wasm_update(
@@ -1039,12 +1126,25 @@ fn run_wasm_update(
     keys: Res<Input<KeyCode>>,
     mouse_buttons: Res<Input<MouseButton>>,
     q_windows: Query<&Window, With<PrimaryWindow>>,
-    // TODO: cursor events https://bevy-cheatbook.github.io/input/mouse.html?highlight=cursor#mouse-cursor-position
-    // TODO: pass through canvas width/height
+    canvas_q: Query<(&GlobalTransform, &bevy::ui::Node), With<Portal>>,
+    camera_q: Query<(&Camera, &GlobalTransform), With<MainCamera>>,
+    windows: Query<&Window, With<PrimaryWindow>>,
 ) {
+    if windows.iter().len() == 0 {
+        return;
+    }
+    let primary_window = windows.single();
     if let Some(wasm_resource) = wasm_instance {
         let mut store = wasm_store.unwrap();
         {
+            let (canvas_global_transform, canvas_node) = canvas_q.single();
+            let (camera, camera_transform) = camera_q.single();
+            let canvas_position = get_position(
+                canvas_global_transform,
+                primary_window,
+                camera,
+                camera_transform,
+            );
             let data = store.store.data_mut();
 
             data.delta_seconds = time.delta_seconds();
@@ -1077,11 +1177,22 @@ fn run_wasm_update(
                 .mouse_buttons_just_released
                 .extend(mouse_buttons.get_just_released());
 
+            if let Some(pos) = canvas_position {
+                data.canvas = Canvas {
+                    size: canvas_node.size(),
+                    position: pos,
+                }
+            }
             data.inputs.cursor_position = None;
-            data.inputs.cursor_position = q_windows
-                .get_single()
-                .ok()
-                .and_then(|w| w.cursor_position());
+            data.inputs.cursor_position = q_windows.get_single().ok().and_then(|w| {
+                if let Some(p) = w.cursor_position() {
+                    return Some(Vec2::new(
+                        p.x - data.canvas.position.x,
+                        p.y - data.canvas.position.y,
+                    ));
+                }
+                None
+            });
         }
 
         let _ = wasm_resource.bindings.call_update(&mut store.store);
@@ -1104,6 +1215,7 @@ fn run_wasm_setup(
 async fn get_wasm(
     mut ctx: bevy_tokio_tasks::TaskContext,
     url: String,
+    canvas: Canvas,
 ) -> Result<(), Box<dyn std::error::Error>> {
     let valid_url = if url.contains("http") {
         url
@@ -1169,6 +1281,7 @@ async fn get_wasm(
                 .memory_size(50 << 20 /* 50 MB */)
                 .build(),
             inputs: Default::default(),
+            canvas,
         },
     );
     store.limiter(|state| &mut state.limits);

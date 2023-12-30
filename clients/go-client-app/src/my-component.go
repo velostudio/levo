@@ -20,7 +20,7 @@ var particles []particle
 var tick int = 0
 
 func createParticles() {
-        var canvas_width float32 = 1200 // TODO: pass from host
+	var canvas_width float32 = world.LevoPortalMyImportsCanvasSize().Width
         tick += 1
         if tick%10 == 0 {
                 if len(particles) < 100 {
@@ -43,7 +43,7 @@ func updateParticles() {
 }
 
 func killParticles() {
-        var canvas_height float32 = 800 // TODO: pass from host
+	var canvas_height float32 = world.LevoPortalMyImportsCanvasSize().Height
         for i := 0; i < len(particles); i++ {
                 particle := &particles[i]
                 if particle.y < -canvas_height {
@@ -53,17 +53,10 @@ func killParticles() {
 }
 
 func drawParticles() {
-        // TODO: provide canvas interface on wit level, something like
-        //   interface canvas {
-        //     type canvas-id = u64;
-        //     record point {
-        //         x: u32,
-        //         y: u32,
-        //     }
-        //     draw-line: func(canvas: canvas-id, from: point, to: point);
-        // }
+	var canvas_width float32 = world.LevoPortalMyImportsCanvasSize().Width
+	var canvas_height float32 = world.LevoPortalMyImportsCanvasSize().Height
         world.LevoPortalMyImportsFillStyle("royal_purple")
-        world.LevoPortalMyImportsFillRect(0, 0, 1200, 800)
+        world.LevoPortalMyImportsFillRect(0, 0, canvas_width, canvas_height)
         for i := 0; i < len(particles); i++ {
                 particle := &particles[i]
                 world.LevoPortalMyImportsBeginPath()

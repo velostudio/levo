@@ -4,7 +4,892 @@ package my_world
 // #include "my_world.h"
 import "C"
 import "unsafe"
+import "fmt"
 // Import functions from levo:portal/my-imports
+type LevoPortalMyImportsMouseButtonKind int
+
+const (
+LevoPortalMyImportsMouseButtonKindLeft LevoPortalMyImportsMouseButtonKind = iota
+LevoPortalMyImportsMouseButtonKindRight
+LevoPortalMyImportsMouseButtonKindMiddle
+LevoPortalMyImportsMouseButtonKindOther
+)
+
+type LevoPortalMyImportsMouseButton struct {
+  kind LevoPortalMyImportsMouseButtonKind
+  val any
+}
+
+func (n LevoPortalMyImportsMouseButton) Kind() LevoPortalMyImportsMouseButtonKind {
+  return n.kind
+}
+
+func LevoPortalMyImportsMouseButtonLeft() LevoPortalMyImportsMouseButton{
+  return LevoPortalMyImportsMouseButton{kind: LevoPortalMyImportsMouseButtonKindLeft}
+}
+
+func LevoPortalMyImportsMouseButtonRight() LevoPortalMyImportsMouseButton{
+  return LevoPortalMyImportsMouseButton{kind: LevoPortalMyImportsMouseButtonKindRight}
+}
+
+func LevoPortalMyImportsMouseButtonMiddle() LevoPortalMyImportsMouseButton{
+  return LevoPortalMyImportsMouseButton{kind: LevoPortalMyImportsMouseButtonKindMiddle}
+}
+
+func LevoPortalMyImportsMouseButtonOther(v uint16) LevoPortalMyImportsMouseButton{
+  return LevoPortalMyImportsMouseButton{kind: LevoPortalMyImportsMouseButtonKindOther, val: v}
+}
+
+func (n LevoPortalMyImportsMouseButton) GetOther() uint16{
+  if g, w := n.Kind(), LevoPortalMyImportsMouseButtonKindOther; g != w {
+    panic(fmt.Sprintf("Attr kind is %v, not %v", g, w))
+  }
+  return n.val.(uint16)
+}
+
+func (n *LevoPortalMyImportsMouseButton) SetOther(v uint16) {
+  n.val = v
+  n.kind = LevoPortalMyImportsMouseButtonKindOther
+}
+
+type LevoPortalMyImportsKeyCodeKind int
+
+const (
+LevoPortalMyImportsKeyCodeKindKey1 LevoPortalMyImportsKeyCodeKind = iota
+LevoPortalMyImportsKeyCodeKindKey2
+LevoPortalMyImportsKeyCodeKindKey3
+LevoPortalMyImportsKeyCodeKindKey4
+LevoPortalMyImportsKeyCodeKindKey5
+LevoPortalMyImportsKeyCodeKindKey6
+LevoPortalMyImportsKeyCodeKindKey7
+LevoPortalMyImportsKeyCodeKindKey8
+LevoPortalMyImportsKeyCodeKindKey9
+LevoPortalMyImportsKeyCodeKindKey0
+LevoPortalMyImportsKeyCodeKindA
+LevoPortalMyImportsKeyCodeKindB
+LevoPortalMyImportsKeyCodeKindC
+LevoPortalMyImportsKeyCodeKindD
+LevoPortalMyImportsKeyCodeKindE
+LevoPortalMyImportsKeyCodeKindF
+LevoPortalMyImportsKeyCodeKindG
+LevoPortalMyImportsKeyCodeKindH
+LevoPortalMyImportsKeyCodeKindI
+LevoPortalMyImportsKeyCodeKindJ
+LevoPortalMyImportsKeyCodeKindK
+LevoPortalMyImportsKeyCodeKindL
+LevoPortalMyImportsKeyCodeKindM
+LevoPortalMyImportsKeyCodeKindN
+LevoPortalMyImportsKeyCodeKindO
+LevoPortalMyImportsKeyCodeKindP
+LevoPortalMyImportsKeyCodeKindQ
+LevoPortalMyImportsKeyCodeKindR
+LevoPortalMyImportsKeyCodeKindS
+LevoPortalMyImportsKeyCodeKindT
+LevoPortalMyImportsKeyCodeKindU
+LevoPortalMyImportsKeyCodeKindV
+LevoPortalMyImportsKeyCodeKindW
+LevoPortalMyImportsKeyCodeKindX
+LevoPortalMyImportsKeyCodeKindY
+LevoPortalMyImportsKeyCodeKindZ
+LevoPortalMyImportsKeyCodeKindEscape
+LevoPortalMyImportsKeyCodeKindF1
+LevoPortalMyImportsKeyCodeKindF2
+LevoPortalMyImportsKeyCodeKindF3
+LevoPortalMyImportsKeyCodeKindF4
+LevoPortalMyImportsKeyCodeKindF5
+LevoPortalMyImportsKeyCodeKindF6
+LevoPortalMyImportsKeyCodeKindF7
+LevoPortalMyImportsKeyCodeKindF8
+LevoPortalMyImportsKeyCodeKindF9
+LevoPortalMyImportsKeyCodeKindF10
+LevoPortalMyImportsKeyCodeKindF11
+LevoPortalMyImportsKeyCodeKindF12
+LevoPortalMyImportsKeyCodeKindF13
+LevoPortalMyImportsKeyCodeKindF14
+LevoPortalMyImportsKeyCodeKindF15
+LevoPortalMyImportsKeyCodeKindF16
+LevoPortalMyImportsKeyCodeKindF17
+LevoPortalMyImportsKeyCodeKindF18
+LevoPortalMyImportsKeyCodeKindF19
+LevoPortalMyImportsKeyCodeKindF20
+LevoPortalMyImportsKeyCodeKindF21
+LevoPortalMyImportsKeyCodeKindF22
+LevoPortalMyImportsKeyCodeKindF23
+LevoPortalMyImportsKeyCodeKindF24
+LevoPortalMyImportsKeyCodeKindSnapshot
+LevoPortalMyImportsKeyCodeKindScroll
+LevoPortalMyImportsKeyCodeKindPause
+LevoPortalMyImportsKeyCodeKindInsert
+LevoPortalMyImportsKeyCodeKindHome
+LevoPortalMyImportsKeyCodeKindDelete
+LevoPortalMyImportsKeyCodeKindEnd
+LevoPortalMyImportsKeyCodeKindPageDown
+LevoPortalMyImportsKeyCodeKindPageUp
+LevoPortalMyImportsKeyCodeKindLeft
+LevoPortalMyImportsKeyCodeKindUp
+LevoPortalMyImportsKeyCodeKindRight
+LevoPortalMyImportsKeyCodeKindDown
+LevoPortalMyImportsKeyCodeKindBack
+LevoPortalMyImportsKeyCodeKindReturn
+LevoPortalMyImportsKeyCodeKindSpace
+LevoPortalMyImportsKeyCodeKindCompose
+LevoPortalMyImportsKeyCodeKindCaret
+LevoPortalMyImportsKeyCodeKindNumlock
+LevoPortalMyImportsKeyCodeKindNumpad0
+LevoPortalMyImportsKeyCodeKindNumpad1
+LevoPortalMyImportsKeyCodeKindNumpad2
+LevoPortalMyImportsKeyCodeKindNumpad3
+LevoPortalMyImportsKeyCodeKindNumpad4
+LevoPortalMyImportsKeyCodeKindNumpad5
+LevoPortalMyImportsKeyCodeKindNumpad6
+LevoPortalMyImportsKeyCodeKindNumpad7
+LevoPortalMyImportsKeyCodeKindNumpad8
+LevoPortalMyImportsKeyCodeKindNumpad9
+LevoPortalMyImportsKeyCodeKindAbntC1
+LevoPortalMyImportsKeyCodeKindAbntC2
+LevoPortalMyImportsKeyCodeKindNumpadAdd
+LevoPortalMyImportsKeyCodeKindApostrophe
+LevoPortalMyImportsKeyCodeKindApps
+LevoPortalMyImportsKeyCodeKindAsterisk
+LevoPortalMyImportsKeyCodeKindPlus
+LevoPortalMyImportsKeyCodeKindAt
+LevoPortalMyImportsKeyCodeKindAx
+LevoPortalMyImportsKeyCodeKindBackslash
+LevoPortalMyImportsKeyCodeKindCalculator
+LevoPortalMyImportsKeyCodeKindCapital
+LevoPortalMyImportsKeyCodeKindColon
+LevoPortalMyImportsKeyCodeKindComma
+LevoPortalMyImportsKeyCodeKindConvert
+LevoPortalMyImportsKeyCodeKindNumpadDecimal
+LevoPortalMyImportsKeyCodeKindNumpadDivide
+LevoPortalMyImportsKeyCodeKindEquals
+LevoPortalMyImportsKeyCodeKindGrave
+LevoPortalMyImportsKeyCodeKindKana
+LevoPortalMyImportsKeyCodeKindKanji
+LevoPortalMyImportsKeyCodeKindAltLeft
+LevoPortalMyImportsKeyCodeKindBracketLeft
+LevoPortalMyImportsKeyCodeKindControlLeft
+LevoPortalMyImportsKeyCodeKindShiftLeft
+LevoPortalMyImportsKeyCodeKindSuperLeft
+LevoPortalMyImportsKeyCodeKindMail
+LevoPortalMyImportsKeyCodeKindMediaSelect
+LevoPortalMyImportsKeyCodeKindMediaStop
+LevoPortalMyImportsKeyCodeKindMinus
+LevoPortalMyImportsKeyCodeKindNumpadMultiply
+LevoPortalMyImportsKeyCodeKindMute
+LevoPortalMyImportsKeyCodeKindMyComputer
+LevoPortalMyImportsKeyCodeKindNavigateForward
+LevoPortalMyImportsKeyCodeKindNavigateBackward
+LevoPortalMyImportsKeyCodeKindNextTrack
+LevoPortalMyImportsKeyCodeKindNoConvert
+LevoPortalMyImportsKeyCodeKindNumpadComma
+LevoPortalMyImportsKeyCodeKindNumpadEnter
+LevoPortalMyImportsKeyCodeKindNumpadEquals
+LevoPortalMyImportsKeyCodeKindOem102
+LevoPortalMyImportsKeyCodeKindPeriod
+LevoPortalMyImportsKeyCodeKindPlayPause
+LevoPortalMyImportsKeyCodeKindPower
+LevoPortalMyImportsKeyCodeKindPrevTrack
+LevoPortalMyImportsKeyCodeKindAltRight
+LevoPortalMyImportsKeyCodeKindBracketRight
+LevoPortalMyImportsKeyCodeKindControlRight
+LevoPortalMyImportsKeyCodeKindShiftRight
+LevoPortalMyImportsKeyCodeKindSuperRight
+LevoPortalMyImportsKeyCodeKindSemicolon
+LevoPortalMyImportsKeyCodeKindSlash
+LevoPortalMyImportsKeyCodeKindSleep
+LevoPortalMyImportsKeyCodeKindStop
+LevoPortalMyImportsKeyCodeKindNumpadSubtract
+LevoPortalMyImportsKeyCodeKindSysrq
+LevoPortalMyImportsKeyCodeKindTab
+LevoPortalMyImportsKeyCodeKindUnderline
+LevoPortalMyImportsKeyCodeKindUnlabeled
+LevoPortalMyImportsKeyCodeKindVolumeDown
+LevoPortalMyImportsKeyCodeKindVolumeUp
+LevoPortalMyImportsKeyCodeKindWake
+LevoPortalMyImportsKeyCodeKindWebBack
+LevoPortalMyImportsKeyCodeKindWebFavorites
+LevoPortalMyImportsKeyCodeKindWebForward
+LevoPortalMyImportsKeyCodeKindWebHome
+LevoPortalMyImportsKeyCodeKindWebRefresh
+LevoPortalMyImportsKeyCodeKindWebSearch
+LevoPortalMyImportsKeyCodeKindWebStop
+LevoPortalMyImportsKeyCodeKindYen
+LevoPortalMyImportsKeyCodeKindCopy
+LevoPortalMyImportsKeyCodeKindPaste
+LevoPortalMyImportsKeyCodeKindCut
+)
+
+type LevoPortalMyImportsKeyCode struct {
+  kind LevoPortalMyImportsKeyCodeKind
+}
+
+func (n LevoPortalMyImportsKeyCode) Kind() LevoPortalMyImportsKeyCodeKind {
+  return n.kind
+}
+
+func LevoPortalMyImportsKeyCodeKey1() LevoPortalMyImportsKeyCode{
+  return LevoPortalMyImportsKeyCode{kind: LevoPortalMyImportsKeyCodeKindKey1}
+}
+
+func LevoPortalMyImportsKeyCodeKey2() LevoPortalMyImportsKeyCode{
+  return LevoPortalMyImportsKeyCode{kind: LevoPortalMyImportsKeyCodeKindKey2}
+}
+
+func LevoPortalMyImportsKeyCodeKey3() LevoPortalMyImportsKeyCode{
+  return LevoPortalMyImportsKeyCode{kind: LevoPortalMyImportsKeyCodeKindKey3}
+}
+
+func LevoPortalMyImportsKeyCodeKey4() LevoPortalMyImportsKeyCode{
+  return LevoPortalMyImportsKeyCode{kind: LevoPortalMyImportsKeyCodeKindKey4}
+}
+
+func LevoPortalMyImportsKeyCodeKey5() LevoPortalMyImportsKeyCode{
+  return LevoPortalMyImportsKeyCode{kind: LevoPortalMyImportsKeyCodeKindKey5}
+}
+
+func LevoPortalMyImportsKeyCodeKey6() LevoPortalMyImportsKeyCode{
+  return LevoPortalMyImportsKeyCode{kind: LevoPortalMyImportsKeyCodeKindKey6}
+}
+
+func LevoPortalMyImportsKeyCodeKey7() LevoPortalMyImportsKeyCode{
+  return LevoPortalMyImportsKeyCode{kind: LevoPortalMyImportsKeyCodeKindKey7}
+}
+
+func LevoPortalMyImportsKeyCodeKey8() LevoPortalMyImportsKeyCode{
+  return LevoPortalMyImportsKeyCode{kind: LevoPortalMyImportsKeyCodeKindKey8}
+}
+
+func LevoPortalMyImportsKeyCodeKey9() LevoPortalMyImportsKeyCode{
+  return LevoPortalMyImportsKeyCode{kind: LevoPortalMyImportsKeyCodeKindKey9}
+}
+
+func LevoPortalMyImportsKeyCodeKey0() LevoPortalMyImportsKeyCode{
+  return LevoPortalMyImportsKeyCode{kind: LevoPortalMyImportsKeyCodeKindKey0}
+}
+
+func LevoPortalMyImportsKeyCodeA() LevoPortalMyImportsKeyCode{
+  return LevoPortalMyImportsKeyCode{kind: LevoPortalMyImportsKeyCodeKindA}
+}
+
+func LevoPortalMyImportsKeyCodeB() LevoPortalMyImportsKeyCode{
+  return LevoPortalMyImportsKeyCode{kind: LevoPortalMyImportsKeyCodeKindB}
+}
+
+func LevoPortalMyImportsKeyCodeC() LevoPortalMyImportsKeyCode{
+  return LevoPortalMyImportsKeyCode{kind: LevoPortalMyImportsKeyCodeKindC}
+}
+
+func LevoPortalMyImportsKeyCodeD() LevoPortalMyImportsKeyCode{
+  return LevoPortalMyImportsKeyCode{kind: LevoPortalMyImportsKeyCodeKindD}
+}
+
+func LevoPortalMyImportsKeyCodeE() LevoPortalMyImportsKeyCode{
+  return LevoPortalMyImportsKeyCode{kind: LevoPortalMyImportsKeyCodeKindE}
+}
+
+func LevoPortalMyImportsKeyCodeF() LevoPortalMyImportsKeyCode{
+  return LevoPortalMyImportsKeyCode{kind: LevoPortalMyImportsKeyCodeKindF}
+}
+
+func LevoPortalMyImportsKeyCodeG() LevoPortalMyImportsKeyCode{
+  return LevoPortalMyImportsKeyCode{kind: LevoPortalMyImportsKeyCodeKindG}
+}
+
+func LevoPortalMyImportsKeyCodeH() LevoPortalMyImportsKeyCode{
+  return LevoPortalMyImportsKeyCode{kind: LevoPortalMyImportsKeyCodeKindH}
+}
+
+func LevoPortalMyImportsKeyCodeI() LevoPortalMyImportsKeyCode{
+  return LevoPortalMyImportsKeyCode{kind: LevoPortalMyImportsKeyCodeKindI}
+}
+
+func LevoPortalMyImportsKeyCodeJ() LevoPortalMyImportsKeyCode{
+  return LevoPortalMyImportsKeyCode{kind: LevoPortalMyImportsKeyCodeKindJ}
+}
+
+func LevoPortalMyImportsKeyCodeK() LevoPortalMyImportsKeyCode{
+  return LevoPortalMyImportsKeyCode{kind: LevoPortalMyImportsKeyCodeKindK}
+}
+
+func LevoPortalMyImportsKeyCodeL() LevoPortalMyImportsKeyCode{
+  return LevoPortalMyImportsKeyCode{kind: LevoPortalMyImportsKeyCodeKindL}
+}
+
+func LevoPortalMyImportsKeyCodeM() LevoPortalMyImportsKeyCode{
+  return LevoPortalMyImportsKeyCode{kind: LevoPortalMyImportsKeyCodeKindM}
+}
+
+func LevoPortalMyImportsKeyCodeN() LevoPortalMyImportsKeyCode{
+  return LevoPortalMyImportsKeyCode{kind: LevoPortalMyImportsKeyCodeKindN}
+}
+
+func LevoPortalMyImportsKeyCodeO() LevoPortalMyImportsKeyCode{
+  return LevoPortalMyImportsKeyCode{kind: LevoPortalMyImportsKeyCodeKindO}
+}
+
+func LevoPortalMyImportsKeyCodeP() LevoPortalMyImportsKeyCode{
+  return LevoPortalMyImportsKeyCode{kind: LevoPortalMyImportsKeyCodeKindP}
+}
+
+func LevoPortalMyImportsKeyCodeQ() LevoPortalMyImportsKeyCode{
+  return LevoPortalMyImportsKeyCode{kind: LevoPortalMyImportsKeyCodeKindQ}
+}
+
+func LevoPortalMyImportsKeyCodeR() LevoPortalMyImportsKeyCode{
+  return LevoPortalMyImportsKeyCode{kind: LevoPortalMyImportsKeyCodeKindR}
+}
+
+func LevoPortalMyImportsKeyCodeS() LevoPortalMyImportsKeyCode{
+  return LevoPortalMyImportsKeyCode{kind: LevoPortalMyImportsKeyCodeKindS}
+}
+
+func LevoPortalMyImportsKeyCodeT() LevoPortalMyImportsKeyCode{
+  return LevoPortalMyImportsKeyCode{kind: LevoPortalMyImportsKeyCodeKindT}
+}
+
+func LevoPortalMyImportsKeyCodeU() LevoPortalMyImportsKeyCode{
+  return LevoPortalMyImportsKeyCode{kind: LevoPortalMyImportsKeyCodeKindU}
+}
+
+func LevoPortalMyImportsKeyCodeV() LevoPortalMyImportsKeyCode{
+  return LevoPortalMyImportsKeyCode{kind: LevoPortalMyImportsKeyCodeKindV}
+}
+
+func LevoPortalMyImportsKeyCodeW() LevoPortalMyImportsKeyCode{
+  return LevoPortalMyImportsKeyCode{kind: LevoPortalMyImportsKeyCodeKindW}
+}
+
+func LevoPortalMyImportsKeyCodeX() LevoPortalMyImportsKeyCode{
+  return LevoPortalMyImportsKeyCode{kind: LevoPortalMyImportsKeyCodeKindX}
+}
+
+func LevoPortalMyImportsKeyCodeY() LevoPortalMyImportsKeyCode{
+  return LevoPortalMyImportsKeyCode{kind: LevoPortalMyImportsKeyCodeKindY}
+}
+
+func LevoPortalMyImportsKeyCodeZ() LevoPortalMyImportsKeyCode{
+  return LevoPortalMyImportsKeyCode{kind: LevoPortalMyImportsKeyCodeKindZ}
+}
+
+func LevoPortalMyImportsKeyCodeEscape() LevoPortalMyImportsKeyCode{
+  return LevoPortalMyImportsKeyCode{kind: LevoPortalMyImportsKeyCodeKindEscape}
+}
+
+func LevoPortalMyImportsKeyCodeF1() LevoPortalMyImportsKeyCode{
+  return LevoPortalMyImportsKeyCode{kind: LevoPortalMyImportsKeyCodeKindF1}
+}
+
+func LevoPortalMyImportsKeyCodeF2() LevoPortalMyImportsKeyCode{
+  return LevoPortalMyImportsKeyCode{kind: LevoPortalMyImportsKeyCodeKindF2}
+}
+
+func LevoPortalMyImportsKeyCodeF3() LevoPortalMyImportsKeyCode{
+  return LevoPortalMyImportsKeyCode{kind: LevoPortalMyImportsKeyCodeKindF3}
+}
+
+func LevoPortalMyImportsKeyCodeF4() LevoPortalMyImportsKeyCode{
+  return LevoPortalMyImportsKeyCode{kind: LevoPortalMyImportsKeyCodeKindF4}
+}
+
+func LevoPortalMyImportsKeyCodeF5() LevoPortalMyImportsKeyCode{
+  return LevoPortalMyImportsKeyCode{kind: LevoPortalMyImportsKeyCodeKindF5}
+}
+
+func LevoPortalMyImportsKeyCodeF6() LevoPortalMyImportsKeyCode{
+  return LevoPortalMyImportsKeyCode{kind: LevoPortalMyImportsKeyCodeKindF6}
+}
+
+func LevoPortalMyImportsKeyCodeF7() LevoPortalMyImportsKeyCode{
+  return LevoPortalMyImportsKeyCode{kind: LevoPortalMyImportsKeyCodeKindF7}
+}
+
+func LevoPortalMyImportsKeyCodeF8() LevoPortalMyImportsKeyCode{
+  return LevoPortalMyImportsKeyCode{kind: LevoPortalMyImportsKeyCodeKindF8}
+}
+
+func LevoPortalMyImportsKeyCodeF9() LevoPortalMyImportsKeyCode{
+  return LevoPortalMyImportsKeyCode{kind: LevoPortalMyImportsKeyCodeKindF9}
+}
+
+func LevoPortalMyImportsKeyCodeF10() LevoPortalMyImportsKeyCode{
+  return LevoPortalMyImportsKeyCode{kind: LevoPortalMyImportsKeyCodeKindF10}
+}
+
+func LevoPortalMyImportsKeyCodeF11() LevoPortalMyImportsKeyCode{
+  return LevoPortalMyImportsKeyCode{kind: LevoPortalMyImportsKeyCodeKindF11}
+}
+
+func LevoPortalMyImportsKeyCodeF12() LevoPortalMyImportsKeyCode{
+  return LevoPortalMyImportsKeyCode{kind: LevoPortalMyImportsKeyCodeKindF12}
+}
+
+func LevoPortalMyImportsKeyCodeF13() LevoPortalMyImportsKeyCode{
+  return LevoPortalMyImportsKeyCode{kind: LevoPortalMyImportsKeyCodeKindF13}
+}
+
+func LevoPortalMyImportsKeyCodeF14() LevoPortalMyImportsKeyCode{
+  return LevoPortalMyImportsKeyCode{kind: LevoPortalMyImportsKeyCodeKindF14}
+}
+
+func LevoPortalMyImportsKeyCodeF15() LevoPortalMyImportsKeyCode{
+  return LevoPortalMyImportsKeyCode{kind: LevoPortalMyImportsKeyCodeKindF15}
+}
+
+func LevoPortalMyImportsKeyCodeF16() LevoPortalMyImportsKeyCode{
+  return LevoPortalMyImportsKeyCode{kind: LevoPortalMyImportsKeyCodeKindF16}
+}
+
+func LevoPortalMyImportsKeyCodeF17() LevoPortalMyImportsKeyCode{
+  return LevoPortalMyImportsKeyCode{kind: LevoPortalMyImportsKeyCodeKindF17}
+}
+
+func LevoPortalMyImportsKeyCodeF18() LevoPortalMyImportsKeyCode{
+  return LevoPortalMyImportsKeyCode{kind: LevoPortalMyImportsKeyCodeKindF18}
+}
+
+func LevoPortalMyImportsKeyCodeF19() LevoPortalMyImportsKeyCode{
+  return LevoPortalMyImportsKeyCode{kind: LevoPortalMyImportsKeyCodeKindF19}
+}
+
+func LevoPortalMyImportsKeyCodeF20() LevoPortalMyImportsKeyCode{
+  return LevoPortalMyImportsKeyCode{kind: LevoPortalMyImportsKeyCodeKindF20}
+}
+
+func LevoPortalMyImportsKeyCodeF21() LevoPortalMyImportsKeyCode{
+  return LevoPortalMyImportsKeyCode{kind: LevoPortalMyImportsKeyCodeKindF21}
+}
+
+func LevoPortalMyImportsKeyCodeF22() LevoPortalMyImportsKeyCode{
+  return LevoPortalMyImportsKeyCode{kind: LevoPortalMyImportsKeyCodeKindF22}
+}
+
+func LevoPortalMyImportsKeyCodeF23() LevoPortalMyImportsKeyCode{
+  return LevoPortalMyImportsKeyCode{kind: LevoPortalMyImportsKeyCodeKindF23}
+}
+
+func LevoPortalMyImportsKeyCodeF24() LevoPortalMyImportsKeyCode{
+  return LevoPortalMyImportsKeyCode{kind: LevoPortalMyImportsKeyCodeKindF24}
+}
+
+func LevoPortalMyImportsKeyCodeSnapshot() LevoPortalMyImportsKeyCode{
+  return LevoPortalMyImportsKeyCode{kind: LevoPortalMyImportsKeyCodeKindSnapshot}
+}
+
+func LevoPortalMyImportsKeyCodeScroll() LevoPortalMyImportsKeyCode{
+  return LevoPortalMyImportsKeyCode{kind: LevoPortalMyImportsKeyCodeKindScroll}
+}
+
+func LevoPortalMyImportsKeyCodePause() LevoPortalMyImportsKeyCode{
+  return LevoPortalMyImportsKeyCode{kind: LevoPortalMyImportsKeyCodeKindPause}
+}
+
+func LevoPortalMyImportsKeyCodeInsert() LevoPortalMyImportsKeyCode{
+  return LevoPortalMyImportsKeyCode{kind: LevoPortalMyImportsKeyCodeKindInsert}
+}
+
+func LevoPortalMyImportsKeyCodeHome() LevoPortalMyImportsKeyCode{
+  return LevoPortalMyImportsKeyCode{kind: LevoPortalMyImportsKeyCodeKindHome}
+}
+
+func LevoPortalMyImportsKeyCodeDelete() LevoPortalMyImportsKeyCode{
+  return LevoPortalMyImportsKeyCode{kind: LevoPortalMyImportsKeyCodeKindDelete}
+}
+
+func LevoPortalMyImportsKeyCodeEnd() LevoPortalMyImportsKeyCode{
+  return LevoPortalMyImportsKeyCode{kind: LevoPortalMyImportsKeyCodeKindEnd}
+}
+
+func LevoPortalMyImportsKeyCodePageDown() LevoPortalMyImportsKeyCode{
+  return LevoPortalMyImportsKeyCode{kind: LevoPortalMyImportsKeyCodeKindPageDown}
+}
+
+func LevoPortalMyImportsKeyCodePageUp() LevoPortalMyImportsKeyCode{
+  return LevoPortalMyImportsKeyCode{kind: LevoPortalMyImportsKeyCodeKindPageUp}
+}
+
+func LevoPortalMyImportsKeyCodeLeft() LevoPortalMyImportsKeyCode{
+  return LevoPortalMyImportsKeyCode{kind: LevoPortalMyImportsKeyCodeKindLeft}
+}
+
+func LevoPortalMyImportsKeyCodeUp() LevoPortalMyImportsKeyCode{
+  return LevoPortalMyImportsKeyCode{kind: LevoPortalMyImportsKeyCodeKindUp}
+}
+
+func LevoPortalMyImportsKeyCodeRight() LevoPortalMyImportsKeyCode{
+  return LevoPortalMyImportsKeyCode{kind: LevoPortalMyImportsKeyCodeKindRight}
+}
+
+func LevoPortalMyImportsKeyCodeDown() LevoPortalMyImportsKeyCode{
+  return LevoPortalMyImportsKeyCode{kind: LevoPortalMyImportsKeyCodeKindDown}
+}
+
+func LevoPortalMyImportsKeyCodeBack() LevoPortalMyImportsKeyCode{
+  return LevoPortalMyImportsKeyCode{kind: LevoPortalMyImportsKeyCodeKindBack}
+}
+
+func LevoPortalMyImportsKeyCodeReturn() LevoPortalMyImportsKeyCode{
+  return LevoPortalMyImportsKeyCode{kind: LevoPortalMyImportsKeyCodeKindReturn}
+}
+
+func LevoPortalMyImportsKeyCodeSpace() LevoPortalMyImportsKeyCode{
+  return LevoPortalMyImportsKeyCode{kind: LevoPortalMyImportsKeyCodeKindSpace}
+}
+
+func LevoPortalMyImportsKeyCodeCompose() LevoPortalMyImportsKeyCode{
+  return LevoPortalMyImportsKeyCode{kind: LevoPortalMyImportsKeyCodeKindCompose}
+}
+
+func LevoPortalMyImportsKeyCodeCaret() LevoPortalMyImportsKeyCode{
+  return LevoPortalMyImportsKeyCode{kind: LevoPortalMyImportsKeyCodeKindCaret}
+}
+
+func LevoPortalMyImportsKeyCodeNumlock() LevoPortalMyImportsKeyCode{
+  return LevoPortalMyImportsKeyCode{kind: LevoPortalMyImportsKeyCodeKindNumlock}
+}
+
+func LevoPortalMyImportsKeyCodeNumpad0() LevoPortalMyImportsKeyCode{
+  return LevoPortalMyImportsKeyCode{kind: LevoPortalMyImportsKeyCodeKindNumpad0}
+}
+
+func LevoPortalMyImportsKeyCodeNumpad1() LevoPortalMyImportsKeyCode{
+  return LevoPortalMyImportsKeyCode{kind: LevoPortalMyImportsKeyCodeKindNumpad1}
+}
+
+func LevoPortalMyImportsKeyCodeNumpad2() LevoPortalMyImportsKeyCode{
+  return LevoPortalMyImportsKeyCode{kind: LevoPortalMyImportsKeyCodeKindNumpad2}
+}
+
+func LevoPortalMyImportsKeyCodeNumpad3() LevoPortalMyImportsKeyCode{
+  return LevoPortalMyImportsKeyCode{kind: LevoPortalMyImportsKeyCodeKindNumpad3}
+}
+
+func LevoPortalMyImportsKeyCodeNumpad4() LevoPortalMyImportsKeyCode{
+  return LevoPortalMyImportsKeyCode{kind: LevoPortalMyImportsKeyCodeKindNumpad4}
+}
+
+func LevoPortalMyImportsKeyCodeNumpad5() LevoPortalMyImportsKeyCode{
+  return LevoPortalMyImportsKeyCode{kind: LevoPortalMyImportsKeyCodeKindNumpad5}
+}
+
+func LevoPortalMyImportsKeyCodeNumpad6() LevoPortalMyImportsKeyCode{
+  return LevoPortalMyImportsKeyCode{kind: LevoPortalMyImportsKeyCodeKindNumpad6}
+}
+
+func LevoPortalMyImportsKeyCodeNumpad7() LevoPortalMyImportsKeyCode{
+  return LevoPortalMyImportsKeyCode{kind: LevoPortalMyImportsKeyCodeKindNumpad7}
+}
+
+func LevoPortalMyImportsKeyCodeNumpad8() LevoPortalMyImportsKeyCode{
+  return LevoPortalMyImportsKeyCode{kind: LevoPortalMyImportsKeyCodeKindNumpad8}
+}
+
+func LevoPortalMyImportsKeyCodeNumpad9() LevoPortalMyImportsKeyCode{
+  return LevoPortalMyImportsKeyCode{kind: LevoPortalMyImportsKeyCodeKindNumpad9}
+}
+
+func LevoPortalMyImportsKeyCodeAbntC1() LevoPortalMyImportsKeyCode{
+  return LevoPortalMyImportsKeyCode{kind: LevoPortalMyImportsKeyCodeKindAbntC1}
+}
+
+func LevoPortalMyImportsKeyCodeAbntC2() LevoPortalMyImportsKeyCode{
+  return LevoPortalMyImportsKeyCode{kind: LevoPortalMyImportsKeyCodeKindAbntC2}
+}
+
+func LevoPortalMyImportsKeyCodeNumpadAdd() LevoPortalMyImportsKeyCode{
+  return LevoPortalMyImportsKeyCode{kind: LevoPortalMyImportsKeyCodeKindNumpadAdd}
+}
+
+func LevoPortalMyImportsKeyCodeApostrophe() LevoPortalMyImportsKeyCode{
+  return LevoPortalMyImportsKeyCode{kind: LevoPortalMyImportsKeyCodeKindApostrophe}
+}
+
+func LevoPortalMyImportsKeyCodeApps() LevoPortalMyImportsKeyCode{
+  return LevoPortalMyImportsKeyCode{kind: LevoPortalMyImportsKeyCodeKindApps}
+}
+
+func LevoPortalMyImportsKeyCodeAsterisk() LevoPortalMyImportsKeyCode{
+  return LevoPortalMyImportsKeyCode{kind: LevoPortalMyImportsKeyCodeKindAsterisk}
+}
+
+func LevoPortalMyImportsKeyCodePlus() LevoPortalMyImportsKeyCode{
+  return LevoPortalMyImportsKeyCode{kind: LevoPortalMyImportsKeyCodeKindPlus}
+}
+
+func LevoPortalMyImportsKeyCodeAt() LevoPortalMyImportsKeyCode{
+  return LevoPortalMyImportsKeyCode{kind: LevoPortalMyImportsKeyCodeKindAt}
+}
+
+func LevoPortalMyImportsKeyCodeAx() LevoPortalMyImportsKeyCode{
+  return LevoPortalMyImportsKeyCode{kind: LevoPortalMyImportsKeyCodeKindAx}
+}
+
+func LevoPortalMyImportsKeyCodeBackslash() LevoPortalMyImportsKeyCode{
+  return LevoPortalMyImportsKeyCode{kind: LevoPortalMyImportsKeyCodeKindBackslash}
+}
+
+func LevoPortalMyImportsKeyCodeCalculator() LevoPortalMyImportsKeyCode{
+  return LevoPortalMyImportsKeyCode{kind: LevoPortalMyImportsKeyCodeKindCalculator}
+}
+
+func LevoPortalMyImportsKeyCodeCapital() LevoPortalMyImportsKeyCode{
+  return LevoPortalMyImportsKeyCode{kind: LevoPortalMyImportsKeyCodeKindCapital}
+}
+
+func LevoPortalMyImportsKeyCodeColon() LevoPortalMyImportsKeyCode{
+  return LevoPortalMyImportsKeyCode{kind: LevoPortalMyImportsKeyCodeKindColon}
+}
+
+func LevoPortalMyImportsKeyCodeComma() LevoPortalMyImportsKeyCode{
+  return LevoPortalMyImportsKeyCode{kind: LevoPortalMyImportsKeyCodeKindComma}
+}
+
+func LevoPortalMyImportsKeyCodeConvert() LevoPortalMyImportsKeyCode{
+  return LevoPortalMyImportsKeyCode{kind: LevoPortalMyImportsKeyCodeKindConvert}
+}
+
+func LevoPortalMyImportsKeyCodeNumpadDecimal() LevoPortalMyImportsKeyCode{
+  return LevoPortalMyImportsKeyCode{kind: LevoPortalMyImportsKeyCodeKindNumpadDecimal}
+}
+
+func LevoPortalMyImportsKeyCodeNumpadDivide() LevoPortalMyImportsKeyCode{
+  return LevoPortalMyImportsKeyCode{kind: LevoPortalMyImportsKeyCodeKindNumpadDivide}
+}
+
+func LevoPortalMyImportsKeyCodeEquals() LevoPortalMyImportsKeyCode{
+  return LevoPortalMyImportsKeyCode{kind: LevoPortalMyImportsKeyCodeKindEquals}
+}
+
+func LevoPortalMyImportsKeyCodeGrave() LevoPortalMyImportsKeyCode{
+  return LevoPortalMyImportsKeyCode{kind: LevoPortalMyImportsKeyCodeKindGrave}
+}
+
+func LevoPortalMyImportsKeyCodeKana() LevoPortalMyImportsKeyCode{
+  return LevoPortalMyImportsKeyCode{kind: LevoPortalMyImportsKeyCodeKindKana}
+}
+
+func LevoPortalMyImportsKeyCodeKanji() LevoPortalMyImportsKeyCode{
+  return LevoPortalMyImportsKeyCode{kind: LevoPortalMyImportsKeyCodeKindKanji}
+}
+
+func LevoPortalMyImportsKeyCodeAltLeft() LevoPortalMyImportsKeyCode{
+  return LevoPortalMyImportsKeyCode{kind: LevoPortalMyImportsKeyCodeKindAltLeft}
+}
+
+func LevoPortalMyImportsKeyCodeBracketLeft() LevoPortalMyImportsKeyCode{
+  return LevoPortalMyImportsKeyCode{kind: LevoPortalMyImportsKeyCodeKindBracketLeft}
+}
+
+func LevoPortalMyImportsKeyCodeControlLeft() LevoPortalMyImportsKeyCode{
+  return LevoPortalMyImportsKeyCode{kind: LevoPortalMyImportsKeyCodeKindControlLeft}
+}
+
+func LevoPortalMyImportsKeyCodeShiftLeft() LevoPortalMyImportsKeyCode{
+  return LevoPortalMyImportsKeyCode{kind: LevoPortalMyImportsKeyCodeKindShiftLeft}
+}
+
+func LevoPortalMyImportsKeyCodeSuperLeft() LevoPortalMyImportsKeyCode{
+  return LevoPortalMyImportsKeyCode{kind: LevoPortalMyImportsKeyCodeKindSuperLeft}
+}
+
+func LevoPortalMyImportsKeyCodeMail() LevoPortalMyImportsKeyCode{
+  return LevoPortalMyImportsKeyCode{kind: LevoPortalMyImportsKeyCodeKindMail}
+}
+
+func LevoPortalMyImportsKeyCodeMediaSelect() LevoPortalMyImportsKeyCode{
+  return LevoPortalMyImportsKeyCode{kind: LevoPortalMyImportsKeyCodeKindMediaSelect}
+}
+
+func LevoPortalMyImportsKeyCodeMediaStop() LevoPortalMyImportsKeyCode{
+  return LevoPortalMyImportsKeyCode{kind: LevoPortalMyImportsKeyCodeKindMediaStop}
+}
+
+func LevoPortalMyImportsKeyCodeMinus() LevoPortalMyImportsKeyCode{
+  return LevoPortalMyImportsKeyCode{kind: LevoPortalMyImportsKeyCodeKindMinus}
+}
+
+func LevoPortalMyImportsKeyCodeNumpadMultiply() LevoPortalMyImportsKeyCode{
+  return LevoPortalMyImportsKeyCode{kind: LevoPortalMyImportsKeyCodeKindNumpadMultiply}
+}
+
+func LevoPortalMyImportsKeyCodeMute() LevoPortalMyImportsKeyCode{
+  return LevoPortalMyImportsKeyCode{kind: LevoPortalMyImportsKeyCodeKindMute}
+}
+
+func LevoPortalMyImportsKeyCodeMyComputer() LevoPortalMyImportsKeyCode{
+  return LevoPortalMyImportsKeyCode{kind: LevoPortalMyImportsKeyCodeKindMyComputer}
+}
+
+func LevoPortalMyImportsKeyCodeNavigateForward() LevoPortalMyImportsKeyCode{
+  return LevoPortalMyImportsKeyCode{kind: LevoPortalMyImportsKeyCodeKindNavigateForward}
+}
+
+func LevoPortalMyImportsKeyCodeNavigateBackward() LevoPortalMyImportsKeyCode{
+  return LevoPortalMyImportsKeyCode{kind: LevoPortalMyImportsKeyCodeKindNavigateBackward}
+}
+
+func LevoPortalMyImportsKeyCodeNextTrack() LevoPortalMyImportsKeyCode{
+  return LevoPortalMyImportsKeyCode{kind: LevoPortalMyImportsKeyCodeKindNextTrack}
+}
+
+func LevoPortalMyImportsKeyCodeNoConvert() LevoPortalMyImportsKeyCode{
+  return LevoPortalMyImportsKeyCode{kind: LevoPortalMyImportsKeyCodeKindNoConvert}
+}
+
+func LevoPortalMyImportsKeyCodeNumpadComma() LevoPortalMyImportsKeyCode{
+  return LevoPortalMyImportsKeyCode{kind: LevoPortalMyImportsKeyCodeKindNumpadComma}
+}
+
+func LevoPortalMyImportsKeyCodeNumpadEnter() LevoPortalMyImportsKeyCode{
+  return LevoPortalMyImportsKeyCode{kind: LevoPortalMyImportsKeyCodeKindNumpadEnter}
+}
+
+func LevoPortalMyImportsKeyCodeNumpadEquals() LevoPortalMyImportsKeyCode{
+  return LevoPortalMyImportsKeyCode{kind: LevoPortalMyImportsKeyCodeKindNumpadEquals}
+}
+
+func LevoPortalMyImportsKeyCodeOem102() LevoPortalMyImportsKeyCode{
+  return LevoPortalMyImportsKeyCode{kind: LevoPortalMyImportsKeyCodeKindOem102}
+}
+
+func LevoPortalMyImportsKeyCodePeriod() LevoPortalMyImportsKeyCode{
+  return LevoPortalMyImportsKeyCode{kind: LevoPortalMyImportsKeyCodeKindPeriod}
+}
+
+func LevoPortalMyImportsKeyCodePlayPause() LevoPortalMyImportsKeyCode{
+  return LevoPortalMyImportsKeyCode{kind: LevoPortalMyImportsKeyCodeKindPlayPause}
+}
+
+func LevoPortalMyImportsKeyCodePower() LevoPortalMyImportsKeyCode{
+  return LevoPortalMyImportsKeyCode{kind: LevoPortalMyImportsKeyCodeKindPower}
+}
+
+func LevoPortalMyImportsKeyCodePrevTrack() LevoPortalMyImportsKeyCode{
+  return LevoPortalMyImportsKeyCode{kind: LevoPortalMyImportsKeyCodeKindPrevTrack}
+}
+
+func LevoPortalMyImportsKeyCodeAltRight() LevoPortalMyImportsKeyCode{
+  return LevoPortalMyImportsKeyCode{kind: LevoPortalMyImportsKeyCodeKindAltRight}
+}
+
+func LevoPortalMyImportsKeyCodeBracketRight() LevoPortalMyImportsKeyCode{
+  return LevoPortalMyImportsKeyCode{kind: LevoPortalMyImportsKeyCodeKindBracketRight}
+}
+
+func LevoPortalMyImportsKeyCodeControlRight() LevoPortalMyImportsKeyCode{
+  return LevoPortalMyImportsKeyCode{kind: LevoPortalMyImportsKeyCodeKindControlRight}
+}
+
+func LevoPortalMyImportsKeyCodeShiftRight() LevoPortalMyImportsKeyCode{
+  return LevoPortalMyImportsKeyCode{kind: LevoPortalMyImportsKeyCodeKindShiftRight}
+}
+
+func LevoPortalMyImportsKeyCodeSuperRight() LevoPortalMyImportsKeyCode{
+  return LevoPortalMyImportsKeyCode{kind: LevoPortalMyImportsKeyCodeKindSuperRight}
+}
+
+func LevoPortalMyImportsKeyCodeSemicolon() LevoPortalMyImportsKeyCode{
+  return LevoPortalMyImportsKeyCode{kind: LevoPortalMyImportsKeyCodeKindSemicolon}
+}
+
+func LevoPortalMyImportsKeyCodeSlash() LevoPortalMyImportsKeyCode{
+  return LevoPortalMyImportsKeyCode{kind: LevoPortalMyImportsKeyCodeKindSlash}
+}
+
+func LevoPortalMyImportsKeyCodeSleep() LevoPortalMyImportsKeyCode{
+  return LevoPortalMyImportsKeyCode{kind: LevoPortalMyImportsKeyCodeKindSleep}
+}
+
+func LevoPortalMyImportsKeyCodeStop() LevoPortalMyImportsKeyCode{
+  return LevoPortalMyImportsKeyCode{kind: LevoPortalMyImportsKeyCodeKindStop}
+}
+
+func LevoPortalMyImportsKeyCodeNumpadSubtract() LevoPortalMyImportsKeyCode{
+  return LevoPortalMyImportsKeyCode{kind: LevoPortalMyImportsKeyCodeKindNumpadSubtract}
+}
+
+func LevoPortalMyImportsKeyCodeSysrq() LevoPortalMyImportsKeyCode{
+  return LevoPortalMyImportsKeyCode{kind: LevoPortalMyImportsKeyCodeKindSysrq}
+}
+
+func LevoPortalMyImportsKeyCodeTab() LevoPortalMyImportsKeyCode{
+  return LevoPortalMyImportsKeyCode{kind: LevoPortalMyImportsKeyCodeKindTab}
+}
+
+func LevoPortalMyImportsKeyCodeUnderline() LevoPortalMyImportsKeyCode{
+  return LevoPortalMyImportsKeyCode{kind: LevoPortalMyImportsKeyCodeKindUnderline}
+}
+
+func LevoPortalMyImportsKeyCodeUnlabeled() LevoPortalMyImportsKeyCode{
+  return LevoPortalMyImportsKeyCode{kind: LevoPortalMyImportsKeyCodeKindUnlabeled}
+}
+
+func LevoPortalMyImportsKeyCodeVolumeDown() LevoPortalMyImportsKeyCode{
+  return LevoPortalMyImportsKeyCode{kind: LevoPortalMyImportsKeyCodeKindVolumeDown}
+}
+
+func LevoPortalMyImportsKeyCodeVolumeUp() LevoPortalMyImportsKeyCode{
+  return LevoPortalMyImportsKeyCode{kind: LevoPortalMyImportsKeyCodeKindVolumeUp}
+}
+
+func LevoPortalMyImportsKeyCodeWake() LevoPortalMyImportsKeyCode{
+  return LevoPortalMyImportsKeyCode{kind: LevoPortalMyImportsKeyCodeKindWake}
+}
+
+func LevoPortalMyImportsKeyCodeWebBack() LevoPortalMyImportsKeyCode{
+  return LevoPortalMyImportsKeyCode{kind: LevoPortalMyImportsKeyCodeKindWebBack}
+}
+
+func LevoPortalMyImportsKeyCodeWebFavorites() LevoPortalMyImportsKeyCode{
+  return LevoPortalMyImportsKeyCode{kind: LevoPortalMyImportsKeyCodeKindWebFavorites}
+}
+
+func LevoPortalMyImportsKeyCodeWebForward() LevoPortalMyImportsKeyCode{
+  return LevoPortalMyImportsKeyCode{kind: LevoPortalMyImportsKeyCodeKindWebForward}
+}
+
+func LevoPortalMyImportsKeyCodeWebHome() LevoPortalMyImportsKeyCode{
+  return LevoPortalMyImportsKeyCode{kind: LevoPortalMyImportsKeyCodeKindWebHome}
+}
+
+func LevoPortalMyImportsKeyCodeWebRefresh() LevoPortalMyImportsKeyCode{
+  return LevoPortalMyImportsKeyCode{kind: LevoPortalMyImportsKeyCodeKindWebRefresh}
+}
+
+func LevoPortalMyImportsKeyCodeWebSearch() LevoPortalMyImportsKeyCode{
+  return LevoPortalMyImportsKeyCode{kind: LevoPortalMyImportsKeyCodeKindWebSearch}
+}
+
+func LevoPortalMyImportsKeyCodeWebStop() LevoPortalMyImportsKeyCode{
+  return LevoPortalMyImportsKeyCode{kind: LevoPortalMyImportsKeyCodeKindWebStop}
+}
+
+func LevoPortalMyImportsKeyCodeYen() LevoPortalMyImportsKeyCode{
+  return LevoPortalMyImportsKeyCode{kind: LevoPortalMyImportsKeyCodeKindYen}
+}
+
+func LevoPortalMyImportsKeyCodeCopy() LevoPortalMyImportsKeyCode{
+  return LevoPortalMyImportsKeyCode{kind: LevoPortalMyImportsKeyCodeKindCopy}
+}
+
+func LevoPortalMyImportsKeyCodePaste() LevoPortalMyImportsKeyCode{
+  return LevoPortalMyImportsKeyCode{kind: LevoPortalMyImportsKeyCodeKindPaste}
+}
+
+func LevoPortalMyImportsKeyCodeCut() LevoPortalMyImportsKeyCode{
+  return LevoPortalMyImportsKeyCode{kind: LevoPortalMyImportsKeyCodeKindCut}
+}
+
+type LevoPortalMyImportsPosition struct {
+  X float32
+  Y float32
+}
+
+type LevoPortalMyImportsSize struct {
+  Width float32
+  Height float32
+}
+
 func LevoPortalMyImportsPrint(msg string) {
   var lower_msg C.my_world_string_t
   
@@ -106,6 +991,1595 @@ func LevoPortalMyImportsDeltaSeconds() float32 {
   ret := C.levo_portal_my_imports_delta_seconds()
   var lift_ret float32
   lift_ret = float32(ret)
+  return lift_ret
+}
+
+func LevoPortalMyImportsKeyJustPressed(key LevoPortalMyImportsKeyCode) bool {
+  var lower_key C.levo_portal_my_imports_key_code_t
+  if key.Kind() == LevoPortalMyImportsKeyCodeKindKey1 {
+    lower_key = 0
+  }
+  if key.Kind() == LevoPortalMyImportsKeyCodeKindKey2 {
+    lower_key = 1
+  }
+  if key.Kind() == LevoPortalMyImportsKeyCodeKindKey3 {
+    lower_key = 2
+  }
+  if key.Kind() == LevoPortalMyImportsKeyCodeKindKey4 {
+    lower_key = 3
+  }
+  if key.Kind() == LevoPortalMyImportsKeyCodeKindKey5 {
+    lower_key = 4
+  }
+  if key.Kind() == LevoPortalMyImportsKeyCodeKindKey6 {
+    lower_key = 5
+  }
+  if key.Kind() == LevoPortalMyImportsKeyCodeKindKey7 {
+    lower_key = 6
+  }
+  if key.Kind() == LevoPortalMyImportsKeyCodeKindKey8 {
+    lower_key = 7
+  }
+  if key.Kind() == LevoPortalMyImportsKeyCodeKindKey9 {
+    lower_key = 8
+  }
+  if key.Kind() == LevoPortalMyImportsKeyCodeKindKey0 {
+    lower_key = 9
+  }
+  if key.Kind() == LevoPortalMyImportsKeyCodeKindA {
+    lower_key = 10
+  }
+  if key.Kind() == LevoPortalMyImportsKeyCodeKindB {
+    lower_key = 11
+  }
+  if key.Kind() == LevoPortalMyImportsKeyCodeKindC {
+    lower_key = 12
+  }
+  if key.Kind() == LevoPortalMyImportsKeyCodeKindD {
+    lower_key = 13
+  }
+  if key.Kind() == LevoPortalMyImportsKeyCodeKindE {
+    lower_key = 14
+  }
+  if key.Kind() == LevoPortalMyImportsKeyCodeKindF {
+    lower_key = 15
+  }
+  if key.Kind() == LevoPortalMyImportsKeyCodeKindG {
+    lower_key = 16
+  }
+  if key.Kind() == LevoPortalMyImportsKeyCodeKindH {
+    lower_key = 17
+  }
+  if key.Kind() == LevoPortalMyImportsKeyCodeKindI {
+    lower_key = 18
+  }
+  if key.Kind() == LevoPortalMyImportsKeyCodeKindJ {
+    lower_key = 19
+  }
+  if key.Kind() == LevoPortalMyImportsKeyCodeKindK {
+    lower_key = 20
+  }
+  if key.Kind() == LevoPortalMyImportsKeyCodeKindL {
+    lower_key = 21
+  }
+  if key.Kind() == LevoPortalMyImportsKeyCodeKindM {
+    lower_key = 22
+  }
+  if key.Kind() == LevoPortalMyImportsKeyCodeKindN {
+    lower_key = 23
+  }
+  if key.Kind() == LevoPortalMyImportsKeyCodeKindO {
+    lower_key = 24
+  }
+  if key.Kind() == LevoPortalMyImportsKeyCodeKindP {
+    lower_key = 25
+  }
+  if key.Kind() == LevoPortalMyImportsKeyCodeKindQ {
+    lower_key = 26
+  }
+  if key.Kind() == LevoPortalMyImportsKeyCodeKindR {
+    lower_key = 27
+  }
+  if key.Kind() == LevoPortalMyImportsKeyCodeKindS {
+    lower_key = 28
+  }
+  if key.Kind() == LevoPortalMyImportsKeyCodeKindT {
+    lower_key = 29
+  }
+  if key.Kind() == LevoPortalMyImportsKeyCodeKindU {
+    lower_key = 30
+  }
+  if key.Kind() == LevoPortalMyImportsKeyCodeKindV {
+    lower_key = 31
+  }
+  if key.Kind() == LevoPortalMyImportsKeyCodeKindW {
+    lower_key = 32
+  }
+  if key.Kind() == LevoPortalMyImportsKeyCodeKindX {
+    lower_key = 33
+  }
+  if key.Kind() == LevoPortalMyImportsKeyCodeKindY {
+    lower_key = 34
+  }
+  if key.Kind() == LevoPortalMyImportsKeyCodeKindZ {
+    lower_key = 35
+  }
+  if key.Kind() == LevoPortalMyImportsKeyCodeKindEscape {
+    lower_key = 36
+  }
+  if key.Kind() == LevoPortalMyImportsKeyCodeKindF1 {
+    lower_key = 37
+  }
+  if key.Kind() == LevoPortalMyImportsKeyCodeKindF2 {
+    lower_key = 38
+  }
+  if key.Kind() == LevoPortalMyImportsKeyCodeKindF3 {
+    lower_key = 39
+  }
+  if key.Kind() == LevoPortalMyImportsKeyCodeKindF4 {
+    lower_key = 40
+  }
+  if key.Kind() == LevoPortalMyImportsKeyCodeKindF5 {
+    lower_key = 41
+  }
+  if key.Kind() == LevoPortalMyImportsKeyCodeKindF6 {
+    lower_key = 42
+  }
+  if key.Kind() == LevoPortalMyImportsKeyCodeKindF7 {
+    lower_key = 43
+  }
+  if key.Kind() == LevoPortalMyImportsKeyCodeKindF8 {
+    lower_key = 44
+  }
+  if key.Kind() == LevoPortalMyImportsKeyCodeKindF9 {
+    lower_key = 45
+  }
+  if key.Kind() == LevoPortalMyImportsKeyCodeKindF10 {
+    lower_key = 46
+  }
+  if key.Kind() == LevoPortalMyImportsKeyCodeKindF11 {
+    lower_key = 47
+  }
+  if key.Kind() == LevoPortalMyImportsKeyCodeKindF12 {
+    lower_key = 48
+  }
+  if key.Kind() == LevoPortalMyImportsKeyCodeKindF13 {
+    lower_key = 49
+  }
+  if key.Kind() == LevoPortalMyImportsKeyCodeKindF14 {
+    lower_key = 50
+  }
+  if key.Kind() == LevoPortalMyImportsKeyCodeKindF15 {
+    lower_key = 51
+  }
+  if key.Kind() == LevoPortalMyImportsKeyCodeKindF16 {
+    lower_key = 52
+  }
+  if key.Kind() == LevoPortalMyImportsKeyCodeKindF17 {
+    lower_key = 53
+  }
+  if key.Kind() == LevoPortalMyImportsKeyCodeKindF18 {
+    lower_key = 54
+  }
+  if key.Kind() == LevoPortalMyImportsKeyCodeKindF19 {
+    lower_key = 55
+  }
+  if key.Kind() == LevoPortalMyImportsKeyCodeKindF20 {
+    lower_key = 56
+  }
+  if key.Kind() == LevoPortalMyImportsKeyCodeKindF21 {
+    lower_key = 57
+  }
+  if key.Kind() == LevoPortalMyImportsKeyCodeKindF22 {
+    lower_key = 58
+  }
+  if key.Kind() == LevoPortalMyImportsKeyCodeKindF23 {
+    lower_key = 59
+  }
+  if key.Kind() == LevoPortalMyImportsKeyCodeKindF24 {
+    lower_key = 60
+  }
+  if key.Kind() == LevoPortalMyImportsKeyCodeKindSnapshot {
+    lower_key = 61
+  }
+  if key.Kind() == LevoPortalMyImportsKeyCodeKindScroll {
+    lower_key = 62
+  }
+  if key.Kind() == LevoPortalMyImportsKeyCodeKindPause {
+    lower_key = 63
+  }
+  if key.Kind() == LevoPortalMyImportsKeyCodeKindInsert {
+    lower_key = 64
+  }
+  if key.Kind() == LevoPortalMyImportsKeyCodeKindHome {
+    lower_key = 65
+  }
+  if key.Kind() == LevoPortalMyImportsKeyCodeKindDelete {
+    lower_key = 66
+  }
+  if key.Kind() == LevoPortalMyImportsKeyCodeKindEnd {
+    lower_key = 67
+  }
+  if key.Kind() == LevoPortalMyImportsKeyCodeKindPageDown {
+    lower_key = 68
+  }
+  if key.Kind() == LevoPortalMyImportsKeyCodeKindPageUp {
+    lower_key = 69
+  }
+  if key.Kind() == LevoPortalMyImportsKeyCodeKindLeft {
+    lower_key = 70
+  }
+  if key.Kind() == LevoPortalMyImportsKeyCodeKindUp {
+    lower_key = 71
+  }
+  if key.Kind() == LevoPortalMyImportsKeyCodeKindRight {
+    lower_key = 72
+  }
+  if key.Kind() == LevoPortalMyImportsKeyCodeKindDown {
+    lower_key = 73
+  }
+  if key.Kind() == LevoPortalMyImportsKeyCodeKindBack {
+    lower_key = 74
+  }
+  if key.Kind() == LevoPortalMyImportsKeyCodeKindReturn {
+    lower_key = 75
+  }
+  if key.Kind() == LevoPortalMyImportsKeyCodeKindSpace {
+    lower_key = 76
+  }
+  if key.Kind() == LevoPortalMyImportsKeyCodeKindCompose {
+    lower_key = 77
+  }
+  if key.Kind() == LevoPortalMyImportsKeyCodeKindCaret {
+    lower_key = 78
+  }
+  if key.Kind() == LevoPortalMyImportsKeyCodeKindNumlock {
+    lower_key = 79
+  }
+  if key.Kind() == LevoPortalMyImportsKeyCodeKindNumpad0 {
+    lower_key = 80
+  }
+  if key.Kind() == LevoPortalMyImportsKeyCodeKindNumpad1 {
+    lower_key = 81
+  }
+  if key.Kind() == LevoPortalMyImportsKeyCodeKindNumpad2 {
+    lower_key = 82
+  }
+  if key.Kind() == LevoPortalMyImportsKeyCodeKindNumpad3 {
+    lower_key = 83
+  }
+  if key.Kind() == LevoPortalMyImportsKeyCodeKindNumpad4 {
+    lower_key = 84
+  }
+  if key.Kind() == LevoPortalMyImportsKeyCodeKindNumpad5 {
+    lower_key = 85
+  }
+  if key.Kind() == LevoPortalMyImportsKeyCodeKindNumpad6 {
+    lower_key = 86
+  }
+  if key.Kind() == LevoPortalMyImportsKeyCodeKindNumpad7 {
+    lower_key = 87
+  }
+  if key.Kind() == LevoPortalMyImportsKeyCodeKindNumpad8 {
+    lower_key = 88
+  }
+  if key.Kind() == LevoPortalMyImportsKeyCodeKindNumpad9 {
+    lower_key = 89
+  }
+  if key.Kind() == LevoPortalMyImportsKeyCodeKindAbntC1 {
+    lower_key = 90
+  }
+  if key.Kind() == LevoPortalMyImportsKeyCodeKindAbntC2 {
+    lower_key = 91
+  }
+  if key.Kind() == LevoPortalMyImportsKeyCodeKindNumpadAdd {
+    lower_key = 92
+  }
+  if key.Kind() == LevoPortalMyImportsKeyCodeKindApostrophe {
+    lower_key = 93
+  }
+  if key.Kind() == LevoPortalMyImportsKeyCodeKindApps {
+    lower_key = 94
+  }
+  if key.Kind() == LevoPortalMyImportsKeyCodeKindAsterisk {
+    lower_key = 95
+  }
+  if key.Kind() == LevoPortalMyImportsKeyCodeKindPlus {
+    lower_key = 96
+  }
+  if key.Kind() == LevoPortalMyImportsKeyCodeKindAt {
+    lower_key = 97
+  }
+  if key.Kind() == LevoPortalMyImportsKeyCodeKindAx {
+    lower_key = 98
+  }
+  if key.Kind() == LevoPortalMyImportsKeyCodeKindBackslash {
+    lower_key = 99
+  }
+  if key.Kind() == LevoPortalMyImportsKeyCodeKindCalculator {
+    lower_key = 100
+  }
+  if key.Kind() == LevoPortalMyImportsKeyCodeKindCapital {
+    lower_key = 101
+  }
+  if key.Kind() == LevoPortalMyImportsKeyCodeKindColon {
+    lower_key = 102
+  }
+  if key.Kind() == LevoPortalMyImportsKeyCodeKindComma {
+    lower_key = 103
+  }
+  if key.Kind() == LevoPortalMyImportsKeyCodeKindConvert {
+    lower_key = 104
+  }
+  if key.Kind() == LevoPortalMyImportsKeyCodeKindNumpadDecimal {
+    lower_key = 105
+  }
+  if key.Kind() == LevoPortalMyImportsKeyCodeKindNumpadDivide {
+    lower_key = 106
+  }
+  if key.Kind() == LevoPortalMyImportsKeyCodeKindEquals {
+    lower_key = 107
+  }
+  if key.Kind() == LevoPortalMyImportsKeyCodeKindGrave {
+    lower_key = 108
+  }
+  if key.Kind() == LevoPortalMyImportsKeyCodeKindKana {
+    lower_key = 109
+  }
+  if key.Kind() == LevoPortalMyImportsKeyCodeKindKanji {
+    lower_key = 110
+  }
+  if key.Kind() == LevoPortalMyImportsKeyCodeKindAltLeft {
+    lower_key = 111
+  }
+  if key.Kind() == LevoPortalMyImportsKeyCodeKindBracketLeft {
+    lower_key = 112
+  }
+  if key.Kind() == LevoPortalMyImportsKeyCodeKindControlLeft {
+    lower_key = 113
+  }
+  if key.Kind() == LevoPortalMyImportsKeyCodeKindShiftLeft {
+    lower_key = 114
+  }
+  if key.Kind() == LevoPortalMyImportsKeyCodeKindSuperLeft {
+    lower_key = 115
+  }
+  if key.Kind() == LevoPortalMyImportsKeyCodeKindMail {
+    lower_key = 116
+  }
+  if key.Kind() == LevoPortalMyImportsKeyCodeKindMediaSelect {
+    lower_key = 117
+  }
+  if key.Kind() == LevoPortalMyImportsKeyCodeKindMediaStop {
+    lower_key = 118
+  }
+  if key.Kind() == LevoPortalMyImportsKeyCodeKindMinus {
+    lower_key = 119
+  }
+  if key.Kind() == LevoPortalMyImportsKeyCodeKindNumpadMultiply {
+    lower_key = 120
+  }
+  if key.Kind() == LevoPortalMyImportsKeyCodeKindMute {
+    lower_key = 121
+  }
+  if key.Kind() == LevoPortalMyImportsKeyCodeKindMyComputer {
+    lower_key = 122
+  }
+  if key.Kind() == LevoPortalMyImportsKeyCodeKindNavigateForward {
+    lower_key = 123
+  }
+  if key.Kind() == LevoPortalMyImportsKeyCodeKindNavigateBackward {
+    lower_key = 124
+  }
+  if key.Kind() == LevoPortalMyImportsKeyCodeKindNextTrack {
+    lower_key = 125
+  }
+  if key.Kind() == LevoPortalMyImportsKeyCodeKindNoConvert {
+    lower_key = 126
+  }
+  if key.Kind() == LevoPortalMyImportsKeyCodeKindNumpadComma {
+    lower_key = 127
+  }
+  if key.Kind() == LevoPortalMyImportsKeyCodeKindNumpadEnter {
+    lower_key = 128
+  }
+  if key.Kind() == LevoPortalMyImportsKeyCodeKindNumpadEquals {
+    lower_key = 129
+  }
+  if key.Kind() == LevoPortalMyImportsKeyCodeKindOem102 {
+    lower_key = 130
+  }
+  if key.Kind() == LevoPortalMyImportsKeyCodeKindPeriod {
+    lower_key = 131
+  }
+  if key.Kind() == LevoPortalMyImportsKeyCodeKindPlayPause {
+    lower_key = 132
+  }
+  if key.Kind() == LevoPortalMyImportsKeyCodeKindPower {
+    lower_key = 133
+  }
+  if key.Kind() == LevoPortalMyImportsKeyCodeKindPrevTrack {
+    lower_key = 134
+  }
+  if key.Kind() == LevoPortalMyImportsKeyCodeKindAltRight {
+    lower_key = 135
+  }
+  if key.Kind() == LevoPortalMyImportsKeyCodeKindBracketRight {
+    lower_key = 136
+  }
+  if key.Kind() == LevoPortalMyImportsKeyCodeKindControlRight {
+    lower_key = 137
+  }
+  if key.Kind() == LevoPortalMyImportsKeyCodeKindShiftRight {
+    lower_key = 138
+  }
+  if key.Kind() == LevoPortalMyImportsKeyCodeKindSuperRight {
+    lower_key = 139
+  }
+  if key.Kind() == LevoPortalMyImportsKeyCodeKindSemicolon {
+    lower_key = 140
+  }
+  if key.Kind() == LevoPortalMyImportsKeyCodeKindSlash {
+    lower_key = 141
+  }
+  if key.Kind() == LevoPortalMyImportsKeyCodeKindSleep {
+    lower_key = 142
+  }
+  if key.Kind() == LevoPortalMyImportsKeyCodeKindStop {
+    lower_key = 143
+  }
+  if key.Kind() == LevoPortalMyImportsKeyCodeKindNumpadSubtract {
+    lower_key = 144
+  }
+  if key.Kind() == LevoPortalMyImportsKeyCodeKindSysrq {
+    lower_key = 145
+  }
+  if key.Kind() == LevoPortalMyImportsKeyCodeKindTab {
+    lower_key = 146
+  }
+  if key.Kind() == LevoPortalMyImportsKeyCodeKindUnderline {
+    lower_key = 147
+  }
+  if key.Kind() == LevoPortalMyImportsKeyCodeKindUnlabeled {
+    lower_key = 148
+  }
+  if key.Kind() == LevoPortalMyImportsKeyCodeKindVolumeDown {
+    lower_key = 149
+  }
+  if key.Kind() == LevoPortalMyImportsKeyCodeKindVolumeUp {
+    lower_key = 150
+  }
+  if key.Kind() == LevoPortalMyImportsKeyCodeKindWake {
+    lower_key = 151
+  }
+  if key.Kind() == LevoPortalMyImportsKeyCodeKindWebBack {
+    lower_key = 152
+  }
+  if key.Kind() == LevoPortalMyImportsKeyCodeKindWebFavorites {
+    lower_key = 153
+  }
+  if key.Kind() == LevoPortalMyImportsKeyCodeKindWebForward {
+    lower_key = 154
+  }
+  if key.Kind() == LevoPortalMyImportsKeyCodeKindWebHome {
+    lower_key = 155
+  }
+  if key.Kind() == LevoPortalMyImportsKeyCodeKindWebRefresh {
+    lower_key = 156
+  }
+  if key.Kind() == LevoPortalMyImportsKeyCodeKindWebSearch {
+    lower_key = 157
+  }
+  if key.Kind() == LevoPortalMyImportsKeyCodeKindWebStop {
+    lower_key = 158
+  }
+  if key.Kind() == LevoPortalMyImportsKeyCodeKindYen {
+    lower_key = 159
+  }
+  if key.Kind() == LevoPortalMyImportsKeyCodeKindCopy {
+    lower_key = 160
+  }
+  if key.Kind() == LevoPortalMyImportsKeyCodeKindPaste {
+    lower_key = 161
+  }
+  if key.Kind() == LevoPortalMyImportsKeyCodeKindCut {
+    lower_key = 162
+  }
+  ret := C.levo_portal_my_imports_key_just_pressed(lower_key )
+  lift_ret := ret
+  return lift_ret
+}
+
+func LevoPortalMyImportsKeyPressed(key LevoPortalMyImportsKeyCode) bool {
+  var lower_key C.levo_portal_my_imports_key_code_t
+  if key.Kind() == LevoPortalMyImportsKeyCodeKindKey1 {
+    lower_key = 0
+  }
+  if key.Kind() == LevoPortalMyImportsKeyCodeKindKey2 {
+    lower_key = 1
+  }
+  if key.Kind() == LevoPortalMyImportsKeyCodeKindKey3 {
+    lower_key = 2
+  }
+  if key.Kind() == LevoPortalMyImportsKeyCodeKindKey4 {
+    lower_key = 3
+  }
+  if key.Kind() == LevoPortalMyImportsKeyCodeKindKey5 {
+    lower_key = 4
+  }
+  if key.Kind() == LevoPortalMyImportsKeyCodeKindKey6 {
+    lower_key = 5
+  }
+  if key.Kind() == LevoPortalMyImportsKeyCodeKindKey7 {
+    lower_key = 6
+  }
+  if key.Kind() == LevoPortalMyImportsKeyCodeKindKey8 {
+    lower_key = 7
+  }
+  if key.Kind() == LevoPortalMyImportsKeyCodeKindKey9 {
+    lower_key = 8
+  }
+  if key.Kind() == LevoPortalMyImportsKeyCodeKindKey0 {
+    lower_key = 9
+  }
+  if key.Kind() == LevoPortalMyImportsKeyCodeKindA {
+    lower_key = 10
+  }
+  if key.Kind() == LevoPortalMyImportsKeyCodeKindB {
+    lower_key = 11
+  }
+  if key.Kind() == LevoPortalMyImportsKeyCodeKindC {
+    lower_key = 12
+  }
+  if key.Kind() == LevoPortalMyImportsKeyCodeKindD {
+    lower_key = 13
+  }
+  if key.Kind() == LevoPortalMyImportsKeyCodeKindE {
+    lower_key = 14
+  }
+  if key.Kind() == LevoPortalMyImportsKeyCodeKindF {
+    lower_key = 15
+  }
+  if key.Kind() == LevoPortalMyImportsKeyCodeKindG {
+    lower_key = 16
+  }
+  if key.Kind() == LevoPortalMyImportsKeyCodeKindH {
+    lower_key = 17
+  }
+  if key.Kind() == LevoPortalMyImportsKeyCodeKindI {
+    lower_key = 18
+  }
+  if key.Kind() == LevoPortalMyImportsKeyCodeKindJ {
+    lower_key = 19
+  }
+  if key.Kind() == LevoPortalMyImportsKeyCodeKindK {
+    lower_key = 20
+  }
+  if key.Kind() == LevoPortalMyImportsKeyCodeKindL {
+    lower_key = 21
+  }
+  if key.Kind() == LevoPortalMyImportsKeyCodeKindM {
+    lower_key = 22
+  }
+  if key.Kind() == LevoPortalMyImportsKeyCodeKindN {
+    lower_key = 23
+  }
+  if key.Kind() == LevoPortalMyImportsKeyCodeKindO {
+    lower_key = 24
+  }
+  if key.Kind() == LevoPortalMyImportsKeyCodeKindP {
+    lower_key = 25
+  }
+  if key.Kind() == LevoPortalMyImportsKeyCodeKindQ {
+    lower_key = 26
+  }
+  if key.Kind() == LevoPortalMyImportsKeyCodeKindR {
+    lower_key = 27
+  }
+  if key.Kind() == LevoPortalMyImportsKeyCodeKindS {
+    lower_key = 28
+  }
+  if key.Kind() == LevoPortalMyImportsKeyCodeKindT {
+    lower_key = 29
+  }
+  if key.Kind() == LevoPortalMyImportsKeyCodeKindU {
+    lower_key = 30
+  }
+  if key.Kind() == LevoPortalMyImportsKeyCodeKindV {
+    lower_key = 31
+  }
+  if key.Kind() == LevoPortalMyImportsKeyCodeKindW {
+    lower_key = 32
+  }
+  if key.Kind() == LevoPortalMyImportsKeyCodeKindX {
+    lower_key = 33
+  }
+  if key.Kind() == LevoPortalMyImportsKeyCodeKindY {
+    lower_key = 34
+  }
+  if key.Kind() == LevoPortalMyImportsKeyCodeKindZ {
+    lower_key = 35
+  }
+  if key.Kind() == LevoPortalMyImportsKeyCodeKindEscape {
+    lower_key = 36
+  }
+  if key.Kind() == LevoPortalMyImportsKeyCodeKindF1 {
+    lower_key = 37
+  }
+  if key.Kind() == LevoPortalMyImportsKeyCodeKindF2 {
+    lower_key = 38
+  }
+  if key.Kind() == LevoPortalMyImportsKeyCodeKindF3 {
+    lower_key = 39
+  }
+  if key.Kind() == LevoPortalMyImportsKeyCodeKindF4 {
+    lower_key = 40
+  }
+  if key.Kind() == LevoPortalMyImportsKeyCodeKindF5 {
+    lower_key = 41
+  }
+  if key.Kind() == LevoPortalMyImportsKeyCodeKindF6 {
+    lower_key = 42
+  }
+  if key.Kind() == LevoPortalMyImportsKeyCodeKindF7 {
+    lower_key = 43
+  }
+  if key.Kind() == LevoPortalMyImportsKeyCodeKindF8 {
+    lower_key = 44
+  }
+  if key.Kind() == LevoPortalMyImportsKeyCodeKindF9 {
+    lower_key = 45
+  }
+  if key.Kind() == LevoPortalMyImportsKeyCodeKindF10 {
+    lower_key = 46
+  }
+  if key.Kind() == LevoPortalMyImportsKeyCodeKindF11 {
+    lower_key = 47
+  }
+  if key.Kind() == LevoPortalMyImportsKeyCodeKindF12 {
+    lower_key = 48
+  }
+  if key.Kind() == LevoPortalMyImportsKeyCodeKindF13 {
+    lower_key = 49
+  }
+  if key.Kind() == LevoPortalMyImportsKeyCodeKindF14 {
+    lower_key = 50
+  }
+  if key.Kind() == LevoPortalMyImportsKeyCodeKindF15 {
+    lower_key = 51
+  }
+  if key.Kind() == LevoPortalMyImportsKeyCodeKindF16 {
+    lower_key = 52
+  }
+  if key.Kind() == LevoPortalMyImportsKeyCodeKindF17 {
+    lower_key = 53
+  }
+  if key.Kind() == LevoPortalMyImportsKeyCodeKindF18 {
+    lower_key = 54
+  }
+  if key.Kind() == LevoPortalMyImportsKeyCodeKindF19 {
+    lower_key = 55
+  }
+  if key.Kind() == LevoPortalMyImportsKeyCodeKindF20 {
+    lower_key = 56
+  }
+  if key.Kind() == LevoPortalMyImportsKeyCodeKindF21 {
+    lower_key = 57
+  }
+  if key.Kind() == LevoPortalMyImportsKeyCodeKindF22 {
+    lower_key = 58
+  }
+  if key.Kind() == LevoPortalMyImportsKeyCodeKindF23 {
+    lower_key = 59
+  }
+  if key.Kind() == LevoPortalMyImportsKeyCodeKindF24 {
+    lower_key = 60
+  }
+  if key.Kind() == LevoPortalMyImportsKeyCodeKindSnapshot {
+    lower_key = 61
+  }
+  if key.Kind() == LevoPortalMyImportsKeyCodeKindScroll {
+    lower_key = 62
+  }
+  if key.Kind() == LevoPortalMyImportsKeyCodeKindPause {
+    lower_key = 63
+  }
+  if key.Kind() == LevoPortalMyImportsKeyCodeKindInsert {
+    lower_key = 64
+  }
+  if key.Kind() == LevoPortalMyImportsKeyCodeKindHome {
+    lower_key = 65
+  }
+  if key.Kind() == LevoPortalMyImportsKeyCodeKindDelete {
+    lower_key = 66
+  }
+  if key.Kind() == LevoPortalMyImportsKeyCodeKindEnd {
+    lower_key = 67
+  }
+  if key.Kind() == LevoPortalMyImportsKeyCodeKindPageDown {
+    lower_key = 68
+  }
+  if key.Kind() == LevoPortalMyImportsKeyCodeKindPageUp {
+    lower_key = 69
+  }
+  if key.Kind() == LevoPortalMyImportsKeyCodeKindLeft {
+    lower_key = 70
+  }
+  if key.Kind() == LevoPortalMyImportsKeyCodeKindUp {
+    lower_key = 71
+  }
+  if key.Kind() == LevoPortalMyImportsKeyCodeKindRight {
+    lower_key = 72
+  }
+  if key.Kind() == LevoPortalMyImportsKeyCodeKindDown {
+    lower_key = 73
+  }
+  if key.Kind() == LevoPortalMyImportsKeyCodeKindBack {
+    lower_key = 74
+  }
+  if key.Kind() == LevoPortalMyImportsKeyCodeKindReturn {
+    lower_key = 75
+  }
+  if key.Kind() == LevoPortalMyImportsKeyCodeKindSpace {
+    lower_key = 76
+  }
+  if key.Kind() == LevoPortalMyImportsKeyCodeKindCompose {
+    lower_key = 77
+  }
+  if key.Kind() == LevoPortalMyImportsKeyCodeKindCaret {
+    lower_key = 78
+  }
+  if key.Kind() == LevoPortalMyImportsKeyCodeKindNumlock {
+    lower_key = 79
+  }
+  if key.Kind() == LevoPortalMyImportsKeyCodeKindNumpad0 {
+    lower_key = 80
+  }
+  if key.Kind() == LevoPortalMyImportsKeyCodeKindNumpad1 {
+    lower_key = 81
+  }
+  if key.Kind() == LevoPortalMyImportsKeyCodeKindNumpad2 {
+    lower_key = 82
+  }
+  if key.Kind() == LevoPortalMyImportsKeyCodeKindNumpad3 {
+    lower_key = 83
+  }
+  if key.Kind() == LevoPortalMyImportsKeyCodeKindNumpad4 {
+    lower_key = 84
+  }
+  if key.Kind() == LevoPortalMyImportsKeyCodeKindNumpad5 {
+    lower_key = 85
+  }
+  if key.Kind() == LevoPortalMyImportsKeyCodeKindNumpad6 {
+    lower_key = 86
+  }
+  if key.Kind() == LevoPortalMyImportsKeyCodeKindNumpad7 {
+    lower_key = 87
+  }
+  if key.Kind() == LevoPortalMyImportsKeyCodeKindNumpad8 {
+    lower_key = 88
+  }
+  if key.Kind() == LevoPortalMyImportsKeyCodeKindNumpad9 {
+    lower_key = 89
+  }
+  if key.Kind() == LevoPortalMyImportsKeyCodeKindAbntC1 {
+    lower_key = 90
+  }
+  if key.Kind() == LevoPortalMyImportsKeyCodeKindAbntC2 {
+    lower_key = 91
+  }
+  if key.Kind() == LevoPortalMyImportsKeyCodeKindNumpadAdd {
+    lower_key = 92
+  }
+  if key.Kind() == LevoPortalMyImportsKeyCodeKindApostrophe {
+    lower_key = 93
+  }
+  if key.Kind() == LevoPortalMyImportsKeyCodeKindApps {
+    lower_key = 94
+  }
+  if key.Kind() == LevoPortalMyImportsKeyCodeKindAsterisk {
+    lower_key = 95
+  }
+  if key.Kind() == LevoPortalMyImportsKeyCodeKindPlus {
+    lower_key = 96
+  }
+  if key.Kind() == LevoPortalMyImportsKeyCodeKindAt {
+    lower_key = 97
+  }
+  if key.Kind() == LevoPortalMyImportsKeyCodeKindAx {
+    lower_key = 98
+  }
+  if key.Kind() == LevoPortalMyImportsKeyCodeKindBackslash {
+    lower_key = 99
+  }
+  if key.Kind() == LevoPortalMyImportsKeyCodeKindCalculator {
+    lower_key = 100
+  }
+  if key.Kind() == LevoPortalMyImportsKeyCodeKindCapital {
+    lower_key = 101
+  }
+  if key.Kind() == LevoPortalMyImportsKeyCodeKindColon {
+    lower_key = 102
+  }
+  if key.Kind() == LevoPortalMyImportsKeyCodeKindComma {
+    lower_key = 103
+  }
+  if key.Kind() == LevoPortalMyImportsKeyCodeKindConvert {
+    lower_key = 104
+  }
+  if key.Kind() == LevoPortalMyImportsKeyCodeKindNumpadDecimal {
+    lower_key = 105
+  }
+  if key.Kind() == LevoPortalMyImportsKeyCodeKindNumpadDivide {
+    lower_key = 106
+  }
+  if key.Kind() == LevoPortalMyImportsKeyCodeKindEquals {
+    lower_key = 107
+  }
+  if key.Kind() == LevoPortalMyImportsKeyCodeKindGrave {
+    lower_key = 108
+  }
+  if key.Kind() == LevoPortalMyImportsKeyCodeKindKana {
+    lower_key = 109
+  }
+  if key.Kind() == LevoPortalMyImportsKeyCodeKindKanji {
+    lower_key = 110
+  }
+  if key.Kind() == LevoPortalMyImportsKeyCodeKindAltLeft {
+    lower_key = 111
+  }
+  if key.Kind() == LevoPortalMyImportsKeyCodeKindBracketLeft {
+    lower_key = 112
+  }
+  if key.Kind() == LevoPortalMyImportsKeyCodeKindControlLeft {
+    lower_key = 113
+  }
+  if key.Kind() == LevoPortalMyImportsKeyCodeKindShiftLeft {
+    lower_key = 114
+  }
+  if key.Kind() == LevoPortalMyImportsKeyCodeKindSuperLeft {
+    lower_key = 115
+  }
+  if key.Kind() == LevoPortalMyImportsKeyCodeKindMail {
+    lower_key = 116
+  }
+  if key.Kind() == LevoPortalMyImportsKeyCodeKindMediaSelect {
+    lower_key = 117
+  }
+  if key.Kind() == LevoPortalMyImportsKeyCodeKindMediaStop {
+    lower_key = 118
+  }
+  if key.Kind() == LevoPortalMyImportsKeyCodeKindMinus {
+    lower_key = 119
+  }
+  if key.Kind() == LevoPortalMyImportsKeyCodeKindNumpadMultiply {
+    lower_key = 120
+  }
+  if key.Kind() == LevoPortalMyImportsKeyCodeKindMute {
+    lower_key = 121
+  }
+  if key.Kind() == LevoPortalMyImportsKeyCodeKindMyComputer {
+    lower_key = 122
+  }
+  if key.Kind() == LevoPortalMyImportsKeyCodeKindNavigateForward {
+    lower_key = 123
+  }
+  if key.Kind() == LevoPortalMyImportsKeyCodeKindNavigateBackward {
+    lower_key = 124
+  }
+  if key.Kind() == LevoPortalMyImportsKeyCodeKindNextTrack {
+    lower_key = 125
+  }
+  if key.Kind() == LevoPortalMyImportsKeyCodeKindNoConvert {
+    lower_key = 126
+  }
+  if key.Kind() == LevoPortalMyImportsKeyCodeKindNumpadComma {
+    lower_key = 127
+  }
+  if key.Kind() == LevoPortalMyImportsKeyCodeKindNumpadEnter {
+    lower_key = 128
+  }
+  if key.Kind() == LevoPortalMyImportsKeyCodeKindNumpadEquals {
+    lower_key = 129
+  }
+  if key.Kind() == LevoPortalMyImportsKeyCodeKindOem102 {
+    lower_key = 130
+  }
+  if key.Kind() == LevoPortalMyImportsKeyCodeKindPeriod {
+    lower_key = 131
+  }
+  if key.Kind() == LevoPortalMyImportsKeyCodeKindPlayPause {
+    lower_key = 132
+  }
+  if key.Kind() == LevoPortalMyImportsKeyCodeKindPower {
+    lower_key = 133
+  }
+  if key.Kind() == LevoPortalMyImportsKeyCodeKindPrevTrack {
+    lower_key = 134
+  }
+  if key.Kind() == LevoPortalMyImportsKeyCodeKindAltRight {
+    lower_key = 135
+  }
+  if key.Kind() == LevoPortalMyImportsKeyCodeKindBracketRight {
+    lower_key = 136
+  }
+  if key.Kind() == LevoPortalMyImportsKeyCodeKindControlRight {
+    lower_key = 137
+  }
+  if key.Kind() == LevoPortalMyImportsKeyCodeKindShiftRight {
+    lower_key = 138
+  }
+  if key.Kind() == LevoPortalMyImportsKeyCodeKindSuperRight {
+    lower_key = 139
+  }
+  if key.Kind() == LevoPortalMyImportsKeyCodeKindSemicolon {
+    lower_key = 140
+  }
+  if key.Kind() == LevoPortalMyImportsKeyCodeKindSlash {
+    lower_key = 141
+  }
+  if key.Kind() == LevoPortalMyImportsKeyCodeKindSleep {
+    lower_key = 142
+  }
+  if key.Kind() == LevoPortalMyImportsKeyCodeKindStop {
+    lower_key = 143
+  }
+  if key.Kind() == LevoPortalMyImportsKeyCodeKindNumpadSubtract {
+    lower_key = 144
+  }
+  if key.Kind() == LevoPortalMyImportsKeyCodeKindSysrq {
+    lower_key = 145
+  }
+  if key.Kind() == LevoPortalMyImportsKeyCodeKindTab {
+    lower_key = 146
+  }
+  if key.Kind() == LevoPortalMyImportsKeyCodeKindUnderline {
+    lower_key = 147
+  }
+  if key.Kind() == LevoPortalMyImportsKeyCodeKindUnlabeled {
+    lower_key = 148
+  }
+  if key.Kind() == LevoPortalMyImportsKeyCodeKindVolumeDown {
+    lower_key = 149
+  }
+  if key.Kind() == LevoPortalMyImportsKeyCodeKindVolumeUp {
+    lower_key = 150
+  }
+  if key.Kind() == LevoPortalMyImportsKeyCodeKindWake {
+    lower_key = 151
+  }
+  if key.Kind() == LevoPortalMyImportsKeyCodeKindWebBack {
+    lower_key = 152
+  }
+  if key.Kind() == LevoPortalMyImportsKeyCodeKindWebFavorites {
+    lower_key = 153
+  }
+  if key.Kind() == LevoPortalMyImportsKeyCodeKindWebForward {
+    lower_key = 154
+  }
+  if key.Kind() == LevoPortalMyImportsKeyCodeKindWebHome {
+    lower_key = 155
+  }
+  if key.Kind() == LevoPortalMyImportsKeyCodeKindWebRefresh {
+    lower_key = 156
+  }
+  if key.Kind() == LevoPortalMyImportsKeyCodeKindWebSearch {
+    lower_key = 157
+  }
+  if key.Kind() == LevoPortalMyImportsKeyCodeKindWebStop {
+    lower_key = 158
+  }
+  if key.Kind() == LevoPortalMyImportsKeyCodeKindYen {
+    lower_key = 159
+  }
+  if key.Kind() == LevoPortalMyImportsKeyCodeKindCopy {
+    lower_key = 160
+  }
+  if key.Kind() == LevoPortalMyImportsKeyCodeKindPaste {
+    lower_key = 161
+  }
+  if key.Kind() == LevoPortalMyImportsKeyCodeKindCut {
+    lower_key = 162
+  }
+  ret := C.levo_portal_my_imports_key_pressed(lower_key )
+  lift_ret := ret
+  return lift_ret
+}
+
+func LevoPortalMyImportsKeyJustReleased(key LevoPortalMyImportsKeyCode) bool {
+  var lower_key C.levo_portal_my_imports_key_code_t
+  if key.Kind() == LevoPortalMyImportsKeyCodeKindKey1 {
+    lower_key = 0
+  }
+  if key.Kind() == LevoPortalMyImportsKeyCodeKindKey2 {
+    lower_key = 1
+  }
+  if key.Kind() == LevoPortalMyImportsKeyCodeKindKey3 {
+    lower_key = 2
+  }
+  if key.Kind() == LevoPortalMyImportsKeyCodeKindKey4 {
+    lower_key = 3
+  }
+  if key.Kind() == LevoPortalMyImportsKeyCodeKindKey5 {
+    lower_key = 4
+  }
+  if key.Kind() == LevoPortalMyImportsKeyCodeKindKey6 {
+    lower_key = 5
+  }
+  if key.Kind() == LevoPortalMyImportsKeyCodeKindKey7 {
+    lower_key = 6
+  }
+  if key.Kind() == LevoPortalMyImportsKeyCodeKindKey8 {
+    lower_key = 7
+  }
+  if key.Kind() == LevoPortalMyImportsKeyCodeKindKey9 {
+    lower_key = 8
+  }
+  if key.Kind() == LevoPortalMyImportsKeyCodeKindKey0 {
+    lower_key = 9
+  }
+  if key.Kind() == LevoPortalMyImportsKeyCodeKindA {
+    lower_key = 10
+  }
+  if key.Kind() == LevoPortalMyImportsKeyCodeKindB {
+    lower_key = 11
+  }
+  if key.Kind() == LevoPortalMyImportsKeyCodeKindC {
+    lower_key = 12
+  }
+  if key.Kind() == LevoPortalMyImportsKeyCodeKindD {
+    lower_key = 13
+  }
+  if key.Kind() == LevoPortalMyImportsKeyCodeKindE {
+    lower_key = 14
+  }
+  if key.Kind() == LevoPortalMyImportsKeyCodeKindF {
+    lower_key = 15
+  }
+  if key.Kind() == LevoPortalMyImportsKeyCodeKindG {
+    lower_key = 16
+  }
+  if key.Kind() == LevoPortalMyImportsKeyCodeKindH {
+    lower_key = 17
+  }
+  if key.Kind() == LevoPortalMyImportsKeyCodeKindI {
+    lower_key = 18
+  }
+  if key.Kind() == LevoPortalMyImportsKeyCodeKindJ {
+    lower_key = 19
+  }
+  if key.Kind() == LevoPortalMyImportsKeyCodeKindK {
+    lower_key = 20
+  }
+  if key.Kind() == LevoPortalMyImportsKeyCodeKindL {
+    lower_key = 21
+  }
+  if key.Kind() == LevoPortalMyImportsKeyCodeKindM {
+    lower_key = 22
+  }
+  if key.Kind() == LevoPortalMyImportsKeyCodeKindN {
+    lower_key = 23
+  }
+  if key.Kind() == LevoPortalMyImportsKeyCodeKindO {
+    lower_key = 24
+  }
+  if key.Kind() == LevoPortalMyImportsKeyCodeKindP {
+    lower_key = 25
+  }
+  if key.Kind() == LevoPortalMyImportsKeyCodeKindQ {
+    lower_key = 26
+  }
+  if key.Kind() == LevoPortalMyImportsKeyCodeKindR {
+    lower_key = 27
+  }
+  if key.Kind() == LevoPortalMyImportsKeyCodeKindS {
+    lower_key = 28
+  }
+  if key.Kind() == LevoPortalMyImportsKeyCodeKindT {
+    lower_key = 29
+  }
+  if key.Kind() == LevoPortalMyImportsKeyCodeKindU {
+    lower_key = 30
+  }
+  if key.Kind() == LevoPortalMyImportsKeyCodeKindV {
+    lower_key = 31
+  }
+  if key.Kind() == LevoPortalMyImportsKeyCodeKindW {
+    lower_key = 32
+  }
+  if key.Kind() == LevoPortalMyImportsKeyCodeKindX {
+    lower_key = 33
+  }
+  if key.Kind() == LevoPortalMyImportsKeyCodeKindY {
+    lower_key = 34
+  }
+  if key.Kind() == LevoPortalMyImportsKeyCodeKindZ {
+    lower_key = 35
+  }
+  if key.Kind() == LevoPortalMyImportsKeyCodeKindEscape {
+    lower_key = 36
+  }
+  if key.Kind() == LevoPortalMyImportsKeyCodeKindF1 {
+    lower_key = 37
+  }
+  if key.Kind() == LevoPortalMyImportsKeyCodeKindF2 {
+    lower_key = 38
+  }
+  if key.Kind() == LevoPortalMyImportsKeyCodeKindF3 {
+    lower_key = 39
+  }
+  if key.Kind() == LevoPortalMyImportsKeyCodeKindF4 {
+    lower_key = 40
+  }
+  if key.Kind() == LevoPortalMyImportsKeyCodeKindF5 {
+    lower_key = 41
+  }
+  if key.Kind() == LevoPortalMyImportsKeyCodeKindF6 {
+    lower_key = 42
+  }
+  if key.Kind() == LevoPortalMyImportsKeyCodeKindF7 {
+    lower_key = 43
+  }
+  if key.Kind() == LevoPortalMyImportsKeyCodeKindF8 {
+    lower_key = 44
+  }
+  if key.Kind() == LevoPortalMyImportsKeyCodeKindF9 {
+    lower_key = 45
+  }
+  if key.Kind() == LevoPortalMyImportsKeyCodeKindF10 {
+    lower_key = 46
+  }
+  if key.Kind() == LevoPortalMyImportsKeyCodeKindF11 {
+    lower_key = 47
+  }
+  if key.Kind() == LevoPortalMyImportsKeyCodeKindF12 {
+    lower_key = 48
+  }
+  if key.Kind() == LevoPortalMyImportsKeyCodeKindF13 {
+    lower_key = 49
+  }
+  if key.Kind() == LevoPortalMyImportsKeyCodeKindF14 {
+    lower_key = 50
+  }
+  if key.Kind() == LevoPortalMyImportsKeyCodeKindF15 {
+    lower_key = 51
+  }
+  if key.Kind() == LevoPortalMyImportsKeyCodeKindF16 {
+    lower_key = 52
+  }
+  if key.Kind() == LevoPortalMyImportsKeyCodeKindF17 {
+    lower_key = 53
+  }
+  if key.Kind() == LevoPortalMyImportsKeyCodeKindF18 {
+    lower_key = 54
+  }
+  if key.Kind() == LevoPortalMyImportsKeyCodeKindF19 {
+    lower_key = 55
+  }
+  if key.Kind() == LevoPortalMyImportsKeyCodeKindF20 {
+    lower_key = 56
+  }
+  if key.Kind() == LevoPortalMyImportsKeyCodeKindF21 {
+    lower_key = 57
+  }
+  if key.Kind() == LevoPortalMyImportsKeyCodeKindF22 {
+    lower_key = 58
+  }
+  if key.Kind() == LevoPortalMyImportsKeyCodeKindF23 {
+    lower_key = 59
+  }
+  if key.Kind() == LevoPortalMyImportsKeyCodeKindF24 {
+    lower_key = 60
+  }
+  if key.Kind() == LevoPortalMyImportsKeyCodeKindSnapshot {
+    lower_key = 61
+  }
+  if key.Kind() == LevoPortalMyImportsKeyCodeKindScroll {
+    lower_key = 62
+  }
+  if key.Kind() == LevoPortalMyImportsKeyCodeKindPause {
+    lower_key = 63
+  }
+  if key.Kind() == LevoPortalMyImportsKeyCodeKindInsert {
+    lower_key = 64
+  }
+  if key.Kind() == LevoPortalMyImportsKeyCodeKindHome {
+    lower_key = 65
+  }
+  if key.Kind() == LevoPortalMyImportsKeyCodeKindDelete {
+    lower_key = 66
+  }
+  if key.Kind() == LevoPortalMyImportsKeyCodeKindEnd {
+    lower_key = 67
+  }
+  if key.Kind() == LevoPortalMyImportsKeyCodeKindPageDown {
+    lower_key = 68
+  }
+  if key.Kind() == LevoPortalMyImportsKeyCodeKindPageUp {
+    lower_key = 69
+  }
+  if key.Kind() == LevoPortalMyImportsKeyCodeKindLeft {
+    lower_key = 70
+  }
+  if key.Kind() == LevoPortalMyImportsKeyCodeKindUp {
+    lower_key = 71
+  }
+  if key.Kind() == LevoPortalMyImportsKeyCodeKindRight {
+    lower_key = 72
+  }
+  if key.Kind() == LevoPortalMyImportsKeyCodeKindDown {
+    lower_key = 73
+  }
+  if key.Kind() == LevoPortalMyImportsKeyCodeKindBack {
+    lower_key = 74
+  }
+  if key.Kind() == LevoPortalMyImportsKeyCodeKindReturn {
+    lower_key = 75
+  }
+  if key.Kind() == LevoPortalMyImportsKeyCodeKindSpace {
+    lower_key = 76
+  }
+  if key.Kind() == LevoPortalMyImportsKeyCodeKindCompose {
+    lower_key = 77
+  }
+  if key.Kind() == LevoPortalMyImportsKeyCodeKindCaret {
+    lower_key = 78
+  }
+  if key.Kind() == LevoPortalMyImportsKeyCodeKindNumlock {
+    lower_key = 79
+  }
+  if key.Kind() == LevoPortalMyImportsKeyCodeKindNumpad0 {
+    lower_key = 80
+  }
+  if key.Kind() == LevoPortalMyImportsKeyCodeKindNumpad1 {
+    lower_key = 81
+  }
+  if key.Kind() == LevoPortalMyImportsKeyCodeKindNumpad2 {
+    lower_key = 82
+  }
+  if key.Kind() == LevoPortalMyImportsKeyCodeKindNumpad3 {
+    lower_key = 83
+  }
+  if key.Kind() == LevoPortalMyImportsKeyCodeKindNumpad4 {
+    lower_key = 84
+  }
+  if key.Kind() == LevoPortalMyImportsKeyCodeKindNumpad5 {
+    lower_key = 85
+  }
+  if key.Kind() == LevoPortalMyImportsKeyCodeKindNumpad6 {
+    lower_key = 86
+  }
+  if key.Kind() == LevoPortalMyImportsKeyCodeKindNumpad7 {
+    lower_key = 87
+  }
+  if key.Kind() == LevoPortalMyImportsKeyCodeKindNumpad8 {
+    lower_key = 88
+  }
+  if key.Kind() == LevoPortalMyImportsKeyCodeKindNumpad9 {
+    lower_key = 89
+  }
+  if key.Kind() == LevoPortalMyImportsKeyCodeKindAbntC1 {
+    lower_key = 90
+  }
+  if key.Kind() == LevoPortalMyImportsKeyCodeKindAbntC2 {
+    lower_key = 91
+  }
+  if key.Kind() == LevoPortalMyImportsKeyCodeKindNumpadAdd {
+    lower_key = 92
+  }
+  if key.Kind() == LevoPortalMyImportsKeyCodeKindApostrophe {
+    lower_key = 93
+  }
+  if key.Kind() == LevoPortalMyImportsKeyCodeKindApps {
+    lower_key = 94
+  }
+  if key.Kind() == LevoPortalMyImportsKeyCodeKindAsterisk {
+    lower_key = 95
+  }
+  if key.Kind() == LevoPortalMyImportsKeyCodeKindPlus {
+    lower_key = 96
+  }
+  if key.Kind() == LevoPortalMyImportsKeyCodeKindAt {
+    lower_key = 97
+  }
+  if key.Kind() == LevoPortalMyImportsKeyCodeKindAx {
+    lower_key = 98
+  }
+  if key.Kind() == LevoPortalMyImportsKeyCodeKindBackslash {
+    lower_key = 99
+  }
+  if key.Kind() == LevoPortalMyImportsKeyCodeKindCalculator {
+    lower_key = 100
+  }
+  if key.Kind() == LevoPortalMyImportsKeyCodeKindCapital {
+    lower_key = 101
+  }
+  if key.Kind() == LevoPortalMyImportsKeyCodeKindColon {
+    lower_key = 102
+  }
+  if key.Kind() == LevoPortalMyImportsKeyCodeKindComma {
+    lower_key = 103
+  }
+  if key.Kind() == LevoPortalMyImportsKeyCodeKindConvert {
+    lower_key = 104
+  }
+  if key.Kind() == LevoPortalMyImportsKeyCodeKindNumpadDecimal {
+    lower_key = 105
+  }
+  if key.Kind() == LevoPortalMyImportsKeyCodeKindNumpadDivide {
+    lower_key = 106
+  }
+  if key.Kind() == LevoPortalMyImportsKeyCodeKindEquals {
+    lower_key = 107
+  }
+  if key.Kind() == LevoPortalMyImportsKeyCodeKindGrave {
+    lower_key = 108
+  }
+  if key.Kind() == LevoPortalMyImportsKeyCodeKindKana {
+    lower_key = 109
+  }
+  if key.Kind() == LevoPortalMyImportsKeyCodeKindKanji {
+    lower_key = 110
+  }
+  if key.Kind() == LevoPortalMyImportsKeyCodeKindAltLeft {
+    lower_key = 111
+  }
+  if key.Kind() == LevoPortalMyImportsKeyCodeKindBracketLeft {
+    lower_key = 112
+  }
+  if key.Kind() == LevoPortalMyImportsKeyCodeKindControlLeft {
+    lower_key = 113
+  }
+  if key.Kind() == LevoPortalMyImportsKeyCodeKindShiftLeft {
+    lower_key = 114
+  }
+  if key.Kind() == LevoPortalMyImportsKeyCodeKindSuperLeft {
+    lower_key = 115
+  }
+  if key.Kind() == LevoPortalMyImportsKeyCodeKindMail {
+    lower_key = 116
+  }
+  if key.Kind() == LevoPortalMyImportsKeyCodeKindMediaSelect {
+    lower_key = 117
+  }
+  if key.Kind() == LevoPortalMyImportsKeyCodeKindMediaStop {
+    lower_key = 118
+  }
+  if key.Kind() == LevoPortalMyImportsKeyCodeKindMinus {
+    lower_key = 119
+  }
+  if key.Kind() == LevoPortalMyImportsKeyCodeKindNumpadMultiply {
+    lower_key = 120
+  }
+  if key.Kind() == LevoPortalMyImportsKeyCodeKindMute {
+    lower_key = 121
+  }
+  if key.Kind() == LevoPortalMyImportsKeyCodeKindMyComputer {
+    lower_key = 122
+  }
+  if key.Kind() == LevoPortalMyImportsKeyCodeKindNavigateForward {
+    lower_key = 123
+  }
+  if key.Kind() == LevoPortalMyImportsKeyCodeKindNavigateBackward {
+    lower_key = 124
+  }
+  if key.Kind() == LevoPortalMyImportsKeyCodeKindNextTrack {
+    lower_key = 125
+  }
+  if key.Kind() == LevoPortalMyImportsKeyCodeKindNoConvert {
+    lower_key = 126
+  }
+  if key.Kind() == LevoPortalMyImportsKeyCodeKindNumpadComma {
+    lower_key = 127
+  }
+  if key.Kind() == LevoPortalMyImportsKeyCodeKindNumpadEnter {
+    lower_key = 128
+  }
+  if key.Kind() == LevoPortalMyImportsKeyCodeKindNumpadEquals {
+    lower_key = 129
+  }
+  if key.Kind() == LevoPortalMyImportsKeyCodeKindOem102 {
+    lower_key = 130
+  }
+  if key.Kind() == LevoPortalMyImportsKeyCodeKindPeriod {
+    lower_key = 131
+  }
+  if key.Kind() == LevoPortalMyImportsKeyCodeKindPlayPause {
+    lower_key = 132
+  }
+  if key.Kind() == LevoPortalMyImportsKeyCodeKindPower {
+    lower_key = 133
+  }
+  if key.Kind() == LevoPortalMyImportsKeyCodeKindPrevTrack {
+    lower_key = 134
+  }
+  if key.Kind() == LevoPortalMyImportsKeyCodeKindAltRight {
+    lower_key = 135
+  }
+  if key.Kind() == LevoPortalMyImportsKeyCodeKindBracketRight {
+    lower_key = 136
+  }
+  if key.Kind() == LevoPortalMyImportsKeyCodeKindControlRight {
+    lower_key = 137
+  }
+  if key.Kind() == LevoPortalMyImportsKeyCodeKindShiftRight {
+    lower_key = 138
+  }
+  if key.Kind() == LevoPortalMyImportsKeyCodeKindSuperRight {
+    lower_key = 139
+  }
+  if key.Kind() == LevoPortalMyImportsKeyCodeKindSemicolon {
+    lower_key = 140
+  }
+  if key.Kind() == LevoPortalMyImportsKeyCodeKindSlash {
+    lower_key = 141
+  }
+  if key.Kind() == LevoPortalMyImportsKeyCodeKindSleep {
+    lower_key = 142
+  }
+  if key.Kind() == LevoPortalMyImportsKeyCodeKindStop {
+    lower_key = 143
+  }
+  if key.Kind() == LevoPortalMyImportsKeyCodeKindNumpadSubtract {
+    lower_key = 144
+  }
+  if key.Kind() == LevoPortalMyImportsKeyCodeKindSysrq {
+    lower_key = 145
+  }
+  if key.Kind() == LevoPortalMyImportsKeyCodeKindTab {
+    lower_key = 146
+  }
+  if key.Kind() == LevoPortalMyImportsKeyCodeKindUnderline {
+    lower_key = 147
+  }
+  if key.Kind() == LevoPortalMyImportsKeyCodeKindUnlabeled {
+    lower_key = 148
+  }
+  if key.Kind() == LevoPortalMyImportsKeyCodeKindVolumeDown {
+    lower_key = 149
+  }
+  if key.Kind() == LevoPortalMyImportsKeyCodeKindVolumeUp {
+    lower_key = 150
+  }
+  if key.Kind() == LevoPortalMyImportsKeyCodeKindWake {
+    lower_key = 151
+  }
+  if key.Kind() == LevoPortalMyImportsKeyCodeKindWebBack {
+    lower_key = 152
+  }
+  if key.Kind() == LevoPortalMyImportsKeyCodeKindWebFavorites {
+    lower_key = 153
+  }
+  if key.Kind() == LevoPortalMyImportsKeyCodeKindWebForward {
+    lower_key = 154
+  }
+  if key.Kind() == LevoPortalMyImportsKeyCodeKindWebHome {
+    lower_key = 155
+  }
+  if key.Kind() == LevoPortalMyImportsKeyCodeKindWebRefresh {
+    lower_key = 156
+  }
+  if key.Kind() == LevoPortalMyImportsKeyCodeKindWebSearch {
+    lower_key = 157
+  }
+  if key.Kind() == LevoPortalMyImportsKeyCodeKindWebStop {
+    lower_key = 158
+  }
+  if key.Kind() == LevoPortalMyImportsKeyCodeKindYen {
+    lower_key = 159
+  }
+  if key.Kind() == LevoPortalMyImportsKeyCodeKindCopy {
+    lower_key = 160
+  }
+  if key.Kind() == LevoPortalMyImportsKeyCodeKindPaste {
+    lower_key = 161
+  }
+  if key.Kind() == LevoPortalMyImportsKeyCodeKindCut {
+    lower_key = 162
+  }
+  ret := C.levo_portal_my_imports_key_just_released(lower_key )
+  lift_ret := ret
+  return lift_ret
+}
+
+func LevoPortalMyImportsMouseButtonJustPressed(btn LevoPortalMyImportsMouseButton) bool {
+  var lower_btn C.levo_portal_my_imports_mouse_button_t
+  if btn.Kind() == LevoPortalMyImportsMouseButtonKindLeft {
+    lower_btn.tag = 0
+  }
+  if btn.Kind() == LevoPortalMyImportsMouseButtonKindRight {
+    lower_btn.tag = 1
+  }
+  if btn.Kind() == LevoPortalMyImportsMouseButtonKindMiddle {
+    lower_btn.tag = 2
+  }
+  if btn.Kind() == LevoPortalMyImportsMouseButtonKindOther {
+    
+    lower_btn.tag = 3
+    lower_btn_ptr := (*C.uint16_t)(unsafe.Pointer(&lower_btn.val))
+    lower_btn_val := C.uint16_t(btn.GetOther())
+    *lower_btn_ptr = lower_btn_val
+  }
+  ret := C.levo_portal_my_imports_mouse_button_just_pressed(&lower_btn )
+  lift_ret := ret
+  return lift_ret
+}
+
+func LevoPortalMyImportsMouseButtonJustReleased(btn LevoPortalMyImportsMouseButton) bool {
+  var lower_btn C.levo_portal_my_imports_mouse_button_t
+  if btn.Kind() == LevoPortalMyImportsMouseButtonKindLeft {
+    lower_btn.tag = 0
+  }
+  if btn.Kind() == LevoPortalMyImportsMouseButtonKindRight {
+    lower_btn.tag = 1
+  }
+  if btn.Kind() == LevoPortalMyImportsMouseButtonKindMiddle {
+    lower_btn.tag = 2
+  }
+  if btn.Kind() == LevoPortalMyImportsMouseButtonKindOther {
+    
+    lower_btn.tag = 3
+    lower_btn_ptr := (*C.uint16_t)(unsafe.Pointer(&lower_btn.val))
+    lower_btn_val := C.uint16_t(btn.GetOther())
+    *lower_btn_ptr = lower_btn_val
+  }
+  ret := C.levo_portal_my_imports_mouse_button_just_released(&lower_btn )
+  lift_ret := ret
+  return lift_ret
+}
+
+func LevoPortalMyImportsMouseButtonPressed(btn LevoPortalMyImportsMouseButton) bool {
+  var lower_btn C.levo_portal_my_imports_mouse_button_t
+  if btn.Kind() == LevoPortalMyImportsMouseButtonKindLeft {
+    lower_btn.tag = 0
+  }
+  if btn.Kind() == LevoPortalMyImportsMouseButtonKindRight {
+    lower_btn.tag = 1
+  }
+  if btn.Kind() == LevoPortalMyImportsMouseButtonKindMiddle {
+    lower_btn.tag = 2
+  }
+  if btn.Kind() == LevoPortalMyImportsMouseButtonKindOther {
+    
+    lower_btn.tag = 3
+    lower_btn_ptr := (*C.uint16_t)(unsafe.Pointer(&lower_btn.val))
+    lower_btn_val := C.uint16_t(btn.GetOther())
+    *lower_btn_ptr = lower_btn_val
+  }
+  ret := C.levo_portal_my_imports_mouse_button_pressed(&lower_btn )
+  lift_ret := ret
+  return lift_ret
+}
+
+func LevoPortalMyImportsCursorPosition() Option[LevoPortalMyImportsPosition] {
+  var ret C.levo_portal_my_imports_option_position_t
+  C.levo_portal_my_imports_cursor_position(&ret )
+  var lift_ret Option[LevoPortalMyImportsPosition]
+  if ret.is_some {
+    var lift_ret_val LevoPortalMyImportsPosition
+    var lift_ret_val_X float32
+    lift_ret_val_X = float32(ret.val.x)
+    lift_ret_val.X = lift_ret_val_X
+    var lift_ret_val_Y float32
+    lift_ret_val_Y = float32(ret.val.y)
+    lift_ret_val.Y = lift_ret_val_Y
+    lift_ret.Set(lift_ret_val)
+  } else {
+    lift_ret.Unset()
+  }
+  return lift_ret
+}
+
+func LevoPortalMyImportsCanvasSize() LevoPortalMyImportsSize {
+  var ret C.levo_portal_my_imports_size_t
+  C.levo_portal_my_imports_canvas_size(&ret )
+  var lift_ret LevoPortalMyImportsSize
+  var lift_ret_Width float32
+  lift_ret_Width = float32(ret.width)
+  lift_ret.Width = lift_ret_Width
+  var lift_ret_Height float32
+  lift_ret_Height = float32(ret.height)
+  lift_ret.Height = lift_ret_Height
   return lift_ret
 }
 

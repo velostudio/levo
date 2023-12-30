@@ -45,8 +45,13 @@ fn tick() -> &'static Mutex<u32> {
     TICK.get_or_init(|| Mutex::new(0))
 }
 
+fn heart_offset() -> &'static Mutex<(f32, f32)> {
+    static TICK: OnceLock<Mutex<(f32, f32)>> = OnceLock::new();
+    TICK.get_or_init(|| Mutex::new((0., 0.)))
+}
+
 fn create_particles() {
-    let canvas_width = 1200.; // TODO: pass from host
+    let canvas_width = canvas_size().width;
     let mut tick = tick().lock().unwrap();
     let mut particles = particles().lock().unwrap();
     *tick += 1;
@@ -78,7 +83,7 @@ fn update_particles() {
 }
 
 fn kill_particles() {
-    let canvas_height = 800.; // TODO: pass from host
+    let canvas_height = canvas_size().height;
     let mut particles = particles().lock().unwrap();
     for particle in particles.iter_mut() {
         if particle.y < -canvas_height {
@@ -88,17 +93,9 @@ fn kill_particles() {
 }
 
 fn draw_particles() {
-    // TODO: provide canvas interface on wit level, something like
-    //   interface canvas {
-    //     type canvas-id = u64;
-    //     record point {
-    //         x: u32,
-    //         y: u32,
-    //     }
-    //     draw-line: func(canvas: canvas-id, from: point, to: point);
-    // }
+    let canvas_size = canvas_size();
     fill_style("royal_purple");
-    fill_rect(0., 0., 1200., 800.);
+    fill_rect(0., 0., canvas_size.width, canvas_size.height);
     let mut particles = particles().lock().unwrap();
     for particle in particles.iter_mut() {
         begin_path();
@@ -115,11 +112,25 @@ fn draw_particles() {
     }
 }
 
-fn draw_heart() {
+fn draw_heart(x_offset: f32, y_offset: f32) {
     begin_path();
-    move_to(0., 0.);
-    cubic_bezier_to(70., 70., 175., -35., 0., -140.);
-    cubic_bezier_to(-175., -35., -70., 70., 0., 0.);
+    move_to(x_offset, y_offset);
+    cubic_bezier_to(
+        70. + x_offset,
+        70. + y_offset,
+        175. + x_offset,
+        -35. + y_offset,
+        0. + x_offset,
+        -140. + y_offset,
+    );
+    cubic_bezier_to(
+        -175. + x_offset,
+        -35. + y_offset,
+        -70. + x_offset,
+        70. + y_offset,
+        0. + x_offset,
+        0. + y_offset,
+    );
     close_path();
     fill_style("red");
     fill();
@@ -134,11 +145,28 @@ impl Guest for MyWorld {
 
         let tick = tick().lock().unwrap();
         if *tick > 100 {
-            draw_heart();
+            let mut heart_offset = heart_offset().lock().unwrap();
+            if key_pressed(KeyCode::Left) {
+                heart_offset.0 = heart_offset.0 - 1.;
+            }
+
+            if key_pressed(KeyCode::Right) {
+                heart_offset.0 = heart_offset.0 + 1.;
+            }
+
+            if key_pressed(KeyCode::Up) {
+                heart_offset.1 = heart_offset.1 + 1.;
+            }
+
+            if key_pressed(KeyCode::Down) {
+                heart_offset.1 = heart_offset.1 - 1.;
+            }
+
+            draw_heart(heart_offset.0, heart_offset.1);
         }
         if *tick > 200 {
-            label("Happy New Year from Rust!", 0., -200., 64., "white");
-            link("localhost/c.wasm", "Go to c.wasm", -100., -300., 32.);
+            label("Happy New Year from Rust!", 0., -150., 64., "white");
+            link("localhost/c.wasm", "Go to c.wasm", -100., -200., 32.);
         }
     }
 

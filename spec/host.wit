@@ -372,6 +372,11 @@ interface my-imports {
     y: float32,
   }
 
+  record size {
+    width: float32,
+    height: float32,
+  }
+
   print: func(msg: string);
   fill-style: func(color: string);
   fill-rect: func(x: float32, y: float32, width: float32, height: float32);
@@ -391,6 +396,7 @@ interface my-imports {
   mouse-button-just-released: func(btn: mouse-button) -> bool;
   mouse-button-pressed: func(btn: mouse-button) -> bool;
   cursor-position: func() -> option<position>;
+  canvas-size: func() -> size; 
 }
 
 world my-world {
