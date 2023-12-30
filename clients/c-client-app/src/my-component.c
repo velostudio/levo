@@ -103,10 +103,10 @@ void my_world_update() {
         my_world_string_set(&label_color, "white");
 
         my_world_string_t link_url;
-        my_world_string_set(&link_url, "localhost/rust.wasm");
+        my_world_string_set(&link_url, "localhost/go.wasm");
 
         my_world_string_t link_name;
-        my_world_string_set(&link_name, "Go to rust.wasm");
+        my_world_string_set(&link_name, "Go to go.wasm");
 
         levo_portal_my_imports_label(&my_string, 0.0, -200.0, 64.0, &label_color);
         levo_portal_my_imports_link(&link_url, &link_name, -100.0, -300.0, 32.0);

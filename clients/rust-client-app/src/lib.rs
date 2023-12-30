@@ -131,7 +131,7 @@ impl Guest for MyWorld {
         }
         if *tick > 200 {
             label("Happy New Year from Rust!", 0., -200., 64., "white");
-            link("localhost/go.wasm", "Go to go.wasm", -100., -300., 32.);
+            link("localhost/c.wasm", "Go to c.wasm", -100., -300., 32.);
         }
     }
 
