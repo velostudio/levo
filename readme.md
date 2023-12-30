@@ -2,7 +2,7 @@ _WIP_
 
 <img src="https://raw.githubusercontent.com/velostudio/levo/main/levo.png" width="128" />
 
-https://staffengineer.github.io/blog/levo.html
+https://velostudio.github.io/blog/levo.html
 
 ## Levo: the good parts
 
