@@ -146,20 +146,21 @@ impl Guest for MyWorld {
         let tick = tick().lock().unwrap();
         if *tick > 100 {
             let mut heart_offset = heart_offset().lock().unwrap();
+            let heart_speed = 222.;
             if key_pressed(KeyCode::Left) {
-                heart_offset.0 = heart_offset.0 - 5.;
+                heart_offset.0 = heart_offset.0 - heart_speed * delta_seconds();
             }
 
             if key_pressed(KeyCode::Right) {
-                heart_offset.0 = heart_offset.0 + 5.;
+                heart_offset.0 = heart_offset.0 + heart_speed * delta_seconds();
             }
 
             if key_pressed(KeyCode::Up) {
-                heart_offset.1 = heart_offset.1 + 5.;
+                heart_offset.1 = heart_offset.1 + heart_speed * delta_seconds();
             }
 
             if key_pressed(KeyCode::Down) {
-                heart_offset.1 = heart_offset.1 - 5.;
+                heart_offset.1 = heart_offset.1 - heart_speed * delta_seconds();
             }
 
             draw_heart(heart_offset.0, heart_offset.1);
