@@ -1,6 +1,377 @@
 package levo:portal;
 
 interface my-imports {
+
+  variant mouse-button {
+    // The left mouse button.
+    left,
+    // The right mouse button.
+    right,
+    // The middle mouse button.
+    middle,
+    // Another mouse button with the associated number.
+    other(u16),
+  }
+
+  enum key-code {
+      // The `1` key over the letters.
+      key1,
+      // The `2` key over the letters.
+      key2,
+      // The `3` key over the letters.
+      key3,
+      // The `4` key over the letters.
+      key4,
+      // The `5` key over the letters.
+      key5,
+      // The `6` key over the letters.
+      key6,
+      // The `7` key over the letters.
+      key7,
+      // The `8` key over the letters.
+      key8,
+      // The `9` key over the letters.
+      key9,
+      // The `0` key over the letters.
+      key0,
+
+      // The `A` key.
+      a,
+      // The `B` key.
+      b,
+      // The `C` key.
+      c,
+      // The `D` key.
+      d,
+      // The `E` key.
+      e,
+      // The `F` key.
+      f,
+      // The `G` key.
+      g,
+      // The `H` key.
+      h,
+      // The `I` key.
+      i,
+      // The `J` key.
+      j,
+      // The `K` key.
+      k,
+      // The `L` key.
+      l,
+      // The `M` key.
+      m,
+      // The `N` key.
+      n,
+      // The `O` key.
+      o,
+      // The `P` key.
+      p,
+      // The `Q` key.
+      q,
+      // The `R` key.
+      r,
+      // The `S` key.
+      s,
+      // The `T` key.
+      t,
+      // The `U` key.
+      u,
+      // The `V` key.
+      v,
+      // The `W` key.
+      w,
+      // The `X` key.
+      x,
+      // The `Y` key.
+      y,
+      // The `Z` key.
+      z,
+
+      // The `Escape` / `ESC` key, next to the `F1` key.
+      escape,
+
+      // The `F1` key.
+      f1,
+      // The `F2` key.
+      f2,
+      // The `F3` key.
+      f3,
+      // The `F4` key.
+      f4,
+      // The `F5` key.
+      f5,
+      // The `F6` key.
+      f6,
+      // The `F7` key.
+      f7,
+      // The `F8` key.
+      f8,
+      // The `F9` key.
+      f9,
+      // The `F10` key.
+      f10,
+      // The `F11` key.
+      f11,
+      // The `F12` key.
+      f12,
+      // The `F13` key.
+      f13,
+      // The `F14` key.
+      f14,
+      // The `F15` key.
+      f15,
+      // The `F16` key.
+      f16,
+      // The `F17` key.
+      f17,
+      // The `F18` key.
+      f18,
+      // The `F19` key.
+      f19,
+      // The `F20` key.
+      f20,
+      // The `F21` key.
+      f21,
+      // The `F22` key.
+      f22,
+      // The `F23` key.
+      f23,
+      // The `F24` key.
+      f24,
+
+      // The `Snapshot` / `Print Screen` key.
+      snapshot,
+      // The `Scroll` / `Scroll Lock` key.
+      scroll,
+      // The `Pause` / `Break` key, next to the `Scroll` key.
+      pause,
+
+      // The `Insert` key, next to the `Backspace` key.
+      insert,
+      // The `Home` key.
+      home,
+      // The `Delete` key.
+      delete,
+      // The `End` key.
+      end,
+      // The `PageDown` key.
+      page-down,
+      // The `PageUp` key.
+      page-up,
+
+      // The `Left` / `Left Arrow` key.
+      left,
+      // The `Up` / `Up Arrow` key.
+      up,
+      // The `Right` / `Right Arrow` key.
+      right,
+      // The `Down` / `Down Arrow` key.
+      down,
+
+      // The `Back` / `Backspace` key.
+      back,
+      // The `Return` / `Enter` key.
+      return,
+      // The `Space` / `Spacebar` / ` ` key.
+      space,
+
+      // The `Compose` key on Linux.
+      compose,
+      // The `Caret` / `^` key.
+      caret,
+
+      // The `Numlock` key.
+      numlock,
+      // The `Numpad0` / `0` key.
+      numpad0,
+      // The `Numpad1` / `1` key.
+      numpad1,
+      // The `Numpad2` / `2` key.
+      numpad2,
+      // The `Numpad3` / `3` key.
+      numpad3,
+      // The `Numpad4` / `4` key.
+      numpad4,
+      // The `Numpad5` / `5` key.
+      numpad5,
+      // The `Numpad6` / `6` key.
+      numpad6,
+      // The `Numpad7` / `7` key.
+      numpad7,
+      // The `Numpad8` / `8` key.
+      numpad8,
+      // The `Numpad9` / `9` key.
+      numpad9,
+
+      // The `AbntC1` key.
+      abnt-c1,
+      // The `AbntC2` key.
+      abnt-c2,
+
+      // The `NumpadAdd` / `+` key.
+      numpad-add,
+      // The `Apostrophe` / `'` key.
+      apostrophe,
+      // The `Apps` key.
+      apps,
+      // The `Asterisk` / `*` key.
+      asterisk,
+      // The `Plus` / `+` key.
+      plus,
+      // The `At` / `@` key.
+      at,
+      // The `Ax` key.
+      ax,
+      // The `Backslash` / `\` key.
+      backslash,
+      // The `Calculator` key.
+      calculator,
+      // The `Capital` key.
+      capital,
+      // The `Colon` / `:` key.
+      colon,
+      // The `Comma` / `,` key.
+      comma,
+      // The `Convert` key.
+      convert,
+      // The `NumpadDecimal` / `.` key.
+      numpad-decimal,
+      // The `NumpadDivide` / `/` key.
+      numpad-divide,
+      // The `Equals` / `=` key.
+      equals,
+      // The `Grave` / `Backtick` / `` ` `` key.
+      grave,
+      // The `Kana` key.
+      kana,
+      // The `Kanji` key.
+      kanji,
+
+      // The `Left Alt` key. Maps to `Left Option` on Mac.
+      alt-left,
+      // The `Left Bracket` / `[` key.
+      bracket-left,
+      // The `Left Control` key.
+      control-left,
+      // The `Left Shift` key.
+      shift-left,
+      // The `Left Super` key.
+      // Generic keyboards usually display this key with the *Microsoft Windows* logo.
+      // Apple keyboards call this key the *Command Key* and display it using the ⌘ character.
+      super-left,
+
+      // The `Mail` key.
+      mail,
+      // The `MediaSelect` key.
+      media-select,
+      // The `MediaStop` key.
+      media-stop,
+      // The `Minus` / `-` key.
+      minus,
+      // The `NumpadMultiply` / `*` key.
+      numpad-multiply,
+      // The `Mute` key.
+      mute,
+      // The `MyComputer` key.
+      my-computer,
+      // The `NavigateForward` / `Prior` key.
+      navigate-forward,
+      // The `NavigateBackward` / `Next` key.
+      navigate-backward,
+      // The `NextTrack` key.
+      next-track,
+      // The `NoConvert` key.
+      no-convert,
+      // The `NumpadComma` / `,` key.
+      numpad-comma,
+      // The `NumpadEnter` key.
+      numpad-enter,
+      // The `NumpadEquals` / `=` key.
+      numpad-equals,
+      // The `Oem102` key.
+      oem102,
+      // The `Period` / `.` key.
+      period,
+      // The `PlayPause` key.
+      play-pause,
+      // The `Power` key.
+      power,
+      // The `PrevTrack` key.
+      prev-track,
+
+      // The `Right Alt` key. Maps to `Right Option` on Mac.
+      alt-right,
+      // The `Right Bracket` / `]` key.
+      bracket-right,
+      // The `Right Control` key.
+      control-right,
+      // The `Right Shift` key.
+      shift-right,
+      // The `Right Super` key.
+      // Generic keyboards usually display this key with the *Microsoft Windows* logo.
+      // Apple keyboards call this key the *Command Key* and display it using the ⌘ character.
+      // alias "RWin", "RMeta", "RLogo"
+      super-right,
+
+      // The `Semicolon` / `;` key.
+      semicolon,
+      // The `Slash` / `/` key.
+      slash,
+      // The `Sleep` key.
+      sleep,
+      // The `Stop` key.
+      stop,
+      // The `NumpadSubtract` / `-` key.
+      numpad-subtract,
+      // The `Sysrq` key.
+      sysrq,
+      // The `Tab` / `   ` key.
+      tab,
+      // The `Underline` / `_` key.
+      underline,
+      // The `Unlabeled` key.
+      unlabeled,
+
+      // The `VolumeDown` key.
+      volume-down,
+      // The `VolumeUp` key.
+      volume-up,
+
+      // The `Wake` key.
+      wake,
+
+      // The `WebBack` key.
+      web-back,
+      // The `WebFavorites` key.
+      web-favorites,
+      // The `WebForward` key.
+      web-forward,
+      // The `WebHome` key.
+      web-home,
+      // The `WebRefresh` key.
+      web-refresh,
+      // The `WebSearch` key.
+      web-search,
+      // The `WebStop` key.
+      web-stop,
+
+      // The `Yen` key.
+      yen,
+
+      // The `Copy` key.
+      copy,
+      // The `Paste` key.
+      paste,
+      // The `Cut` key.
+      cut,
+  }
+
+  record position {
+    x: float32,
+    y: float32,
+  }
+
   print: func(msg: string);
   fill-style: func(color: string);
   fill-rect: func(x: float32, y: float32, width: float32, height: float32);
@@ -13,6 +384,13 @@ interface my-imports {
   label: func(text: string, x: float32, y: float32, size: float32, color: string);
   link: func(url: string, text: string, x: float32, y: float32, size: float32);
   delta-seconds: func() -> float32;
+  key-just-pressed: func(key: key-code) -> bool;
+  key-pressed: func(key: key-code) -> bool;
+  key-just-released: func(key: key-code) -> bool;
+  mouse-button-just-pressed: func(btn: mouse-button) -> bool;
+  mouse-button-just-released: func(btn: mouse-button) -> bool;
+  mouse-button-pressed: func(btn: mouse-button) -> bool;
+  cursor-position: func() -> option<position>;
 }
 
 world my-world {
