@@ -1,4 +1,5 @@
 use anyhow::Result;
+use std::path::Path;
 use std::time::Duration;
 use tracing::error;
 use tracing::info;
@@ -71,7 +72,11 @@ async fn handle_connection_impl(incoming_session: IncomingSession) -> Result<()>
 
                  if client_msg == "WASM" {
                      let clean_path = path_clean::clean(path.clone());
-                     let data = std::fs::read(format!("./public{}", clean_path.display())).expect("Failed to read wasm brotli encoded file");
+                     let mut path = format!("./public{}", clean_path.display());
+                     if !Path::new(path.as_str()).exists() {
+                         path = "./public/404.wasm".to_string();
+                     }
+                     let data = std::fs::read(path).expect("Failed to read wasm brotli encoded file");
                      stream.0.write_all(data.as_slice()).await?;
                      info!("WASM sent");
                  } else {
