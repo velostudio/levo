@@ -1,4 +1,5 @@
 // use bevy::diagnostic::{FrameTimeDiagnosticsPlugin, LogDiagnosticsPlugin};
+use bevy::input::mouse::MouseButton;
 use bevy::prelude::{
     default, App, BuildChildren, ButtonBundle, Camera, Changed, Color, Commands,
     DespawnRecursiveExt, Entity, First, GlobalTransform, Input, KeyCode, PostUpdate, PreUpdate,
@@ -7,7 +8,7 @@ use bevy::prelude::{
 };
 use bevy::text::{Text, Text2dBundle, TextSection, TextStyle};
 use bevy::time::Time;
-use bevy::ui::{Interaction, Style, BackgroundColor};
+use bevy::ui::{BackgroundColor, Interaction, Style};
 use bevy::window::{CursorIcon, PrimaryWindow, Window};
 use bevy::DefaultPlugins;
 use bevy_cosmic_edit::*;
@@ -96,12 +97,24 @@ enum HostEvent {
     MoveTo((f32, f32)),
 }
 
+#[derive(Default)]
+struct Inputs {
+    keys_just_pressed: Vec<KeyCode>,
+    keys_pressed: Vec<KeyCode>,
+    keys_just_released: Vec<KeyCode>,
+    mouse_buttons_just_pressed: Vec<MouseButton>,
+    mouse_buttons_just_released: Vec<MouseButton>,
+    mouse_buttons_pressed: Vec<MouseButton>,
+    cursor_position: Option<Vec2>,
+}
+
 struct MyCtx {
     table: Table,
     wasi: WasiCtx,
     queue: Vec<HostEvent>,
     delta_seconds: f32,
     limits: StoreLimits,
+    inputs: Inputs,
 }
 
 impl WasiView for MyCtx {
@@ -237,6 +250,430 @@ impl Host for MyCtx {
 
     fn delta_seconds(&mut self) -> wasmtime::Result<f32> {
         Ok(self.delta_seconds)
+    }
+
+    fn key_just_pressed(
+        &mut self,
+        key: levo::portal::my_imports::KeyCode,
+    ) -> wasmtime::Result<bool> {
+        Ok(self.inputs.keys_just_pressed.contains(&key.into()))
+    }
+
+    fn key_pressed(&mut self, key: levo::portal::my_imports::KeyCode) -> wasmtime::Result<bool> {
+        Ok(self.inputs.keys_pressed.contains(&key.into()))
+    }
+
+    fn key_just_released(
+        &mut self,
+        key: levo::portal::my_imports::KeyCode,
+    ) -> wasmtime::Result<bool> {
+        Ok(self.inputs.keys_just_released.contains(&key.into()))
+    }
+
+    fn mouse_button_just_pressed(
+        &mut self,
+        btn: levo::portal::my_imports::MouseButton,
+    ) -> wasmtime::Result<bool> {
+        Ok(self.inputs.mouse_buttons_just_pressed.contains(&btn.into()))
+    }
+
+    fn mouse_button_just_released(
+        &mut self,
+        btn: levo::portal::my_imports::MouseButton,
+    ) -> wasmtime::Result<bool> {
+        Ok(self
+            .inputs
+            .mouse_buttons_just_released
+            .contains(&btn.into()))
+    }
+
+    fn mouse_button_pressed(
+        &mut self,
+        btn: levo::portal::my_imports::MouseButton,
+    ) -> wasmtime::Result<bool> {
+        Ok(self.inputs.mouse_buttons_pressed.contains(&btn.into()))
+    }
+
+    fn cursor_position(&mut self) -> wasmtime::Result<Option<levo::portal::my_imports::Position>> {
+        Ok(self.inputs.cursor_position.map(Into::into))
+    }
+}
+
+impl From<KeyCode> for levo::portal::my_imports::KeyCode {
+    fn from(value: KeyCode) -> Self {
+        use KeyCode as Other;
+        match value {
+            Other::Key1 => Self::Key1,
+            Other::Key2 => Self::Key2,
+            Other::Key3 => Self::Key3,
+            Other::Key4 => Self::Key4,
+            Other::Key5 => Self::Key5,
+            Other::Key6 => Self::Key6,
+            Other::Key7 => Self::Key7,
+            Other::Key8 => Self::Key8,
+            Other::Key9 => Self::Key9,
+            Other::Key0 => Self::Key0,
+            Other::A => Self::A,
+            Other::B => Self::B,
+            Other::C => Self::C,
+            Other::D => Self::D,
+            Other::E => Self::E,
+            Other::F => Self::F,
+            Other::G => Self::G,
+            Other::H => Self::H,
+            Other::I => Self::I,
+            Other::J => Self::J,
+            Other::K => Self::K,
+            Other::L => Self::L,
+            Other::M => Self::M,
+            Other::N => Self::N,
+            Other::O => Self::O,
+            Other::P => Self::P,
+            Other::Q => Self::Q,
+            Other::R => Self::R,
+            Other::S => Self::S,
+            Other::T => Self::T,
+            Other::U => Self::U,
+            Other::V => Self::V,
+            Other::W => Self::W,
+            Other::X => Self::X,
+            Other::Y => Self::Y,
+            Other::Z => Self::Z,
+            Other::Escape => Self::Escape,
+            Other::F1 => Self::F1,
+            Other::F2 => Self::F2,
+            Other::F3 => Self::F3,
+            Other::F4 => Self::F4,
+            Other::F5 => Self::F5,
+            Other::F6 => Self::F6,
+            Other::F7 => Self::F7,
+            Other::F8 => Self::F8,
+            Other::F9 => Self::F9,
+            Other::F10 => Self::F10,
+            Other::F11 => Self::F11,
+            Other::F12 => Self::F12,
+            Other::F13 => Self::F13,
+            Other::F14 => Self::F14,
+            Other::F15 => Self::F15,
+            Other::F16 => Self::F16,
+            Other::F17 => Self::F17,
+            Other::F18 => Self::F18,
+            Other::F19 => Self::F19,
+            Other::F20 => Self::F20,
+            Other::F21 => Self::F21,
+            Other::F22 => Self::F22,
+            Other::F23 => Self::F23,
+            Other::F24 => Self::F24,
+            Other::Snapshot => Self::Snapshot,
+            Other::Scroll => Self::Scroll,
+            Other::Pause => Self::Pause,
+            Other::Insert => Self::Insert,
+            Other::Home => Self::Home,
+            Other::Delete => Self::Delete,
+            Other::End => Self::End,
+            Other::PageDown => Self::PageDown,
+            Other::PageUp => Self::PageUp,
+            Other::Left => Self::Left,
+            Other::Up => Self::Up,
+            Other::Right => Self::Right,
+            Other::Down => Self::Down,
+            Other::Back => Self::Back,
+            Other::Return => Self::Return,
+            Other::Space => Self::Space,
+            Other::Compose => Self::Compose,
+            Other::Caret => Self::Caret,
+            Other::Numlock => Self::Numlock,
+            Other::Numpad0 => Self::Numpad0,
+            Other::Numpad1 => Self::Numpad1,
+            Other::Numpad2 => Self::Numpad2,
+            Other::Numpad3 => Self::Numpad3,
+            Other::Numpad4 => Self::Numpad4,
+            Other::Numpad5 => Self::Numpad5,
+            Other::Numpad6 => Self::Numpad6,
+            Other::Numpad7 => Self::Numpad7,
+            Other::Numpad8 => Self::Numpad8,
+            Other::Numpad9 => Self::Numpad9,
+            Other::AbntC1 => Self::AbntC1,
+            Other::AbntC2 => Self::AbntC2,
+            Other::NumpadAdd => Self::NumpadAdd,
+            Other::Apostrophe => Self::Apostrophe,
+            Other::Apps => Self::Apps,
+            Other::Asterisk => Self::Asterisk,
+            Other::Plus => Self::Plus,
+            Other::At => Self::At,
+            Other::Ax => Self::Ax,
+            Other::Backslash => Self::Backslash,
+            Other::Calculator => Self::Calculator,
+            Other::Capital => Self::Capital,
+            Other::Colon => Self::Colon,
+            Other::Comma => Self::Comma,
+            Other::Convert => Self::Convert,
+            Other::NumpadDecimal => Self::NumpadDecimal,
+            Other::NumpadDivide => Self::NumpadDivide,
+            Other::Equals => Self::Equals,
+            Other::Grave => Self::Grave,
+            Other::Kana => Self::Kana,
+            Other::Kanji => Self::Kanji,
+            Other::AltLeft => Self::AltLeft,
+            Other::BracketLeft => Self::BracketLeft,
+            Other::ControlLeft => Self::ControlLeft,
+            Other::ShiftLeft => Self::ShiftLeft,
+            Other::SuperLeft => Self::SuperLeft,
+            Other::Mail => Self::Mail,
+            Other::MediaSelect => Self::MediaSelect,
+            Other::MediaStop => Self::MediaStop,
+            Other::Minus => Self::Minus,
+            Other::NumpadMultiply => Self::NumpadMultiply,
+            Other::Mute => Self::Mute,
+            Other::MyComputer => Self::MyComputer,
+            Other::NavigateForward => Self::NavigateForward,
+            Other::NavigateBackward => Self::NavigateBackward,
+            Other::NextTrack => Self::NextTrack,
+            Other::NoConvert => Self::NoConvert,
+            Other::NumpadComma => Self::NumpadComma,
+            Other::NumpadEnter => Self::NumpadEnter,
+            Other::NumpadEquals => Self::NumpadEquals,
+            Other::Oem102 => Self::Oem102,
+            Other::Period => Self::Period,
+            Other::PlayPause => Self::PlayPause,
+            Other::Power => Self::Power,
+            Other::PrevTrack => Self::PrevTrack,
+            Other::AltRight => Self::AltRight,
+            Other::BracketRight => Self::BracketRight,
+            Other::ControlRight => Self::ControlRight,
+            Other::ShiftRight => Self::ShiftRight,
+            Other::SuperRight => Self::SuperRight,
+            Other::Semicolon => Self::Semicolon,
+            Other::Slash => Self::Slash,
+            Other::Sleep => Self::Sleep,
+            Other::Stop => Self::Stop,
+            Other::NumpadSubtract => Self::NumpadSubtract,
+            Other::Sysrq => Self::Sysrq,
+            Other::Tab => Self::Tab,
+            Other::Underline => Self::Underline,
+            Other::Unlabeled => Self::Unlabeled,
+            Other::VolumeDown => Self::VolumeDown,
+            Other::VolumeUp => Self::VolumeUp,
+            Other::Wake => Self::Wake,
+            Other::WebBack => Self::WebBack,
+            Other::WebFavorites => Self::WebFavorites,
+            Other::WebForward => Self::WebForward,
+            Other::WebHome => Self::WebHome,
+            Other::WebRefresh => Self::WebRefresh,
+            Other::WebSearch => Self::WebSearch,
+            Other::WebStop => Self::WebStop,
+            Other::Yen => Self::Yen,
+            Other::Copy => Self::Copy,
+            Other::Paste => Self::Paste,
+            Other::Cut => Self::Cut,
+        }
+    }
+}
+
+impl From<levo::portal::my_imports::KeyCode> for KeyCode {
+    fn from(value: levo::portal::my_imports::KeyCode) -> Self {
+        use levo::portal::my_imports::KeyCode as Other;
+        match value {
+            Other::Key1 => Self::Key1,
+            Other::Key2 => Self::Key2,
+            Other::Key3 => Self::Key3,
+            Other::Key4 => Self::Key4,
+            Other::Key5 => Self::Key5,
+            Other::Key6 => Self::Key6,
+            Other::Key7 => Self::Key7,
+            Other::Key8 => Self::Key8,
+            Other::Key9 => Self::Key9,
+            Other::Key0 => Self::Key0,
+            Other::A => Self::A,
+            Other::B => Self::B,
+            Other::C => Self::C,
+            Other::D => Self::D,
+            Other::E => Self::E,
+            Other::F => Self::F,
+            Other::G => Self::G,
+            Other::H => Self::H,
+            Other::I => Self::I,
+            Other::J => Self::J,
+            Other::K => Self::K,
+            Other::L => Self::L,
+            Other::M => Self::M,
+            Other::N => Self::N,
+            Other::O => Self::O,
+            Other::P => Self::P,
+            Other::Q => Self::Q,
+            Other::R => Self::R,
+            Other::S => Self::S,
+            Other::T => Self::T,
+            Other::U => Self::U,
+            Other::V => Self::V,
+            Other::W => Self::W,
+            Other::X => Self::X,
+            Other::Y => Self::Y,
+            Other::Z => Self::Z,
+            Other::Escape => Self::Escape,
+            Other::F1 => Self::F1,
+            Other::F2 => Self::F2,
+            Other::F3 => Self::F3,
+            Other::F4 => Self::F4,
+            Other::F5 => Self::F5,
+            Other::F6 => Self::F6,
+            Other::F7 => Self::F7,
+            Other::F8 => Self::F8,
+            Other::F9 => Self::F9,
+            Other::F10 => Self::F10,
+            Other::F11 => Self::F11,
+            Other::F12 => Self::F12,
+            Other::F13 => Self::F13,
+            Other::F14 => Self::F14,
+            Other::F15 => Self::F15,
+            Other::F16 => Self::F16,
+            Other::F17 => Self::F17,
+            Other::F18 => Self::F18,
+            Other::F19 => Self::F19,
+            Other::F20 => Self::F20,
+            Other::F21 => Self::F21,
+            Other::F22 => Self::F22,
+            Other::F23 => Self::F23,
+            Other::F24 => Self::F24,
+            Other::Snapshot => Self::Snapshot,
+            Other::Scroll => Self::Scroll,
+            Other::Pause => Self::Pause,
+            Other::Insert => Self::Insert,
+            Other::Home => Self::Home,
+            Other::Delete => Self::Delete,
+            Other::End => Self::End,
+            Other::PageDown => Self::PageDown,
+            Other::PageUp => Self::PageUp,
+            Other::Left => Self::Left,
+            Other::Up => Self::Up,
+            Other::Right => Self::Right,
+            Other::Down => Self::Down,
+            Other::Back => Self::Back,
+            Other::Return => Self::Return,
+            Other::Space => Self::Space,
+            Other::Compose => Self::Compose,
+            Other::Caret => Self::Caret,
+            Other::Numlock => Self::Numlock,
+            Other::Numpad0 => Self::Numpad0,
+            Other::Numpad1 => Self::Numpad1,
+            Other::Numpad2 => Self::Numpad2,
+            Other::Numpad3 => Self::Numpad3,
+            Other::Numpad4 => Self::Numpad4,
+            Other::Numpad5 => Self::Numpad5,
+            Other::Numpad6 => Self::Numpad6,
+            Other::Numpad7 => Self::Numpad7,
+            Other::Numpad8 => Self::Numpad8,
+            Other::Numpad9 => Self::Numpad9,
+            Other::AbntC1 => Self::AbntC1,
+            Other::AbntC2 => Self::AbntC2,
+            Other::NumpadAdd => Self::NumpadAdd,
+            Other::Apostrophe => Self::Apostrophe,
+            Other::Apps => Self::Apps,
+            Other::Asterisk => Self::Asterisk,
+            Other::Plus => Self::Plus,
+            Other::At => Self::At,
+            Other::Ax => Self::Ax,
+            Other::Backslash => Self::Backslash,
+            Other::Calculator => Self::Calculator,
+            Other::Capital => Self::Capital,
+            Other::Colon => Self::Colon,
+            Other::Comma => Self::Comma,
+            Other::Convert => Self::Convert,
+            Other::NumpadDecimal => Self::NumpadDecimal,
+            Other::NumpadDivide => Self::NumpadDivide,
+            Other::Equals => Self::Equals,
+            Other::Grave => Self::Grave,
+            Other::Kana => Self::Kana,
+            Other::Kanji => Self::Kanji,
+            Other::AltLeft => Self::AltLeft,
+            Other::BracketLeft => Self::BracketLeft,
+            Other::ControlLeft => Self::ControlLeft,
+            Other::ShiftLeft => Self::ShiftLeft,
+            Other::SuperLeft => Self::SuperLeft,
+            Other::Mail => Self::Mail,
+            Other::MediaSelect => Self::MediaSelect,
+            Other::MediaStop => Self::MediaStop,
+            Other::Minus => Self::Minus,
+            Other::NumpadMultiply => Self::NumpadMultiply,
+            Other::Mute => Self::Mute,
+            Other::MyComputer => Self::MyComputer,
+            Other::NavigateForward => Self::NavigateForward,
+            Other::NavigateBackward => Self::NavigateBackward,
+            Other::NextTrack => Self::NextTrack,
+            Other::NoConvert => Self::NoConvert,
+            Other::NumpadComma => Self::NumpadComma,
+            Other::NumpadEnter => Self::NumpadEnter,
+            Other::NumpadEquals => Self::NumpadEquals,
+            Other::Oem102 => Self::Oem102,
+            Other::Period => Self::Period,
+            Other::PlayPause => Self::PlayPause,
+            Other::Power => Self::Power,
+            Other::PrevTrack => Self::PrevTrack,
+            Other::AltRight => Self::AltRight,
+            Other::BracketRight => Self::BracketRight,
+            Other::ControlRight => Self::ControlRight,
+            Other::ShiftRight => Self::ShiftRight,
+            Other::SuperRight => Self::SuperRight,
+            Other::Semicolon => Self::Semicolon,
+            Other::Slash => Self::Slash,
+            Other::Sleep => Self::Sleep,
+            Other::Stop => Self::Stop,
+            Other::NumpadSubtract => Self::NumpadSubtract,
+            Other::Sysrq => Self::Sysrq,
+            Other::Tab => Self::Tab,
+            Other::Underline => Self::Underline,
+            Other::Unlabeled => Self::Unlabeled,
+            Other::VolumeDown => Self::VolumeDown,
+            Other::VolumeUp => Self::VolumeUp,
+            Other::Wake => Self::Wake,
+            Other::WebBack => Self::WebBack,
+            Other::WebFavorites => Self::WebFavorites,
+            Other::WebForward => Self::WebForward,
+            Other::WebHome => Self::WebHome,
+            Other::WebRefresh => Self::WebRefresh,
+            Other::WebSearch => Self::WebSearch,
+            Other::WebStop => Self::WebStop,
+            Other::Yen => Self::Yen,
+            Other::Copy => Self::Copy,
+            Other::Paste => Self::Paste,
+            Other::Cut => Self::Cut,
+        }
+    }
+}
+
+impl From<levo::portal::my_imports::MouseButton> for MouseButton {
+    fn from(value: levo::portal::my_imports::MouseButton) -> Self {
+        use levo::portal::my_imports::MouseButton as Other;
+        match value {
+            Other::Left => Self::Left,
+            Other::Right => Self::Right,
+            Other::Middle => Self::Middle,
+            Other::Other(inner) => Self::Other(inner),
+        }
+    }
+}
+
+impl From<MouseButton> for levo::portal::my_imports::MouseButton {
+    fn from(value: MouseButton) -> Self {
+        use MouseButton as Other;
+        match value {
+            Other::Left => Self::Left,
+            Other::Right => Self::Right,
+            Other::Middle => Self::Middle,
+            Other::Other(inner) => Self::Other(inner),
+        }
+    }
+}
+
+impl From<levo::portal::my_imports::Position> for Vec2 {
+    fn from(p: levo::portal::my_imports::Position) -> Self {
+        Vec2::new(p.x, p.y)
+    }
+}
+
+impl From<Vec2> for levo::portal::my_imports::Position {
+    fn from(v: Vec2) -> Self {
+        levo::portal::my_imports::Position { x: v.x, y: v.y }
     }
 }
 
@@ -509,7 +946,10 @@ fn handle_guest_event(
 
 fn handle_refresh(
     text_input_q: Query<&CosmicEditor, With<AddressBar>>,
-    mut refresh_q: Query<(&Interaction, &mut BackgroundColor), (Changed<Interaction>, With<RefreshButton>)>,
+    mut refresh_q: Query<
+        (&Interaction, &mut BackgroundColor),
+        (Changed<Interaction>, With<RefreshButton>),
+    >,
     runtime: ResMut<TokioTasksRuntime>,
 ) {
     for (interaction, mut background_color) in refresh_q.iter_mut() {
@@ -528,9 +968,7 @@ fn handle_refresh(
             Interaction::Hovered => {
                 *background_color = Color::GRAY.with_a(0.3).into();
             }
-            Interaction::None => {
-                *background_color = Color::NONE.into()
-            }
+            Interaction::None => *background_color = Color::NONE.into(),
         }
     }
 }
@@ -598,10 +1036,54 @@ fn run_wasm_update(
     wasm_instance: Option<ResMut<WasmBindings>>,
     wasm_store: Option<ResMut<WasmStore>>,
     time: Res<Time>,
+    keys: Res<Input<KeyCode>>,
+    mouse_buttons: Res<Input<MouseButton>>,
+    q_windows: Query<&Window, With<PrimaryWindow>>,
+    // TODO: cursor events https://bevy-cheatbook.github.io/input/mouse.html?highlight=cursor#mouse-cursor-position
+    // TODO: pass through canvas width/height
 ) {
     if let Some(wasm_resource) = wasm_instance {
         let mut store = wasm_store.unwrap();
-        store.store.data_mut().delta_seconds = time.delta_seconds();
+        {
+            let data = store.store.data_mut();
+
+            data.delta_seconds = time.delta_seconds();
+
+            data.inputs.keys_just_pressed.clear();
+            data.inputs
+                .keys_just_pressed
+                .extend(keys.get_just_pressed());
+
+            data.inputs.keys_pressed.clear();
+            data.inputs.keys_pressed.extend(keys.get_pressed());
+
+            data.inputs.keys_just_released.clear();
+            data.inputs
+                .keys_just_released
+                .extend(keys.get_just_released());
+
+            data.inputs.mouse_buttons_just_pressed.clear();
+            data.inputs
+                .mouse_buttons_just_pressed
+                .extend(mouse_buttons.get_just_pressed());
+
+            data.inputs.mouse_buttons_pressed.clear();
+            data.inputs
+                .mouse_buttons_pressed
+                .extend(mouse_buttons.get_pressed());
+
+            data.inputs.mouse_buttons_just_released.clear();
+            data.inputs
+                .mouse_buttons_just_released
+                .extend(mouse_buttons.get_just_released());
+
+            data.inputs.cursor_position = None;
+            data.inputs.cursor_position = q_windows
+                .get_single()
+                .ok()
+                .and_then(|w| w.cursor_position());
+        }
+
         let _ = wasm_resource.bindings.call_update(&mut store.store);
     }
 }
@@ -686,6 +1168,7 @@ async fn get_wasm(
             limits: StoreLimitsBuilder::new()
                 .memory_size(50 << 20 /* 50 MB */)
                 .build(),
+            inputs: Default::default(),
         },
     );
     store.limiter(|state| &mut state.limits);
