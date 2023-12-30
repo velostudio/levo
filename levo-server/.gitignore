@@ -1,3 +1,5 @@
 /target
 rust.wasm
 go.wasm
+c.wasm
+404.wasm
