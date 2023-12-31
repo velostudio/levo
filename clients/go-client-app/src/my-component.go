@@ -18,21 +18,36 @@ type particle struct {
 var particles []particle
 
 var tick int = 0
+var heartOffset = [2]float32{0.0, 0.0}
 
 func createParticles() {
-	var canvas_width float32 = world.LevoPortalMyImportsCanvasSize().Width
-        tick += 1
-        if tick%10 == 0 {
-                if len(particles) < 100 {
-                        particles = append(particles, particle{
-                                x:      rand.Float32() * canvas_width,
-                                y:      0,
-                                speed:  500 + rand.Float32()*13,
-                                radius: 5 + rand.Float32()*5,
-                                color:  "white",
-                        })
-                }
+    canvasSize := world.LevoPortalMyImportsCanvasSize()
+    canvasWidth := canvasSize.Width
+    tick++
+
+    leftMouseButton := world.LevoPortalMyImportsMouseButtonLeft()
+
+    if tick%10 == 0 {
+        if len(particles) < 100 {
+            newParticle := particle{
+                x:      rand.Float32() * canvasWidth,
+                y:      0,
+                speed:  500 + rand.Float32()*13,
+                radius: 5 + rand.Float32()*5,
+                color:  "white",
+            }
+
+            cursorPositionOption := world.LevoPortalMyImportsCursorPosition()
+
+            if cursorPositionOption.IsSome() && world.LevoPortalMyImportsMouseButtonPressed(leftMouseButton) {
+                cursorPosition := cursorPositionOption.Unwrap()
+                newParticle.x = cursorPosition.X
+                newParticle.y = cursorPosition.Y
+            }
+
+            particles = append(particles, newParticle)
         }
+    }
 }
 
 func updateParticles() {
@@ -73,14 +88,14 @@ func drawParticles() {
         }
 }
 
-func drawHeart() {
-        world.LevoPortalMyImportsBeginPath()
-        world.LevoPortalMyImportsMoveTo(0, 0)
-        world.LevoPortalMyImportsCubicBezierTo(70, 70, 175, -35, 0, -140)
-        world.LevoPortalMyImportsCubicBezierTo(-175, -35, -70, 70, 0, 0)
-        world.LevoPortalMyImportsClosePath()
-        world.LevoPortalMyImportsFillStyle("red")
-        world.LevoPortalMyImportsFill()
+func drawHeart(xOffset float32, yOffset float32) {
+    world.LevoPortalMyImportsBeginPath()
+    world.LevoPortalMyImportsMoveTo(xOffset, yOffset)
+    world.LevoPortalMyImportsCubicBezierTo(xOffset+70, yOffset+70, xOffset+175, yOffset-35, xOffset, yOffset-140)
+    world.LevoPortalMyImportsCubicBezierTo(xOffset-175, yOffset-35, xOffset-70, yOffset+70, xOffset, yOffset)
+    world.LevoPortalMyImportsClosePath()
+    world.LevoPortalMyImportsFillStyle("red")
+    world.LevoPortalMyImportsFill()
 }
 
 func init() {
@@ -96,17 +111,37 @@ func (e HostImpl) Setup() {
 }
 
 func (e HostImpl) Update() {
-        createParticles()
-        updateParticles()
-        killParticles()
-        drawParticles()
-        if tick > 100 {
-                drawHeart()
+    createParticles()
+    updateParticles()
+    killParticles()
+    drawParticles()
+    
+    if tick > 100 {
+        heartSpeed := float32(222.0)
+        
+	    if world.LevoPortalMyImportsKeyPressed(world.LevoPortalMyImportsKeyCodeLeft()) {
+            heartOffset[0] -= heartSpeed * world.LevoPortalMyImportsDeltaSeconds()
         }
-        if tick > 200 {
-                world.LevoPortalMyImportsLabel("Happy New Year from Go!", 0., -200., 64., "white")
-                world.LevoPortalMyImportsLink("localhost/rust.wasm", "Go to rust.wasm", -100., -300., 32.)
+        
+	    if world.LevoPortalMyImportsKeyPressed(world.LevoPortalMyImportsKeyCodeRight()) {
+            heartOffset[0] += heartSpeed * world.LevoPortalMyImportsDeltaSeconds()
         }
+        
+	    if world.LevoPortalMyImportsKeyPressed(world.LevoPortalMyImportsKeyCodeUp()) {
+            heartOffset[1] += heartSpeed * world.LevoPortalMyImportsDeltaSeconds()
+        }
+        
+	    if world.LevoPortalMyImportsKeyPressed(world.LevoPortalMyImportsKeyCodeDown()) {
+            heartOffset[1] -= heartSpeed * world.LevoPortalMyImportsDeltaSeconds()
+        }
+        
+        drawHeart(heartOffset[0], heartOffset[1])
+    }
+
+    if tick > 200 {
+        world.LevoPortalMyImportsLabel("Happy New Year from Go!", 0.0, -200.0, 64.0, "white")
+        world.LevoPortalMyImportsLink("localhost/rust.wasm", "Go to rust.wasm", -100.0, -300.0, 32.0)
+    }
 }
 
 func main() {}

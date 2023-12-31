@@ -114,8 +114,6 @@ void my_world_update() {
     drawParticles();
 
     if (tick > 100) {
-        levo_portal_my_imports_size_t canvasSize;
-        levo_portal_my_imports_canvas_size(&canvasSize);
         float heart_speed = 222.0;
     
         if (levo_portal_my_imports_key_pressed(LEVO_PORTAL_MY_IMPORTS_KEY_CODE_LEFT)) {
