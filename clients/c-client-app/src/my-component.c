@@ -16,11 +16,18 @@ int particleCount = 0;
 
 unsigned int tick = 0;
 
+float heart_offset[2] = {0.0, 0.0};
+
 void createParticles() {
     levo_portal_my_imports_size_t canvasSize;
     levo_portal_my_imports_canvas_size(&canvasSize);
     float canvas_width = canvasSize.width;
+
     tick++;
+    
+    levo_portal_my_imports_mouse_button_t leftMouseButton;
+    leftMouseButton.tag = LEVO_PORTAL_MY_IMPORTS_MOUSE_BUTTON_LEFT;
+
     if (tick % 10 == 0 && particleCount < 100) {
         particles[particleCount].x = ((float)rand() / RAND_MAX) * canvas_width;
         particles[particleCount].y = 0.0;
@@ -30,6 +37,13 @@ void createParticles() {
         const char* color = "white";
         strncpy(particles[particleCount].color, color, sizeof(particles[particleCount].color) - 1);
         particles[particleCount].color[sizeof(particles[particleCount].color) - 1] = '\0';  // Ensure null-termination
+
+        if (levo_portal_my_imports_mouse_button_pressed(&leftMouseButton)) {
+            levo_portal_my_imports_position_t cursor_position;
+            levo_portal_my_imports_cursor_position(&cursor_position);
+            particles[particleCount].x = cursor_position.x;
+            particles[particleCount].y = cursor_position.y;
+        }
 
         particleCount++;
     }
@@ -78,11 +92,11 @@ void drawParticles() {
     }
 }
 
-void drawHeart() {
+void drawHeart(float x_offset, float y_offset) {
     levo_portal_my_imports_begin_path();
-    levo_portal_my_imports_move_to(0.0, 0.0);
-    levo_portal_my_imports_cubic_bezier_to(75.0, 75.0, 175.0, -50.0, 0.0, -150.0);
-    levo_portal_my_imports_cubic_bezier_to(-175.0, -50.0, -75.0, 75.0, 0.0, 0.0);
+    levo_portal_my_imports_move_to(x_offset, y_offset);
+    levo_portal_my_imports_cubic_bezier_to(x_offset + 75.0, y_offset + 75.0, x_offset + 175.0, y_offset - 50.0, x_offset, y_offset - 150.0);
+    levo_portal_my_imports_cubic_bezier_to(x_offset - 175.0, y_offset - 50.0, x_offset - 75.0, y_offset + 75.0, x_offset, y_offset);
     levo_portal_my_imports_close_path();
 
     my_world_string_t fill_style;
@@ -90,6 +104,7 @@ void drawHeart() {
     levo_portal_my_imports_fill_style(&fill_style);
  
     levo_portal_my_imports_fill();
+    my_world_string_free(&fill_style);
 }
 
 void my_world_update() {
@@ -99,13 +114,33 @@ void my_world_update() {
     drawParticles();
 
     if (tick > 100) {
-        drawHeart();
+        levo_portal_my_imports_size_t canvasSize;
+        levo_portal_my_imports_canvas_size(&canvasSize);
+        float heart_speed = 222.0;
+    
+        if (levo_portal_my_imports_key_pressed(LEVO_PORTAL_MY_IMPORTS_KEY_CODE_LEFT)) {
+            heart_offset[0] -= heart_speed * levo_portal_my_imports_delta_seconds();
+        }
+    
+        if (levo_portal_my_imports_key_pressed(LEVO_PORTAL_MY_IMPORTS_KEY_CODE_RIGHT)) {
+            heart_offset[0] += heart_speed * levo_portal_my_imports_delta_seconds();
+        }
+    
+        if (levo_portal_my_imports_key_pressed(LEVO_PORTAL_MY_IMPORTS_KEY_CODE_UP)) {
+            heart_offset[1] += heart_speed * levo_portal_my_imports_delta_seconds();
+        }
+    
+        if (levo_portal_my_imports_key_pressed(LEVO_PORTAL_MY_IMPORTS_KEY_CODE_DOWN)) {
+            heart_offset[1] -= heart_speed * levo_portal_my_imports_delta_seconds();
+        }
+    
+        drawHeart(heart_offset[0], heart_offset[1]);
     }
-
+    
     if (tick > 200) {
         my_world_string_t my_string;
         my_world_string_set(&my_string, "Happy New Year from C!");
-
+    
         my_world_string_t label_color;
         my_world_string_set(&label_color, "white");
 
