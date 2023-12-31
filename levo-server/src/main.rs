@@ -12,6 +12,8 @@ use wtransport::Certificate;
 use wtransport::Endpoint;
 use wtransport::ServerConfig;
 
+const ROOT: Option<&'static str> = std::option_env!("LEVO_SERVER_ROOT");
+
 #[tokio::main]
 async fn main() -> Result<()> {
     init_logging();
@@ -71,10 +73,11 @@ async fn handle_connection_impl(incoming_session: IncomingSession) -> Result<()>
                 let client_msg = std::str::from_utf8(&buffer[..bytes_read])?;
 
                 if client_msg == "WASM" {
+                    let root = ROOT.unwrap_or(".");
                     let clean_path = path_clean::clean(path.clone());
-                    let mut path = format!("./public{}", clean_path.display());
+                    let mut path = format!("{root}/public{}", clean_path.display());
                     if !Path::new(path.as_str()).exists() {
-                        path = "./public/404.wasm".to_string();
+                        path = format!("{root}/public/404.wasm");
                     }
                     let data = std::fs::read(path).expect("Failed to read wasm brotli encoded file");
                     stream.0.write_all(data.as_slice()).await?;
