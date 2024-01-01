@@ -27,12 +27,12 @@ impl Guest for MyWorld {
         let message = format!("Hello from Rust! ({width}x{height})");
         print(&message);
         let Ok(data1) = levo::portal::my_imports::read_file("hello.txt") else {
-            print("Failed to read 'hello.txt'");
+            print("Failed to read public hello.txt");
             return
         };
         print(&String::from_utf8_lossy(&data1));
-        let Ok(data2) = levo::portal::my_imports::read_file("../hello.txt") else {
-            print("Failed to read '../hello.txt'");
+        let Ok(data2) = levo::portal::my_imports::read_file("../private/hello.txt") else {
+            print("Failed to read private hello.txt");
             return
         };
         print(&String::from_utf8_lossy(&data2));
