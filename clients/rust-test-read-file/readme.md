@@ -13,4 +13,3 @@ Inspect logs:
 [portal/src/main.rs:172] from_wasm = "Hello from hello.txt!\n"
 ```
 
-If allow read is not provided for portal, logs will the error message.
