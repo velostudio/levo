@@ -1,3 +1,6 @@
+use bevy::ecs::change_detection::DetectChanges;
+use bevy::ecs::schedule::IntoSystemConfigs;
+use bevy::ecs::system::Local;
 // use bevy::diagnostic::{FrameTimeDiagnosticsPlugin, LogDiagnosticsPlugin};
 use bevy::input::mouse::MouseButton;
 use bevy::prelude::{
@@ -17,7 +20,9 @@ use bevy_prototype_lyon::prelude::{Fill, GeometryBuilder, PathBuilder, ShapeBund
 use bevy_prototype_lyon::shapes::{Rectangle, RectangleOrigin};
 use bevy_tokio_tasks::TokioTasksRuntime;
 use brotli::Decompressor;
+use clap::Parser;
 use std::io::Read;
+use std::path::{Path, PathBuf};
 use url::Url;
 use wasmtime::{component::*, StoreLimits, StoreLimitsBuilder};
 use wasmtime::{Config, Engine, Store};
@@ -37,6 +42,27 @@ bindgen!({
     path: "../spec",
     async: false,
 });
+
+/// Simple program to greet a person
+#[derive(Parser, Debug, Resource)]
+#[command(author, version, about, long_about = None)]
+struct Args {
+    /// Allow read access to this path
+    #[arg(short, long)]
+    allow_read: Option<PathBuf>,
+    /// Don't show the "chrome" (not yet implemented)
+    #[arg(short, long)]
+    bare: bool,
+    /// Path to the WASM file to run directly (not yet implemented)
+    #[arg(short, long)]
+    run: Option<PathBuf>,
+    /// URL to launch the portal with (not yet implemented)
+    #[arg(short, long)]
+    url: Option<String>,
+    /// Path to the WASM file to watch, run and reload on changes (not yet implemented)
+    #[arg(short, long)]
+    watch: Option<PathBuf>,
+}
 
 #[derive(Debug)]
 struct FillRect {
@@ -122,6 +148,7 @@ struct MyCtx {
     limits: StoreLimits,
     inputs: Inputs,
     canvas: Canvas,
+    allow_read: Option<PathBuf>,
 }
 
 impl WasiView for MyCtx {
@@ -313,6 +340,19 @@ impl Host for MyCtx {
             width: self.canvas.size.x,
             height: self.canvas.size.y,
         })
+    }
+
+    fn read_file(&mut self, path: String) -> wasmtime::Result<Result<Vec<u8>, ()>> {
+        let handle_read_file = |path: &str| {
+            let target_path = canonicalize_path(&path).map_err(|_| ())?;
+            let allow_read = self.allow_read.as_ref().ok_or(())?;
+            if is_path_within_allowed_directory(allow_read, &target_path) {
+                std::fs::read(target_path).map_err(|_| ())
+            } else {
+                Err(())
+            }
+        };
+        Ok(handle_read_file(&path))
     }
 }
 
@@ -706,9 +746,13 @@ struct WasmBindings {
 }
 
 fn main() {
+    let args = Args::parse();
+    dbg!(&args);
+
     App::new()
         // .add_plugins(FrameTimeDiagnosticsPlugin::default())
         // .add_plugins(LogDiagnosticsPlugin::default())
+        .insert_resource(args)
         .add_plugins(DefaultPlugins)
         .add_plugins(CosmicEditPlugin::default())
         .add_plugins(ShapePlugin)
@@ -716,7 +760,8 @@ fn main() {
         .add_systems(First, clear_second_part)
         .add_systems(PreUpdate, clear_first_part)
         .add_systems(Update, handle_get_wasm)
-        .add_systems(Update, run_wasm_setup)
+        .add_systems(Update, update_wasm_store_from_args.before(run_wasm_setup))
+        .add_systems(Update, run_wasm_setup.before(run_wasm_update))
         .add_systems(Update, run_wasm_update)
         .add_systems(Update, handle_guest_event)
         .add_systems(Update, handle_refresh)
@@ -1011,6 +1056,25 @@ fn handle_refresh(
     }
 }
 
+fn update_wasm_store_from_args(
+    mut has_run: Local<bool>,
+    args: Res<Args>,
+    wasm_store: Option<ResMut<WasmStore>>,
+) {
+    if !*has_run
+        || args.is_changed()
+        || wasm_store
+            .as_ref()
+            .filter(|store| store.is_changed())
+            .is_some()
+    {
+        if let Some(mut store) = wasm_store {
+            store.store.data_mut().allow_read = args.allow_read.clone();
+            *has_run = true;
+        }
+    }
+}
+
 fn handle_link(
     mut text_input_q: Query<&mut CosmicText, With<AddressBar>>,
     links_q: Query<(&Interaction, &GuestUrl), (Changed<Interaction>, With<GuestUrl>)>,
@@ -1281,6 +1345,7 @@ async fn get_wasm(
             limits: StoreLimitsBuilder::new().memory_size(memory_size).build(),
             inputs: Default::default(),
             canvas,
+            allow_read: None,
         },
     );
     store.limiter(|state| &mut state.limits);
@@ -1305,4 +1370,14 @@ async fn get_wasm(
     .await;
 
     Ok(())
+}
+
+fn canonicalize_path(path: &str) -> Result<PathBuf, String> {
+    Path::new(path)
+        .canonicalize()
+        .map_err(|e| format!("Error canonicalizing path {}: {}", path, e))
+}
+
+fn is_path_within_allowed_directory(allowed_path: &Path, target_path: &Path) -> bool {
+    target_path.starts_with(allowed_path)
 }

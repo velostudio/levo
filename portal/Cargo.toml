@@ -45,3 +45,4 @@ brotli = "3.4.0"
 bevy-tokio-tasks = { git = "https://github.com/StaffEngineer/bevy-tokio-tasks", rev = "ae26781" }
 bevy_prototype_lyon = "0.10"
 url = "2.5.0"
+clap = { version = "4.4.12", features = ["derive"] }
