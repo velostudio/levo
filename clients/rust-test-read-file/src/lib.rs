@@ -26,11 +26,16 @@ impl Guest for MyWorld {
         let height = size.height;
         let message = format!("Hello from Rust! ({width}x{height})");
         print(&message);
-        let Ok(data) = levo::portal::my_imports::read_file("./hello.txt") else {
-            print("Failed to read hello.txt");
-            return;
+        let Ok(data1) = levo::portal::my_imports::read_file("hello.txt") else {
+            print("Failed to read 'hello.txt'");
+            return
         };
-        print(&String::from_utf8_lossy(&data));
+        print(&String::from_utf8_lossy(&data1));
+        let Ok(data2) = levo::portal::my_imports::read_file("../hello.txt") else {
+            print("Failed to read '../hello.txt'");
+            return
+        };
+        print(&String::from_utf8_lossy(&data2));
     }
 
     fn update() {}
