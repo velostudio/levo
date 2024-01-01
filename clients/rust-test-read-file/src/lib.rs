@@ -32,5 +32,6 @@ impl Guest for MyWorld {
         };
         print(&String::from_utf8_lossy(&data));
     }
+
     fn update() {}
 }

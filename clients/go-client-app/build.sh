@@ -8,5 +8,4 @@ tinygo build -target=wasi -o main.wasm src/my-component.go
 wasm-tools component embed --world my-world ../../spec main.wasm -o main.embed.wasm
 wasm-tools component new main.embed.wasm --adapt ../wasi_snapshot_preview1.reactor.wasm -o main.component.wasm
 wasm-tools component wit main.component.wasm
-mkdir -p "../../levo-server/public"
 cargo run --package brotli-encoder --release -- main.component.wasm "../../levo-server/public/go.wasm"

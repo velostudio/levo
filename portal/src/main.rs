@@ -43,7 +43,7 @@ bindgen!({
     async: false,
 });
 
-/// Simple program to greet a person
+/// Levo Portal
 #[derive(Parser, Debug, Resource)]
 #[command(author, version, about, long_about = None)]
 struct Args {
@@ -343,16 +343,45 @@ impl Host for MyCtx {
     }
 
     fn read_file(&mut self, path: String) -> wasmtime::Result<Result<Vec<u8>, ()>> {
-        let handle_read_file = |path: &str| {
-            let target_path = canonicalize_path(&path).map_err(|_| ())?;
-            let allow_read = self.allow_read.as_ref().ok_or(())?;
-            if is_path_within_allowed_directory(allow_read, &target_path) {
-                std::fs::read(target_path).map_err(|_| ())
+        if let Some(allow_read) = self.allow_read.as_ref() {
+            let canonicalized_allow_read = match canonicalize_path(Path::new(allow_read)) {
+                Ok(path) => path,
+                Err(e) => {
+                    eprintln!("Error canonicalizing allow_read path: {}", e.to_string());
+                    return Ok(Err(()));
+                }
+            };
+
+            let full_path = canonicalized_allow_read.join(&path);
+            let canonicalized_full_path = match canonicalize_path(&full_path) {
+                Ok(path) => path,
+                Err(e) => {
+                    eprintln!("Error canonicalizing full path: {}", e.to_string());
+                    return Ok(Err(()));
+                }
+            };
+
+            if is_path_within_allowed_directory(&canonicalized_allow_read, &canonicalized_full_path)
+            {
+                match std::fs::read(&canonicalized_full_path) {
+                    Ok(content) => Ok(Ok(content)),
+                    Err(e) => {
+                        eprintln!("{}", e);
+                        Ok(Err(()))
+                    }
+                }
             } else {
-                Err(())
+                eprintln!(
+                    "Path is not within allowed directory. Allowed: {}. Path: {}",
+                    &canonicalized_allow_read.display(),
+                    &canonicalized_full_path.display()
+                );
+                Ok(Err(()))
             }
-        };
-        Ok(handle_read_file(&path))
+        } else {
+            eprintln!("read_file is not allowed");
+            Ok(Err(()))
+        }
     }
 }
 
@@ -747,7 +776,7 @@ struct WasmBindings {
 
 fn main() {
     let args = Args::parse();
-    dbg!(&args);
+    eprintln!("{:?}", &args);
 
     App::new()
         // .add_plugins(FrameTimeDiagnosticsPlugin::default())
@@ -1372,10 +1401,10 @@ async fn get_wasm(
     Ok(())
 }
 
-fn canonicalize_path(path: &str) -> Result<PathBuf, String> {
+fn canonicalize_path(path: &Path) -> Result<PathBuf, String> {
     Path::new(path)
         .canonicalize()
-        .map_err(|e| format!("Error canonicalizing path {}: {}", path, e))
+        .map_err(|e| format!("Error canonicalizing path {}: {}", path.display(), e))
 }
 
 fn is_path_within_allowed_directory(allowed_path: &Path, target_path: &Path) -> bool {
