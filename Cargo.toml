@@ -2,6 +2,7 @@
 members = [
   "brotli-encoder",
   "clients/rust-client-app",
+  "clients/rust-test-read-file",
   "levo-server",
   "portal",
 ]

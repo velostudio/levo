@@ -38,6 +38,33 @@ extern void __wasm_import_levo_portal_my_imports_link(int32_t, int32_t, int32_t,
 __attribute__((__import_module__("levo:portal/my-imports"), __import_name__("delta-seconds")))
 extern float __wasm_import_levo_portal_my_imports_delta_seconds(void);
 
+__attribute__((__import_module__("levo:portal/my-imports"), __import_name__("key-just-pressed")))
+extern int32_t __wasm_import_levo_portal_my_imports_key_just_pressed(int32_t);
+
+__attribute__((__import_module__("levo:portal/my-imports"), __import_name__("key-pressed")))
+extern int32_t __wasm_import_levo_portal_my_imports_key_pressed(int32_t);
+
+__attribute__((__import_module__("levo:portal/my-imports"), __import_name__("key-just-released")))
+extern int32_t __wasm_import_levo_portal_my_imports_key_just_released(int32_t);
+
+__attribute__((__import_module__("levo:portal/my-imports"), __import_name__("mouse-button-just-pressed")))
+extern int32_t __wasm_import_levo_portal_my_imports_mouse_button_just_pressed(int32_t, int32_t);
+
+__attribute__((__import_module__("levo:portal/my-imports"), __import_name__("mouse-button-just-released")))
+extern int32_t __wasm_import_levo_portal_my_imports_mouse_button_just_released(int32_t, int32_t);
+
+__attribute__((__import_module__("levo:portal/my-imports"), __import_name__("mouse-button-pressed")))
+extern int32_t __wasm_import_levo_portal_my_imports_mouse_button_pressed(int32_t, int32_t);
+
+__attribute__((__import_module__("levo:portal/my-imports"), __import_name__("cursor-position")))
+extern void __wasm_import_levo_portal_my_imports_cursor_position(int32_t);
+
+__attribute__((__import_module__("levo:portal/my-imports"), __import_name__("canvas-size")))
+extern void __wasm_import_levo_portal_my_imports_canvas_size(int32_t);
+
+__attribute__((__import_module__("levo:portal/my-imports"), __import_name__("read-file")))
+extern void __wasm_import_levo_portal_my_imports_read_file(int32_t, int32_t, int32_t);
+
 __attribute__((__weak__, __export_name__("cabi_realloc")))
 void *cabi_realloc(void *ptr, size_t old_size, size_t align, size_t new_size) {
   (void) old_size;
@@ -48,6 +75,33 @@ void *cabi_realloc(void *ptr, size_t old_size, size_t align, size_t new_size) {
 }
 
 // Helper Functions
+
+void levo_portal_my_imports_mouse_button_free(levo_portal_my_imports_mouse_button_t *ptr) {
+  switch ((int32_t) ptr->tag) {
+    case 3: {
+      break;
+    }
+  }
+}
+
+void levo_portal_my_imports_option_position_free(levo_portal_my_imports_option_position_t *ptr) {
+  if (ptr->is_some) {
+  }
+}
+
+void my_world_list_u8_free(my_world_list_u8_t *ptr) {
+  for (size_t i = 0; i < ptr->len; i++) {
+  }
+  if (ptr->len > 0) {
+    free(ptr->ptr);
+  }
+}
+
+void levo_portal_my_imports_result_list_u8_void_free(levo_portal_my_imports_result_list_u8_void_t *ptr) {
+  if (!ptr->is_err) {
+    my_world_list_u8_free(&ptr->val.ok);
+  }
+}
 
 void my_world_string_set(my_world_string_t *ret, char*s) {
   ret->ptr = (uint8_t*) s;
@@ -117,6 +171,171 @@ void levo_portal_my_imports_link(my_world_string_t *url, my_world_string_t *text
 float levo_portal_my_imports_delta_seconds(void) {
   float ret = __wasm_import_levo_portal_my_imports_delta_seconds();
   return ret;
+}
+
+bool levo_portal_my_imports_key_just_pressed(levo_portal_my_imports_key_code_t key) {
+  int32_t ret = __wasm_import_levo_portal_my_imports_key_just_pressed((int32_t) key);
+  return ret;
+}
+
+bool levo_portal_my_imports_key_pressed(levo_portal_my_imports_key_code_t key) {
+  int32_t ret = __wasm_import_levo_portal_my_imports_key_pressed((int32_t) key);
+  return ret;
+}
+
+bool levo_portal_my_imports_key_just_released(levo_portal_my_imports_key_code_t key) {
+  int32_t ret = __wasm_import_levo_portal_my_imports_key_just_released((int32_t) key);
+  return ret;
+}
+
+bool levo_portal_my_imports_mouse_button_just_pressed(levo_portal_my_imports_mouse_button_t *btn) {
+  int32_t variant;
+  int32_t variant3;
+  switch ((int32_t) (*btn).tag) {
+    case 0: {
+      variant = 0;
+      variant3 = 0;
+      break;
+    }
+    case 1: {
+      variant = 1;
+      variant3 = 0;
+      break;
+    }
+    case 2: {
+      variant = 2;
+      variant3 = 0;
+      break;
+    }
+    case 3: {
+      const uint16_t *payload2 = &(*btn).val.other;
+      variant = 3;
+      variant3 = (int32_t) (*payload2);
+      break;
+    }
+  }
+  int32_t ret = __wasm_import_levo_portal_my_imports_mouse_button_just_pressed(variant, variant3);
+  return ret;
+}
+
+bool levo_portal_my_imports_mouse_button_just_released(levo_portal_my_imports_mouse_button_t *btn) {
+  int32_t variant;
+  int32_t variant3;
+  switch ((int32_t) (*btn).tag) {
+    case 0: {
+      variant = 0;
+      variant3 = 0;
+      break;
+    }
+    case 1: {
+      variant = 1;
+      variant3 = 0;
+      break;
+    }
+    case 2: {
+      variant = 2;
+      variant3 = 0;
+      break;
+    }
+    case 3: {
+      const uint16_t *payload2 = &(*btn).val.other;
+      variant = 3;
+      variant3 = (int32_t) (*payload2);
+      break;
+    }
+  }
+  int32_t ret = __wasm_import_levo_portal_my_imports_mouse_button_just_released(variant, variant3);
+  return ret;
+}
+
+bool levo_portal_my_imports_mouse_button_pressed(levo_portal_my_imports_mouse_button_t *btn) {
+  int32_t variant;
+  int32_t variant3;
+  switch ((int32_t) (*btn).tag) {
+    case 0: {
+      variant = 0;
+      variant3 = 0;
+      break;
+    }
+    case 1: {
+      variant = 1;
+      variant3 = 0;
+      break;
+    }
+    case 2: {
+      variant = 2;
+      variant3 = 0;
+      break;
+    }
+    case 3: {
+      const uint16_t *payload2 = &(*btn).val.other;
+      variant = 3;
+      variant3 = (int32_t) (*payload2);
+      break;
+    }
+  }
+  int32_t ret = __wasm_import_levo_portal_my_imports_mouse_button_pressed(variant, variant3);
+  return ret;
+}
+
+bool levo_portal_my_imports_cursor_position(levo_portal_my_imports_position_t *ret) {
+  __attribute__((__aligned__(4)))
+  uint8_t ret_area[12];
+  int32_t ptr = (int32_t) &ret_area;
+  __wasm_import_levo_portal_my_imports_cursor_position(ptr);
+  levo_portal_my_imports_option_position_t option;
+  switch ((int32_t) (*((uint8_t*) (ptr + 0)))) {
+    case 0: {
+      option.is_some = false;
+      break;
+    }
+    case 1: {
+      option.is_some = true;
+      option.val = (levo_portal_my_imports_position_t) {
+        *((float*) (ptr + 4)),
+        *((float*) (ptr + 8)),
+      };
+      break;
+    }
+  }
+  *ret = option.val;
+  return option.is_some;
+}
+
+void levo_portal_my_imports_canvas_size(levo_portal_my_imports_size_t *ret) {
+  __attribute__((__aligned__(4)))
+  uint8_t ret_area[8];
+  int32_t ptr = (int32_t) &ret_area;
+  __wasm_import_levo_portal_my_imports_canvas_size(ptr);
+  *ret = (levo_portal_my_imports_size_t) {
+    *((float*) (ptr + 0)),
+    *((float*) (ptr + 4)),
+  };
+}
+
+bool levo_portal_my_imports_read_file(my_world_string_t *path, my_world_list_u8_t *ret) {
+  __attribute__((__aligned__(4)))
+  uint8_t ret_area[12];
+  int32_t ptr = (int32_t) &ret_area;
+  __wasm_import_levo_portal_my_imports_read_file((int32_t) (*path).ptr, (int32_t) (*path).len, ptr);
+  levo_portal_my_imports_result_list_u8_void_t result;
+  switch ((int32_t) (*((uint8_t*) (ptr + 0)))) {
+    case 0: {
+      result.is_err = false;
+      result.val.ok = (my_world_list_u8_t) { (uint8_t*)(*((int32_t*) (ptr + 4))), (size_t)(*((int32_t*) (ptr + 8))) };
+      break;
+    }
+    case 1: {
+      result.is_err = true;
+      break;
+    }
+  }
+  if (!result.is_err) {
+    *ret = result.val.ok;
+    return 1;
+  } else {
+    return 0;
+  }
 }
 
 __attribute__((__export_name__("update")))

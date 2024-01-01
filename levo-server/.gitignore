@@ -2,3 +2,4 @@
 rust.wasm
 go.wasm
 c.wasm
+read-file.wasm

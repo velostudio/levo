@@ -2,7 +2,7 @@
 
 void my_world_update() {
     my_world_string_t my_string;
-    my_world_string_set(&my_string, "404 Page Not Found"); // TODO: think about how to print requested resource path too 
+    my_world_string_set(&my_string, "404 Wasm App Not Found"); // TODO: think about how to print requested resource path too 
     
     my_world_string_t label_color;
     my_world_string_set(&label_color, "white");
