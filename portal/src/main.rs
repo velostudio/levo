@@ -17,7 +17,6 @@ use bevy_prototype_lyon::prelude::{Fill, GeometryBuilder, PathBuilder, ShapeBund
 use bevy_prototype_lyon::shapes::{Rectangle, RectangleOrigin};
 use bevy_tokio_tasks::TokioTasksRuntime;
 use brotli::Decompressor;
-use std::borrow::Cow;
 use std::io::Read;
 use url::Url;
 use wasmtime::{component::*, StoreLimits, StoreLimitsBuilder};
@@ -1226,7 +1225,6 @@ async fn get_wasm(
     let uri = Url::parse(valid_url.as_str()).expect("expected valid URL");
     let host = uri.host_str().expect("expected valid host");
     let path = uri.path();
-    let query_pairs = uri.query_pairs();
     let config = ClientConfig::builder()
         .with_bind_default()
         .with_no_cert_validation() // FIXME: don't do it on prod!
@@ -1269,14 +1267,7 @@ async fn get_wasm(
     let mut linker = Linker::new(&engine);
     sync::add_to_linker(&mut linker)?;
     let table = Table::new();
-    let mut memory_size = 50 << 20; // 50 MB
-    for (key, value) in query_pairs {
-        if key == Cow::Borrowed("max_memory_mb") {
-            if let Ok(number) = value.parse::<usize>() {
-                memory_size = number << 20;
-            }
-        }
-    }
+    let memory_size = 50 << 20; // 50 MB
     let wasi = WasiCtxBuilder::new().build();
     MyWorld::add_to_linker(&mut linker, |state: &mut MyCtx| state)?;
     // Set up Wasmtime store
