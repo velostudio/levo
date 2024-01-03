@@ -17,7 +17,7 @@ To start demo server:
 
 ```bash
 cd levo-server
-cargo r --release
+SERVER_CONFIG_FILE=./config.toml cargo r --release
 ```
 (add `webtransport` feature for enabling webtransport protocol)
 
