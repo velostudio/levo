@@ -1121,7 +1121,7 @@ fn handle_link(
                 let (editor, mut text_setter) = text_input_q.single_mut();
                 if let Ok(previous_url_value) = Url::parse(&make_url_valid(editor.get_text())) {
                     if let Ok(new_url) = previous_url_value.join(text.as_str()) {
-                        text = new_url.to_string();
+                        text = new_url.to_string().replace("https://", "");
                     }
                 }
                 *text_setter = CosmicText::OneStyle(text.clone());
