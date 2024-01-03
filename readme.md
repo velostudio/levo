@@ -29,6 +29,6 @@ cargo r --release --feature "no_cert_validation webtransport"
 (only add `no_cert_validation` feature if `levo-server` is used locally)  
 (only add `webtransport` feature if webtransport server is used (such as `levo-server`))
 
-Select the resource location (default: `localhost/rust.wasm`), then press Enter, to load the client (guest) app.
+Select the resource location (default: `velo-studio.xyz/rust.wasm`): `localhost/rust.wasm`, then press Enter, to load the client (guest) app.
 
 Note that, without closing the portal, you can recompile the client app, and refresh.
