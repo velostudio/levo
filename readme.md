@@ -19,7 +19,7 @@ To start demo server:
 cd levo-server
 cargo r --release
 ```
-(add `webtransport` feature if webtransport is used)
+(add `webtransport` feature for enabling webtransport protocol)
 
 To run portal:
 
@@ -27,8 +27,8 @@ To run portal:
 cd portal
 cargo r --release
 ```
-(add `webtransport` feature if webtransport is used)
+(add `webtransport` feature if server speaks webtransport)
 
-Select the resource location (default: `velo-studio.xyz/rust.wasm`): `localhost/rust.wasm`, then press Enter, to load the client (guest) app.
+Select the resource location (default: `velo-studio.xyz/rust.wasm`): `http://localhost:8080/rust.wasm`, then press Enter, to load the client (guest) app.
 
 Note that, without closing the portal, you can recompile the client app, and refresh.

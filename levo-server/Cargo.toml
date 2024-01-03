@@ -5,6 +5,9 @@ edition = "2021"
 
 # See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
 
+[features]
+webtransport = []
+
 [dependencies]
 wtransport = "0.1.10"
 tracing = "0.1.37"
@@ -13,3 +16,4 @@ tracing-subscriber = { version = "0.3.17", features = ["env-filter"] }
 tokio = { version = "1.28.1", default-features = false, features = ["macros", "fs", "rt-multi-thread"] }
 axum = "0.7.1"
 path-clean = "1.0.1"
+static-web-server = "2.24.2"

@@ -1,4 +1,5 @@
 use anyhow::Result;
+use static_web_server::settings::cli::General;
 use std::path::Path;
 use std::time::Duration;
 use tracing::error;
@@ -12,9 +13,17 @@ use wtransport::Certificate;
 use wtransport::Endpoint;
 use wtransport::ServerConfig;
 
+#[cfg(not(feature = "webtransport"))]
+fn main() {
+    let settings = static_web_server::settings::Settings::get(true).unwrap();
+    let static_web_server = static_web_server::Server::new(settings).unwrap();
+    static_web_server.run_standalone().unwrap();
+}
+
 const ROOT: Option<&'static str> = std::option_env!("LEVO_SERVER_ROOT");
 
 #[tokio::main]
+#[cfg(feature = "webtransport")]
 async fn main() -> Result<()> {
     init_logging();
 
