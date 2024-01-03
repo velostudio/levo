@@ -2583,6 +2583,36 @@ func LevoPortalMyImportsCanvasSize() LevoPortalMyImportsSize {
   return lift_ret
 }
 
+func LevoPortalMyImportsReadFile(path string) Result[[]uint8, struct{}] {
+  var lower_path C.my_world_string_t
+  
+  // use unsafe.Pointer to avoid copy
+  lower_path.ptr = (*uint8)(unsafe.Pointer(C.CString(path)))
+  lower_path.len = C.size_t(len(path))
+  var ret C.levo_portal_my_imports_result_list_u8_void_t
+  C.levo_portal_my_imports_read_file(&lower_path , &ret )
+  var lift_ret Result[[]uint8, struct{}]
+  if ret.is_err {
+    lift_ret.SetErr(struct{}{})
+  } else {
+    lift_ret_ptr := *(*C.my_world_list_u8_t)(unsafe.Pointer(&ret.val))
+    var lift_ret_val []uint8
+    lift_ret_val = make([]uint8, lift_ret_ptr.len)
+    if lift_ret_ptr.len > 0 {
+      for lift_ret_val_i := 0; lift_ret_val_i < int(lift_ret_ptr.len); lift_ret_val_i++ {
+        var empty_lift_ret_val C.uint8_t
+        lift_ret_val_ptr := *(*C.uint8_t)(unsafe.Pointer(uintptr(unsafe.Pointer(lift_ret_ptr.ptr)) +
+        uintptr(lift_ret_val_i)*unsafe.Sizeof(empty_lift_ret_val)))
+        var list_lift_ret_val uint8
+        list_lift_ret_val = uint8(lift_ret_val_ptr)
+        lift_ret_val[lift_ret_val_i] = list_lift_ret_val
+      }
+    }
+    lift_ret.Set(lift_ret_val)
+  }
+  return lift_ret
+}
+
 // Export functions from my-world
 var my_world MyWorld = nil
 // `SetMyWorld` sets the `MyWorld` interface implementation.

@@ -140,7 +140,7 @@ func (e HostImpl) Update() {
 
     if tick > 200 {
         world.LevoPortalMyImportsLabel("Happy New Year from Go!", 0.0, -200.0, 64.0, "white")
-        world.LevoPortalMyImportsLink("localhost/rust.wasm", "Go to rust.wasm", -100.0, -300.0, 32.0)
+        world.LevoPortalMyImportsLink("../rust.wasm", "Go to rust.wasm", -100.0, -300.0, 32.0)
     }
 }
 

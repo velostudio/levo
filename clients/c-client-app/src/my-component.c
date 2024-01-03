@@ -143,7 +143,7 @@ void my_world_update() {
         my_world_string_set(&label_color, "white");
 
         my_world_string_t link_url;
-        my_world_string_set(&link_url, "localhost/go.wasm");
+        my_world_string_set(&link_url, "../go.wasm");
 
         my_world_string_t link_name;
         my_world_string_set(&link_name, "Go to go.wasm");

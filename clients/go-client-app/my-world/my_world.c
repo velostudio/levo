@@ -62,6 +62,9 @@ extern void __wasm_import_levo_portal_my_imports_cursor_position(int32_t);
 __attribute__((__import_module__("levo:portal/my-imports"), __import_name__("canvas-size")))
 extern void __wasm_import_levo_portal_my_imports_canvas_size(int32_t);
 
+__attribute__((__import_module__("levo:portal/my-imports"), __import_name__("read-file")))
+extern void __wasm_import_levo_portal_my_imports_read_file(int32_t, int32_t, int32_t);
+
 __attribute__((__weak__, __export_name__("cabi_realloc")))
 void *cabi_realloc(void *ptr, size_t old_size, size_t align, size_t new_size) {
   (void) old_size;
@@ -83,6 +86,20 @@ void levo_portal_my_imports_mouse_button_free(levo_portal_my_imports_mouse_butto
 
 void levo_portal_my_imports_option_position_free(levo_portal_my_imports_option_position_t *ptr) {
   if (ptr->is_some) {
+  }
+}
+
+void my_world_list_u8_free(my_world_list_u8_t *ptr) {
+  for (size_t i = 0; i < ptr->len; i++) {
+  }
+  if (ptr->len > 0) {
+    free(ptr->ptr);
+  }
+}
+
+void levo_portal_my_imports_result_list_u8_void_free(levo_portal_my_imports_result_list_u8_void_t *ptr) {
+  if (!ptr->is_err) {
+    my_world_list_u8_free(&ptr->val.ok);
   }
 }
 
@@ -293,6 +310,26 @@ void levo_portal_my_imports_canvas_size(levo_portal_my_imports_size_t *ret) {
     *((float*) (ptr + 0)),
     *((float*) (ptr + 4)),
   };
+}
+
+void levo_portal_my_imports_read_file(my_world_string_t *path, levo_portal_my_imports_result_list_u8_void_t *ret) {
+  __attribute__((__aligned__(4)))
+  uint8_t ret_area[12];
+  int32_t ptr = (int32_t) &ret_area;
+  __wasm_import_levo_portal_my_imports_read_file((int32_t) (*path).ptr, (int32_t) (*path).len, ptr);
+  levo_portal_my_imports_result_list_u8_void_t result;
+  switch ((int32_t) (*((uint8_t*) (ptr + 0)))) {
+    case 0: {
+      result.is_err = false;
+      result.val.ok = (my_world_list_u8_t) { (uint8_t*)(*((int32_t*) (ptr + 4))), (size_t)(*((int32_t*) (ptr + 8))) };
+      break;
+    }
+    case 1: {
+      result.is_err = true;
+      break;
+    }
+  }
+  *ret = result;
 }
 
 __attribute__((__export_name__("update")))

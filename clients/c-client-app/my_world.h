@@ -208,6 +208,18 @@ typedef struct {
   levo_portal_my_imports_position_t val;
 } levo_portal_my_imports_option_position_t;
 
+typedef struct {
+  uint8_t *ptr;
+  size_t len;
+} my_world_list_u8_t;
+
+typedef struct {
+  bool is_err;
+  union {
+    my_world_list_u8_t ok;
+  } val;
+} levo_portal_my_imports_result_list_u8_void_t;
+
 // Imported Functions from `levo:portal/my-imports`
 extern void levo_portal_my_imports_print(my_world_string_t *msg);
 extern void levo_portal_my_imports_fill_style(my_world_string_t *color);
@@ -229,6 +241,7 @@ extern bool levo_portal_my_imports_mouse_button_just_released(levo_portal_my_imp
 extern bool levo_portal_my_imports_mouse_button_pressed(levo_portal_my_imports_mouse_button_t *btn);
 extern bool levo_portal_my_imports_cursor_position(levo_portal_my_imports_position_t *ret);
 extern void levo_portal_my_imports_canvas_size(levo_portal_my_imports_size_t *ret);
+extern bool levo_portal_my_imports_read_file(my_world_string_t *path, my_world_list_u8_t *ret);
 
 // Exported Functions from `my-world`
 void my_world_update(void);
@@ -239,6 +252,10 @@ void my_world_setup(void);
 void levo_portal_my_imports_mouse_button_free(levo_portal_my_imports_mouse_button_t *ptr);
 
 void levo_portal_my_imports_option_position_free(levo_portal_my_imports_option_position_t *ptr);
+
+void my_world_list_u8_free(my_world_list_u8_t *ptr);
+
+void levo_portal_my_imports_result_list_u8_void_free(levo_portal_my_imports_result_list_u8_void_t *ptr);
 
 // Transfers ownership of `s` into the string `ret`
 void my_world_string_set(my_world_string_t *ret, char*s);

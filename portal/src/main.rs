@@ -29,8 +29,6 @@ use wasmtime::{component::*, StoreLimits, StoreLimitsBuilder};
 use wasmtime::{Config, Engine, Store};
 use wasmtime_wasi::preview2::command::sync;
 use wasmtime_wasi::preview2::{Table, WasiCtx, WasiCtxBuilder, WasiView};
-use wtransport::ClientConfig;
-use wtransport::Endpoint;
 
 #[path = "ui.rs"]
 mod ui;
@@ -1104,7 +1102,7 @@ fn update_wasm_store_from_args(
 }
 
 fn handle_link(
-    mut text_input_q: Query<&mut CosmicText, With<AddressBar>>,
+    mut text_input_q: Query<(&CosmicEditor, &mut CosmicText), With<AddressBar>>,
     links_q: Query<(&Interaction, &GuestUrl), (Changed<Interaction>, With<GuestUrl>)>,
     runtime: ResMut<TokioTasksRuntime>,
     canvas_q: Query<(&GlobalTransform, &bevy::ui::Node), With<Portal>>,
@@ -1119,9 +1117,14 @@ fn handle_link(
         match interaction {
             Interaction::Pressed => {
                 primary_window.cursor.icon = CursorIcon::Hand;
-                let text = url.0.clone();
-                let mut text_input = text_input_q.single_mut();
-                *text_input = CosmicText::OneStyle(text.clone());
+                let mut text = url.0.clone();
+                let (editor, mut text_setter) = text_input_q.single_mut();
+                if let Ok(previous_url_value) = Url::parse(&make_url_valid(editor.get_text())) {
+                    if let Ok(new_url) = previous_url_value.join(text.as_str()) {
+                        text = new_url.to_string();
+                    }
+                }
+                *text_setter = CosmicText::OneStyle(text.clone());
                 let (canvas_global_transform, canvas_node) = canvas_q.single();
                 let (camera, camera_transform) = camera_q.single();
                 let canvas_position = get_position(
@@ -1309,32 +1312,24 @@ async fn get_wasm(
     url: String,
     canvas: Canvas,
 ) -> Result<(), Box<dyn std::error::Error>> {
-    let valid_url = if url.contains("http") {
-        url
-    } else {
-        format!("https://{}", url)
-    };
-    let uri = Url::parse(valid_url.as_str()).expect("expected valid URL");
-    let host = uri.host_str().expect("expected valid host");
-    let path = uri.path();
-    #[cfg(not(feature = "no_cert_validation"))]
-    let config = ClientConfig::builder()
-        .with_bind_default()
-        .with_native_certs()
-        .enable_key_log()
-        .build();
-    #[cfg(feature = "no_cert_validation")]
-    let config = ClientConfig::builder()
-        .with_bind_default()
-        .with_no_cert_validation()
-        .enable_key_log()
-        .build();
-
+    let valid_url = make_url_valid(url);
     let initial_buffer_size = 65536;
     let mut buffer = Vec::with_capacity(initial_buffer_size);
 
     #[cfg(feature = "webtransport")]
     {
+        use url::Url;
+        use wtransport::ClientConfig;
+        use wtransport::Endpoint;
+
+        let uri = Url::parse(valid_url.as_str()).expect("expected valid URL");
+        let host = uri.host_str().expect("expected valid host");
+        let path = uri.path();
+        let config = ClientConfig::builder()
+            .with_bind_default()
+            .with_no_cert_validation() // TODO: don't do it on prod, use with_native_cers instead
+            .enable_key_log()
+            .build();
         if let Ok(connection) = Endpoint::client(config)
             .unwrap()
             .connect(format!("https://{}:4433{}", host, path))
@@ -1431,4 +1426,12 @@ fn canonicalize_path(path: &Path) -> Result<PathBuf, String> {
 
 fn is_path_within_allowed_directory(allowed_path: &Path, target_path: &Path) -> bool {
     target_path.starts_with(allowed_path)
+}
+
+fn make_url_valid(url: String) -> String {
+    if url.contains("http") {
+        url
+    } else {
+        format!("https://{}", url)
+    }
 }

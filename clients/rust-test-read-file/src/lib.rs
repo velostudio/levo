@@ -28,12 +28,12 @@ impl Guest for MyWorld {
         print(&message);
         let Ok(data1) = levo::portal::my_imports::read_file("hello.txt") else {
             print("Failed to read public hello.txt");
-            return
+            return;
         };
         print(&String::from_utf8_lossy(&data1));
         let Ok(data2) = levo::portal::my_imports::read_file("../private/hello.txt") else {
             print("Failed to read private hello.txt");
-            return
+            return;
         };
         print(&String::from_utf8_lossy(&data2));
     }
