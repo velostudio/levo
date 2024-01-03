@@ -5,6 +5,10 @@ edition = "2021"
 
 # See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
 
+[features]
+no_cert_validation = []
+webtransport = []
+
 [dependencies]
 bevy = { version = "0.12", default-features = false, features = [
   "bevy_asset",
@@ -46,3 +50,4 @@ bevy-tokio-tasks = { git = "https://github.com/StaffEngineer/bevy-tokio-tasks", 
 bevy_prototype_lyon = "0.10"
 url = "2.5.0"
 clap = { version = "4.4.12", features = ["derive"] }
+reqwest = "0.11.23"

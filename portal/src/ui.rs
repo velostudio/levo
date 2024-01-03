@@ -68,7 +68,7 @@ pub fn setup(mut commands: Commands, asset_server: Res<AssetServer>) {
                     ..default()
                 },
                 max_lines: CosmicMaxLines(1),
-                text_setter: CosmicText::OneStyle("localhost/rust.wasm".to_string()),
+                text_setter: CosmicText::OneStyle("velo-studio.xyz/rust.wasm".to_string()),
                 text_position: CosmicTextPosition::Left { padding: 20 },
                 mode: CosmicMode::InfiniteLine,
                 ..default()

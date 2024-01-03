@@ -21,6 +21,7 @@ use bevy_prototype_lyon::shapes::{Rectangle, RectangleOrigin};
 use bevy_tokio_tasks::TokioTasksRuntime;
 use brotli::Decompressor;
 use clap::Parser;
+use levo::portal::my_imports::Host;
 use std::io::Read;
 use std::path::{Path, PathBuf};
 use url::Url;
@@ -30,8 +31,6 @@ use wasmtime_wasi::preview2::command::sync;
 use wasmtime_wasi::preview2::{Table, WasiCtx, WasiCtxBuilder, WasiView};
 use wtransport::ClientConfig;
 use wtransport::Endpoint;
-
-use levo::portal::my_imports::Host;
 
 #[path = "ui.rs"]
 mod ui;
@@ -1318,31 +1317,54 @@ async fn get_wasm(
     let uri = Url::parse(valid_url.as_str()).expect("expected valid URL");
     let host = uri.host_str().expect("expected valid host");
     let path = uri.path();
+    #[cfg(not(feature = "no_cert_validation"))]
     let config = ClientConfig::builder()
         .with_bind_default()
-        .with_no_cert_validation() // FIXME: don't do it on prod!
-        .enable_key_log() // TODO: put under feature flag
+        .with_native_certs()
+        .enable_key_log()
         .build();
-
-    let connection = Endpoint::client(config)
-        .unwrap()
-        .connect(format!("https://{}:4433{}", host, path))
-        .await
-        .unwrap();
-
-    let mut stream = connection.open_bi().await.unwrap().await?;
-    stream.0.write_all(b"WASM").await?;
+    #[cfg(feature = "no_cert_validation")]
+    let config = ClientConfig::builder()
+        .with_bind_default()
+        .with_no_cert_validation()
+        .enable_key_log()
+        .build();
 
     let initial_buffer_size = 65536;
     let mut buffer = Vec::with_capacity(initial_buffer_size);
-    loop {
-        let mut chunk = vec![0; 65536];
-        match stream.1.read(&mut chunk).await? {
-            Some(bytes_read) => {
-                buffer.extend_from_slice(&chunk[..bytes_read]);
+
+    #[cfg(feature = "webtransport")]
+    {
+        if let Ok(connection) = Endpoint::client(config)
+            .unwrap()
+            .connect(format!("https://{}:4433{}", host, path))
+            .await
+        {
+            let mut stream = connection.open_bi().await.unwrap().await?;
+            stream.0.write_all(b"WASM").await?;
+
+            loop {
+                let mut chunk = vec![0; 65536];
+                match stream.1.read(&mut chunk).await? {
+                    Some(bytes_read) => {
+                        buffer.extend_from_slice(&chunk[..bytes_read]);
+                    }
+                    None => break, // End of stream
+                }
             }
-            None => break, // End of stream
         }
+    }
+
+    #[cfg(not(feature = "webtransport"))]
+    {
+        let response = reqwest::Client::builder()
+            .build()?
+            .get(&valid_url)
+            .header("Accept-Encoding", "br")
+            .send()
+            .await?;
+        let bytes = response.bytes().await?;
+        buffer.extend_from_slice(&bytes);
     }
 
     // Decompress the received buffer using rust-brotli
