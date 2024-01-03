@@ -9,6 +9,4 @@ To enable key logging for inspecting packets in Wireshark run it like so:
 ```
 SSLKEYLOGFILE=<PATH_TO_KEY_FILE> cargo r --release --feature "no_cert_validation webtransport"
 ```
-
-(only add `no_cert_validation` feature if `levo-server` is used locally)  
-(only add `webtransport` feature if webtransport server is used (such as `levo-server`))
+(add `webtransport` feature if webtransport is used)

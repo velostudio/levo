@@ -19,15 +19,15 @@ To start demo server:
 cd levo-server
 cargo r --release
 ```
+(add `webtransport` feature if webtransport is used)
 
 To run portal:
 
 ```bash
 cd portal
-cargo r --release --feature "no_cert_validation webtransport"
+cargo r --release
 ```
-(only add `no_cert_validation` feature if `levo-server` is used locally)  
-(only add `webtransport` feature if webtransport server is used (such as `levo-server`))
+(add `webtransport` feature if webtransport is used)
 
 Select the resource location (default: `velo-studio.xyz/rust.wasm`): `localhost/rust.wasm`, then press Enter, to load the client (guest) app.
 
