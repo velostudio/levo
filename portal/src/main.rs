@@ -1,6 +1,4 @@
-use bevy::ecs::change_detection::DetectChanges;
 use bevy::ecs::schedule::IntoSystemConfigs;
-use bevy::ecs::system::Local;
 // use bevy::diagnostic::{FrameTimeDiagnosticsPlugin, LogDiagnosticsPlugin};
 use bevy::input::mouse::MouseButton;
 use bevy::prelude::{
