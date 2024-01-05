@@ -166,7 +166,7 @@ impl WasiView for MyCtx {
 // #[async_trait::async_trait]
 impl Host for MyCtx {
     fn print(&mut self, from_wasm: String) -> wasmtime::Result<()> {
-        dbg!(from_wasm);
+        println!("{from_wasm}");
         Ok(())
     }
 
@@ -1429,7 +1429,7 @@ fn is_path_within_allowed_directory(allowed_path: &Path, target_path: &Path) -> 
 }
 
 fn make_url_valid(url: String) -> String {
-    if url.contains("http") {
+    if url.starts_with("http") {
         url
     } else {
         format!("https://{}", url)
