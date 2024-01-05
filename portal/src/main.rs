@@ -1,6 +1,4 @@
-use bevy::ecs::change_detection::DetectChanges;
 use bevy::ecs::schedule::IntoSystemConfigs;
-use bevy::ecs::system::Local;
 // use bevy::diagnostic::{FrameTimeDiagnosticsPlugin, LogDiagnosticsPlugin};
 use bevy::input::mouse::MouseButton;
 use bevy::prelude::{
@@ -786,7 +784,6 @@ fn main() {
         .add_systems(First, clear_second_part)
         .add_systems(PreUpdate, clear_first_part)
         .add_systems(Update, handle_get_wasm)
-        .add_systems(Update, update_wasm_store_from_args.before(run_wasm_setup))
         .add_systems(Update, run_wasm_setup.before(run_wasm_update))
         .add_systems(Update, run_wasm_update)
         .add_systems(Update, handle_guest_event)
@@ -1082,25 +1079,6 @@ fn handle_refresh(
     }
 }
 
-fn update_wasm_store_from_args(
-    mut has_run: Local<bool>,
-    args: Res<Args>,
-    wasm_store: Option<ResMut<WasmStore>>,
-) {
-    if !*has_run
-        || args.is_changed()
-        || wasm_store
-            .as_ref()
-            .filter(|store| store.is_changed())
-            .is_some()
-    {
-        if let Some(mut store) = wasm_store {
-            store.store.data_mut().allow_read = args.allow_read.clone();
-            *has_run = true;
-        }
-    }
-}
-
 fn handle_link(
     mut text_input_q: Query<(&CosmicEditor, &mut CosmicText), With<AddressBar>>,
     links_q: Query<(&Interaction, &GuestUrl), (Changed<Interaction>, With<GuestUrl>)>,
@@ -1297,11 +1275,13 @@ fn run_wasm_update(
 fn run_wasm_setup(
     wasm_instance: Option<ResMut<WasmBindings>>,
     wasm_store: Option<ResMut<WasmStore>>,
+    args: Res<Args>,
 ) {
     if let Some(mut wasm_resource) = wasm_instance {
         if wasm_resource.first_run {
             wasm_resource.first_run = false;
             let mut store = wasm_store.unwrap();
+            store.store.data_mut().allow_read = args.allow_read.clone();
             let _ = wasm_resource.bindings.call_setup(&mut store.store);
         }
     }
