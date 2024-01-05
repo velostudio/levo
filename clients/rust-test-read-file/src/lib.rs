@@ -26,16 +26,22 @@ impl Guest for MyWorld {
         let height = size.height;
         let message = format!("Hello from Rust! ({width}x{height})");
         print(&message);
-        let Ok(data1) = levo::portal::my_imports::read_file("hello.txt") else {
-            print("Failed to read public hello.txt");
-            return;
+        // from client app
+        if let Ok(hello) = levo::portal::my_imports::read_file("hello.txt") {
+            // the contents of `public/hello.txt` will print
+            print(&String::from_utf8_lossy(&hello));
+        } else {
+            // this error will not print
+            print("Failed to read public/hello.txt");
         };
-        print(&String::from_utf8_lossy(&data1));
-        let Ok(data2) = levo::portal::my_imports::read_file("../private/hello.txt") else {
-            print("Failed to read private hello.txt");
-            return;
+
+        if let Ok(secret) = levo::portal::my_imports::read_file("../private/secret.txt") {
+            // the contents of `private/secret.txt` will not print
+            print(&String::from_utf8_lossy(&secret));
+        } else {
+            // this error will print
+            print("Failed to read private/secret.txt");
         };
-        print(&String::from_utf8_lossy(&data2));
     }
 
     fn update() {}
