@@ -1,9 +1,17 @@
 # Example of Go client
 
-`cargo install --git https://github.com/bytecodealliance/wit-bindgen wit-bindgen-cli` to get `wit-bingen-cli`.  
-Install `Go`.  
-Install `TinyGo`.  
+Get `wit-bindgen-cli`:
 
-1. Write guest code in `my-component.go`
-2. `export GO111MODULE=on`
-3. `./build.sh`
+```
+cargo install --git https://github.com/bytecodealliance/wit-bindgen wit-bindgen-cli
+```
+
+Install [`Go`](https://go.dev/doc/install).
+
+Install [`TinyGo`](https://tinygo.org/getting-started/install/).
+
+Generate Go bindings for [`../../spec/host.wit`](../../spec/host.wit) using [`./bindgen.sh`](./bindgen.sh) (or copy the pre-generated bindings in [`./my-world/`](./my-world/))
+
+Write guest code in [`./src/my-component.go`](./src/my-component.go)
+
+Run [`./build.sh`](./build.sh)
