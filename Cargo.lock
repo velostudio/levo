@@ -4371,6 +4371,7 @@ dependencies = [
 name = "rust-client-app"
 version = "0.1.0"
 dependencies = [
+ "lazy_static",
  "rand",
  "wit-bindgen",
 ]
