@@ -1,0 +1,18 @@
+package levo:portal;
+
+interface my-imports {
+    clear-background: func(color: string);
+    draw-line: func(start-x: float32, start-y: float32, end-x: float32, end-y: float32, thickness: float32, color: string);
+    draw-rectangle: func(pos-x: float32, pos-y: float32, width: float32, height: float32, color: string);
+    draw-circle: func(center-x: float32, center-y: float32, radius: float32, color: string);
+    draw-text: func(text: string, pos-x: float32, pos-y: float32, font-size: float32, color: string);
+    screen-width: func() -> float32;
+    screen-height: func() -> float32;
+    next-frame: func();
+}
+
+world my-world {
+  import my-imports;
+
+  export main: func();
+}

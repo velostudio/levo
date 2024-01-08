@@ -30,7 +30,6 @@ wtransport = { version = "0.1.10", default-features = false, features = [
   "dangerous-configuration",
   "quinn",
 ] }
-quinn = "0.10.1"
 tracing = "0.1.37"
 anyhow = "1.0.71"
 tracing-subscriber = { version = "0.3.17", features = ["env-filter"] }
@@ -39,10 +38,6 @@ tokio = { version = "1.28.1", default-features = false, features = [
   "fs",
   "rt-multi-thread",
 ] }
-axum = "0.7.1"
-rustls = "0.21.1"
-rustls-native-certs = "0.6.2"
-rustls-pemfile = "1.0.2"
 brotli = "3.4.0"
 
 bevy-tokio-tasks = { git = "https://github.com/StaffEngineer/bevy-tokio-tasks", rev = "ae26781" }

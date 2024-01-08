@@ -3,6 +3,8 @@ members = [
   "brotli-encoder",
   "clients/rust-client-app",
   "clients/rust-test-read-file",
+  "macroquad",
+  "macroquad/guests/basic-shapes-example",
   "levo-server",
   "portal",
 ]
